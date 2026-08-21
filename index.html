@@ -722,7 +722,7 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte}){
             <h2><span style={{opacity:.85,fontWeight:600}}>{local.numero}</span> · {local.nombre}</h2>
             <div style={{fontSize:12,opacity:.85}}>Mód. {local.modulo} · {nNom(local.nivel)} — {avancePct(draft)}% completado</div>
           </div>
-          {isAdmin && <button className={"btn sm"+(edit?" primary":"")} style={{marginLeft:"auto"}}
+          {editable && <button className={"btn sm"+(edit?" primary":"")} style={{marginLeft:"auto"}}
                        onClick={()=>setEdit(v=>!v)}>{edit?"✔ Listo":"✏️ Editar"}</button>}
           {!editable && <span className="rochip">Solo lectura</span>}
           <button className="x" onClick={onClose}>×</button>
@@ -751,7 +751,7 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte}){
                 <span className="t">{normEtq(pt.etiqueta)}</span>
                 {pt.tipologia && <span className="tip">· {pt.tipologia}</span>}
                 <span className="mini" style={{color:colorPct(partPct(pt))}}>{partPct(pt)}%</span>
-                {isAdmin && edit && <button className="btn sm danger" title="Quitar elemento"
+                {editable && edit && <button className="btn sm danger" title="Quitar elemento"
                   onClick={e=>{e.stopPropagation(); removeParte(pt.parte_id);}}>🗑</button>}
               </div>
               {open && (pt.fases
