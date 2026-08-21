@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Avance de Obra</title>
+<style>
+  :root{
+    --bg:#0f172a; --panel:#ffffff; --ink:#1e293b; --muted:#64748b; --line:#e2e8f0;
+    --brand:#1f3a5f; --brand2:#2c5282;
+    --term:#16a34a; --inic:#f59e0b; --sin:#dc2626; --na:#94a3b8;
+    --shadow:0 10px 30px rgba(15,23,42,.12);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       background:#f1f5f9;color:var(--ink);-webkit-text-size-adjust:100%}
+  button{font-family:inherit;cursor:pointer}
+  .app{max-width:1200px;margin:0 auto;padding:0 14px 60px}
+  /* Header */
+  header.top{position:sticky;top:0;z-index:30;background:var(--brand);color:#fff;
+    margin:0 -14px 16px;padding:12px 16px;box-shadow:var(--shadow)}
+  .top .row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .top h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.2px}
+  .top .sub{font-size:12px;opacity:.8;margin-top:2px}
+  .spacer{flex:1}
+  .userbox{font-size:12.5px;text-align:right;line-height:1.3}
+  .userbox b{display:block;font-size:13px}
+  .btn{border:0;border-radius:9px;padding:8px 13px;font-size:13px;font-weight:600;background:#fff;color:var(--brand)}
+  .btn.ghost{background:rgba(255,255,255,.15);color:#fff}
+  .btn.sm{padding:6px 10px;font-size:12px}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  /* global progress */
+  .globalbar{display:flex;align-items:center;gap:12px;margin:6px 0 0}
+  .globalbar .track{flex:1;height:8px;background:rgba(255,255,255,.25);border-radius:99px;overflow:hidden}
+  .globalbar .fill{height:100%;background:linear-gradient(90deg,#22c55e,#4ade80)}
+  /* area selector */
+  .areabar{display:flex;gap:18px;flex-wrap:wrap;background:#fff;border-radius:12px;box-shadow:var(--shadow);padding:11px 14px;margin-bottom:12px}
+  .areagrp{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .areagrp .lbl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-right:2px}
+  .achip{position:relative;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:9px;padding:7px 13px;font-size:13px;font-weight:700}
+  .achip.wide{padding:7px 14px}
+  .achip.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .achip .cbadge{display:inline-block;margin-left:7px;background:#e2e8f0;color:#334155;border-radius:99px;font-size:10.5px;font-weight:800;padding:1px 6px}
+  .achip.on .cbadge{background:rgba(255,255,255,.25);color:#fff}
+  /* tabs */
+  .tabs{display:flex;gap:6px;margin-bottom:14px}
+  .tabs button{border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:9px;padding:8px 14px;font-size:13px;font-weight:600}
+  .tabs button.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+  /* Plano */
+  .planowrap{position:relative;background:#fff;border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+  .planowrap .inner{position:relative;width:100%}
+  .planowrap img{display:block;width:100%;height:auto;user-select:none}
+  .noplano{padding:40px 20px;text-align:center;color:var(--muted)}
+  .marker{position:absolute;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:50%;
+    border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:800;color:#fff;cursor:pointer;transition:transform .1s}
+  .marker:hover{transform:translate(-50%,-50%) scale(1.15);z-index:5}
+  .marker.dim{opacity:.35}
+  .pmarker{position:absolute;transform:translate(-50%,-50%);min-width:22px;height:22px;padding:0 5px;border-radius:11px;
+    border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:800;color:#fff;z-index:4}
+  .pmarker.sel{outline:3px solid #2c5282;outline-offset:1px}
+  .pmarker.dim{opacity:.3}
+  .pmarker{cursor:pointer;transition:transform .1s}
+  .pmarker:hover{transform:translate(-50%,-50%) scale(1.18);z-index:6}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin:12px 2px;font-size:12.5px;color:var(--muted)}
+  .legend .k{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+  /* Grid list */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+  .card{background:#fff;border-radius:12px;box-shadow:var(--shadow);padding:14px;cursor:pointer;border:1px solid transparent;transition:.12s}
+  .card:hover{border-color:var(--brand2);transform:translateY(-2px)}
+  .card .name-lg{font-size:17px;font-weight:800;color:var(--brand);line-height:1.15}
+  .card .num-sm{font-size:12px;color:var(--muted);margin-bottom:8px;margin-top:2px}
+  .track{height:8px;background:#eef2f7;border-radius:99px;overflow:hidden}
+  .track .fill{height:100%}
+  .pctlbl{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:5px}
+  .badge{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:99px;margin-top:8px}
+  .badge.hab{background:#dcfce7;color:#166534}
+  .badge.nohab{background:#fee2e2;color:#991b1b}
+  /* Modal */
+  .overlay{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+  @media(min-width:720px){.overlay{align-items:center}}
+  .modal{background:#f8fafc;width:100%;max-width:760px;max-height:92vh;border-radius:16px 16px 0 0;overflow:auto;box-shadow:var(--shadow)}
+  @media(min-width:720px){.modal{border-radius:16px}}
+  .modal .mhead{position:sticky;top:0;background:var(--brand);color:#fff;padding:14px 18px;display:flex;align-items:center;gap:12px;z-index:2}
+  .modal .mhead h2{margin:0;font-size:18px}
+  .modal .mhead .x{margin-left:auto;background:rgba(255,255,255,.18);border:0;color:#fff;width:32px;height:32px;border-radius:8px;font-size:18px}
+  .mbody{padding:14px 16px 24px}
+  .localplan{background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(15,23,42,.06);margin-bottom:12px;overflow:hidden}
+  .localplan .lp-head{display:flex;align-items:center;padding:10px 14px;background:#f1f5f9;border-bottom:1px solid var(--line);font-size:14px}
+  .localplan .lp-head .lp-zoom{margin-left:auto;display:inline-flex;gap:6px}
+  .lp-svgwrap{width:100%;background:#fbfcfe;max-height:340px;overflow:hidden}
+  .lp-svgwrap svg{width:100%;height:100%}
+  .lp-note{padding:18px 16px;color:var(--muted);font-size:12.5px;background:#fbfcfe}
+  .lp-cal{display:flex;gap:12px;align-items:center;padding:8px 14px;font-size:12px;color:#8a5a00;background:#fef3c7;border-top:1px solid var(--line)}
+  .lp-cal .lp-pend{margin-left:auto;font-weight:700;color:#b45309}
+  .addparte{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#eef4fb;border:1px solid #cfe0f5;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px}
+  .addparte select{border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px}
+  .addparte .hint{color:var(--muted);font-size:11.5px}
+  .btn.danger{background:#fee2e2;color:#b91c1c}
+  .parte.calsel{outline:2px solid #2c5282;outline-offset:-2px}
+  .parte{background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(15,23,42,.06);margin-bottom:12px;overflow:hidden}
+  .parte .ph{display:flex;align-items:center;gap:10px;padding:11px 14px;background:#f1f5f9;border-bottom:1px solid var(--line)}
+  .parte:not(.abierta) .ph{border-bottom:0}
+  .ph.clickable{cursor:pointer}
+  .ph.clickable:hover{background:#e8eef6}
+  .ph .twist{font-size:12px;color:var(--muted);width:14px}
+  .parte .ph .t{font-weight:700;font-size:14px}
+  .parte .ph .tip{font-size:11.5px;color:var(--muted)}
+  .parte .ph .mini{margin-left:auto;font-size:11px;color:var(--muted)}
+  .parte .ph .ptasks{margin-left:10px;display:inline-flex;gap:6px}
+  .parte.editing{outline:2px solid #fcd34d;outline-offset:-2px}
+  .parte.editing .ph{background:#fef7e6}
+  .taskhint{font-size:12px;color:#8a5a00;background:#fef3c7;padding:7px 14px;border-bottom:1px solid var(--line)}
+  .rubros{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;padding:12px 14px}
+  .rubro{border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:12.5px;display:flex;flex-direction:column;gap:6px}
+  .rubro .rn{font-weight:600;color:var(--ink);font-size:12px;display:flex;align-items:center;justify-content:space-between;gap:6px}
+  .rubro .rn-txt{flex:1}
+  .rubro .rn-act{display:inline-flex;gap:4px;align-items:center}
+  .rubro .notebtn{border:0;background:transparent;font-size:12px;cursor:pointer;opacity:.4;padding:0;line-height:1;filter:grayscale(1)}
+  .rubro .notebtn.has{opacity:1;filter:none}
+  .estado-sel{width:100%;border:0;border-radius:7px;padding:6px 8px;font-size:12px;font-weight:700;color:#fff;text-align:center;letter-spacing:.2px;cursor:pointer;-webkit-appearance:none;appearance:none;text-align-last:center}
+  .estado-sel:disabled{cursor:default;opacity:.92}
+  .estado-sel[data-e="Terminado"]{background:var(--term)}
+  .estado-sel[data-e="Iniciado"]{background:var(--inic)}
+  .estado-sel[data-e="Sin realizar"]{background:var(--sin)}
+  .estado-sel[data-e="No aplica"]{background:var(--na)}
+  .estado-sel option{background:#fff;color:var(--ink);font-weight:600}
+  .nota-inp{width:100%;border:1px solid var(--line);border-radius:7px;padding:6px 8px;font-size:11.5px;font-family:inherit;background:#fffef5}
+  /* fases / tareas / subtareas */
+  .fases{padding:6px 12px 4px}
+  .fase{border:1px solid var(--line);border-radius:10px;margin-bottom:10px;overflow:hidden}
+  .fase-h{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#eef2f7;font-weight:800;font-size:13px;color:var(--brand);cursor:pointer}
+  .fase-h:hover{background:#e4ebf4}
+  .fase-h .fase-n{flex:1}
+  .fase-h .twist{font-size:12px;color:var(--brand)}
+  .tarea-row.clickable{cursor:pointer}
+  .tarea-row.clickable:hover{background:#f8fafc}
+  .addtarea.sub{margin-left:0}
+  .addtarea.addfase{margin:8px 12px 10px}
+  .fase-pct{font-size:12.5px;font-weight:800}
+  .grupo{padding:4px 10px 8px}
+  .grupo-n{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:var(--muted);margin:8px 2px 4px}
+  .tarea{border-bottom:1px solid #f1f5f9;padding:3px 0}
+  .tarea-row{display:flex;align-items:center;gap:8px}
+  .tarea .twist{border:0;background:transparent;font-size:12px;color:var(--muted);cursor:pointer;width:16px;padding:0}
+  .tarea .twist.no{cursor:default;color:#cbd5e1}
+  .tarea-n{flex:1;font-size:12.5px;font-weight:600;color:var(--ink)}
+  .tarea-n .subc{font-weight:600;color:var(--muted);font-size:11px}
+  .estado-sel{min-width:118px;width:auto}
+  .estado-sel.ro{display:inline-flex;align-items:center;justify-content:center;min-width:118px}
+  .estado-sel.sm{min-width:110px;font-size:11px;padding:4px 6px}
+  .subtareas{margin:4px 0 8px 24px;border-left:2px solid #e2e8f0;padding-left:10px}
+  .sub{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:3px 0}
+  .sub-n{flex:1;font-size:11.5px;color:#334155}
+  .sub-n em{color:var(--muted);font-style:normal;font-weight:700}
+  .addtarea{display:flex;gap:8px;margin:6px 2px 2px}
+  .addtarea input{flex:1;border:1px solid var(--line);border-radius:7px;padding:6px 8px;font-size:12px;font-family:inherit}
+  .hito{display:flex;align-items:center;gap:8px;padding:9px 12px;background:#fbfcfe;border-top:1px solid var(--line);font-size:12.5px;font-weight:700}
+  .hito-n{flex:1;color:var(--ink)}
+  .hito button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 12px;font-size:12px;font-weight:800}
+  .hito button.on-si{background:var(--term);color:#fff;border-color:var(--term)}
+  .hito button.on-no{background:var(--sin);color:#fff;border-color:var(--sin)}
+  .rubro .rmtask{border:0;background:#fee2e2;color:#b91c1c;border-radius:6px;width:18px;height:18px;font-size:11px;font-weight:800;cursor:pointer;line-height:1;padding:0}
+  .rubro.addtask{border-style:dashed;border-color:#94a3b8;justify-content:center}
+  .rubro.addtask input{border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-size:12px;font-family:inherit;width:100%}
+  .estado{border:0;border-radius:7px;padding:6px 8px;font-size:12px;font-weight:700;color:#fff;text-align:center;letter-spacing:.2px}
+  .estado[data-e="Terminado"]{background:var(--term)}
+  .estado[data-e="Iniciado"]{background:var(--inic)}
+  .estado[data-e="Sin realizar"]{background:var(--sin)}
+  .estado[data-e="No aplica"]{background:var(--na)}
+  .estado.ro{cursor:default;opacity:.92}
+  .pfoot{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:10px 14px;border-top:1px solid var(--line);background:#fbfcfe}
+  .toggle{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600}
+  .toggle button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 10px;font-size:11.5px;font-weight:700}
+  .toggle button.on-si{background:var(--term);color:#fff;border-color:var(--term)}
+  .toggle button.on-no{background:var(--sin);color:#fff;border-color:var(--sin)}
+  .comlbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin:4px 14px 0}
+  .coment{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px;font-size:12.5px;font-family:inherit;margin:4px 14px 12px;width:calc(100% - 28px);resize:vertical}
+  .savebar{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);padding:12px 16px;display:flex;gap:10px;align-items:center}
+  .savebar .msg{font-size:12.5px;color:var(--muted)}
+  .btn.primary{background:var(--brand);color:#fff}
+  .btn.primary:disabled{opacity:.4}
+  .rochip{font-size:11px;font-weight:700;color:#92400e;background:#fef3c7;padding:4px 9px;border-radius:99px}
+  /* Login */
+  .login{max-width:380px;margin:8vh auto;background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:28px}
+  .login h1{font-size:20px;margin:0 0 4px;color:var(--brand)}
+  .login p{color:var(--muted);font-size:13px;margin:0 0 18px}
+  .login input{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:14px;margin-bottom:12px}
+  .pwinp{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px;font-size:14px;margin-bottom:10px;font-family:inherit}
+  .utab{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:12px}
+  .utab th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.3px;color:var(--muted);padding:6px 8px;border-bottom:2px solid var(--line)}
+  .utab td{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+  .utab .uemail{font-weight:600;color:var(--ink)}
+  .ucell{width:100%;border:1px solid var(--line);border-radius:7px;padding:6px 8px;font-size:12.5px;font-family:inherit}
+  .ucell:disabled{background:#f1f5f9;color:#94a3b8}
+  .login .btn.primary{width:100%;padding:12px}
+  .err{background:#fee2e2;color:#991b1b;border-radius:9px;padding:10px 12px;font-size:12.5px;margin-bottom:12px}
+  .calibbar{background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px;display:flex;flex-direction:column;align-items:stretch;gap:0}
+  .calibrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .calibrow.chips{margin-top:8px;padding-top:8px;border-top:1px dashed #fcd34d}
+  .calibrow .lbl{font-size:11px;font-weight:800;text-transform:uppercase;color:#8a5a00}
+  .calibrow .chip{border:1px solid #e2c98a;background:#fff;color:#7a5200;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer}
+  .calibrow .chip.on{background:#1f3a5f;color:#fff;border-color:#1f3a5f}
+  .calibrow .chip.pend{border-style:dashed;opacity:.85}
+  .calibrow .calhint{font-size:11.5px;color:#8a5a00}
+  .loading{padding:60px;text-align:center;color:var(--muted)}
+  .foot{margin-top:26px;text-align:center;color:#94a3b8;font-size:11.5px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>window.DEMO_DATA = {"config":{"titulo":"Avance de Obra"},"areas":[],"rubros":[],"aplica":{"TABIQUE":[],"CIELORRASO":[],"SOLADO":[]},"locales":[]};</script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script type="text/babel">
+const { useState, useEffect, useMemo, useRef } = React;
+
+/* ================== CONFIG ================== */
+// === MODO ONLINE (Supabase) ===
+// Pegá la URL y la clave "anon public" de tu proyecto Supabase.
+// Si quedan vacías, la app funciona en MODO DEMO (datos de ejemplo, sin guardar en la nube).
+const SUPABASE_URL  = "https://fuqemgiaspxkvfktsjmo.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1cWVtZ2lhc3B4a3Zma3Rzam1vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMjMzNDEsImV4cCI6MjA4NTg5OTM0MX0.9W_QGjPaPR2ddxDjFAPAB6f8dsuPw7kSKOxwY0LE75U";
+const ONLINE = !!(SUPABASE_URL && SUPABASE_ANON);
+let _sb=null;
+function getSB(){ if(!_sb && ONLINE && window.supabase){ _sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON); } return _sb; }
+
+const ESTADOS = ["Sin realizar","Iniciado","Terminado","No aplica"];
+const COLOR = {Terminado:"#16a34a",Iniciado:"#f59e0b","Sin realizar":"#dc2626","No aplica":"#94a3b8"};
+const PESO = {Terminado:1,Iniciado:0.5,"Sin realizar":0,"No aplica":null};
+
+/* almacenamiento tolerante (localStorage con fallback en memoria) */
+const mem = {};
+const store = {
+  get:k=>{try{return localStorage.getItem(k)}catch(e){return mem[k]??null}},
+  set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){mem[k]=v}},
+  del:k=>{try{localStorage.removeItem(k)}catch(e){delete mem[k]}}
+};
+
+/* ================== API ================== */
+async function apiGet(email, password){
+  if(!ONLINE){
+    const d = JSON.parse(JSON.stringify(window.DEMO_DATA));
+    d.usuario = demoUser(email); d.ok = true; return d;
+  }
+  const sb=getSB();
+  if(!sb) return {ok:false, error:"No se pudo inicializar Supabase (¿cargó supabase-js?)"};
+  const {data:auth, error} = await sb.auth.signInWithPassword({email, password});
+  if(error) return {ok:false, error: error.message};
+  const uid = auth.user.id;
+  const [cfgR, areasR, locR, perfR] = await Promise.all([
+    sb.from('av_config').select('*'),
+    sb.from('av_areas').select('*').order('modulo').order('nivel'),
+    sb.from('av_locales').select('*, av_partes(*)').order('orden'),
+    sb.from('av_perfiles').select('*').eq('id', uid)
+  ]);
+  if(locR.error) return {ok:false, error: locR.error.message};
+  const config = Object.fromEntries((cfgR.data||[]).map(r=>[r.clave, r.valor]));
+  const plantilla = config.plantilla || [];
+  const perfil = (perfR.data&&perfR.data[0]) || {rol:'lector', locales_edicion:'', nombre:email};
+  if(perfil.activo===false) return {ok:false, error:"Tu usuario todavía no está habilitado. Pedí al administrador que lo active."};
+  const locales = (locR.data||[]).map(l=>({
+    local_id:l.local_id, modulo:l.modulo, nivel:l.nivel, numero:l.numero, nombre:l.nombre, orden:l.orden,
+    plano_x:l.plano_x, plano_y:l.plano_y,
+    partes:(l.av_partes||[]).map(p=>({parte_id:p.parte_id, tipo:p.tipo, indice:p.indice, etiqueta:p.etiqueta,
+      tipologia:p.tipologia, plano_x:p.plano_x, plano_y:p.plano_y, comentarios:p.comentarios||"", fases:p.fases}))
+  }));
+  const raw=String(perfil.locales_edicion||"").trim();
+  const puede = perfil.rol==='admin' ? '*' : (raw==='*' ? '*' : (raw? raw.split(',').map(s=>s.trim()).filter(Boolean) : []));
+  return {ok:true, config:{titulo:(config.titulo||"Avance de Obra")}, areas:(areasR.data||[]),
+    plantilla, locales, usuario:{email, nombre:perfil.nombre||email, rol:perfil.rol, puede_editar:puede}};
+}
+async function apiPost(payload){
+  if(!ONLINE){ return demoPost(payload); }
+  const sb=getSB(); if(!sb) return {ok:false,error:"Supabase no inicializado"};
+  try{
+    if(payload.action==='calibrar'){
+      for(const pos of (payload.posiciones||[])){
+        const {error}=await sb.rpc('av_calibrar_local',{p_local_id:pos.local_id,p_x:pos.plano_x,p_y:pos.plano_y});
+        if(error) throw error;
+      }
+      return {ok:true};
+    }
+    if(payload.action==='calibrar_parte'){
+      const {error}=await sb.rpc('av_calibrar_parte',{p_parte_id:payload.parte_id,p_x:payload.plano_x,p_y:payload.plano_y});
+      if(error) throw error; return {ok:true};
+    }
+    if(payload.action==='guardar'){
+      const {error}=await sb.rpc('av_guardar_local',{
+        p_local_id:payload.local_id, p_local_pos:payload.local_pos||null,
+        p_partes:payload.partes||[], p_borrar:payload.borrar||[], p_cambios:payload.cambios||[]});
+      if(error) throw error; return {ok:true};
+    }
+    return {ok:false, error:"acción desconocida"};
+  }catch(e){ return {ok:false, error:(e&&e.message)||String(e)}; }
+}
+function demoUser(email){
+  const e=(email||"").toLowerCase();
+  if(e.includes("lector")) return {email,nombre:"Lector demo",rol:"lector",puede_editar:[]};
+  if(e.includes("editor")) return {email,nombre:"Editor demo",rol:"editor",puede_editar:["A-PB-101","A-PB-104"]};
+  return {email:email||"demo@obra.com",nombre:"Admin demo",rol:"admin",puede_editar:"*"};
+}
+function demoPost(payload){ return Promise.resolve({ok:true,demo:true}); }
+/* diff de fases para auditoría (qué tarea/subtarea/hito cambió) */
+function diffFases(orig, neu, parte_id){
+  const out=[];
+  (neu||[]).forEach(f=>{
+    const of=(orig||[]).find(x=>x.id===f.id);
+    if(of && (of.hito&&f.hito) && of.hito.valor!==f.hito.valor)
+      out.push({tipo:'hito',parte_id,item:f.nombre,campo:f.hito.nombre,anterior:of.hito.valor,nuevo:f.hito.valor});
+    (f.grupos||[]).forEach(g=>(g.tareas||[]).forEach(t=>{
+      let ot=null; (of&&of.grupos||[]).forEach(gg=>{const x=(gg.tareas||[]).find(y=>y.id===t.id); if(x)ot=x;});
+      if(ot){
+        if((ot.estado||'')!==(t.estado||'')) out.push({tipo:'estado',parte_id,item:t.nombre,campo:'estado',anterior:ot.estado||'',nuevo:t.estado||''});
+        if((ot.comentario||'')!==(t.comentario||'')) out.push({tipo:'comentario',parte_id,item:t.nombre,campo:'comentario',anterior:ot.comentario||'',nuevo:t.comentario||''});
+      }
+      (t.subtareas||[]).forEach(s=>{
+        const os= ot ? (ot.subtareas||[]).find(y=>y.id===s.id) : null;
+        if(os){
+          if((os.estado||'')!==(s.estado||'')) out.push({tipo:'subtarea',parte_id,item:t.nombre+' › '+s.nombre,campo:'estado',anterior:os.estado||'',nuevo:s.estado||''});
+          if((os.comentario||'')!==(s.comentario||'')) out.push({tipo:'comentario',parte_id,item:t.nombre+' › '+s.nombre,campo:'comentario',anterior:os.comentario||'',nuevo:s.comentario||''});
+        }
+      });
+    }));
+  });
+  return out;
+}
+
+/* ================== helpers ================== */
+function partItems(pt){
+  // devuelve la lista de estados "hoja" de la parte (subtareas si las hay; si no, tareas; modelo viejo: avance)
+  if(pt.fases){
+    const out=[];
+    pt.fases.forEach(f=>f.grupos.forEach(g=>g.tareas.forEach(t=>{
+      if(t.subtareas&&t.subtareas.length) t.subtareas.forEach(s=>out.push(s.estado));
+      else out.push(t.estado);
+    })));
+    return out;
+  }
+  return Object.values(pt.avance||{});
+}
+function avancePct(local){
+  let tot=0,done=0;
+  local.partes.forEach(p=>partItems(p).forEach(e=>{
+    if(PESO[e]===null) return; tot++; done+=(PESO[e]||0);
+  }));
+  return tot? Math.round(100*done/tot):0;
+}
+function colorPct(p){ if(p>=100)return"#16a34a"; if(p>=60)return"#65a30d"; if(p>=30)return"#f59e0b"; if(p>0)return"#ea580c"; return"#dc2626"; }
+function puedeEditar(user,local_id){
+  if(!user) return false;
+  if(user.puede_editar==="*") return true;
+  return Array.isArray(user.puede_editar) && user.puede_editar.indexOf(local_id)>=0;
+}
+
+/* ================== Login ================== */
+function Login({onLogin,error,loading}){
+  const [email,setEmail]=useState(store.get("avance_email")||"");
+  const [pass,setPass]=useState("");
+  const go=()=>onLogin(email.trim(), pass);
+  return (
+    <div className="login">
+      <h1>Avance de Obra</h1>
+      <p>{ONLINE?"Ingresá con tu email y contraseña.":"Ingresá con tu email para ver o cargar el avance."}</p>
+      {error && <div className="err">{error}</div>}
+      <input placeholder="tu-email@obra.com" value={email} autoComplete="username"
+             onChange={e=>setEmail(e.target.value)}
+             onKeyDown={e=>e.key==="Enter"&&(ONLINE?document.getElementById("pw").focus():go())}/>
+      {ONLINE && <input id="pw" type="password" placeholder="contraseña" value={pass} autoComplete="current-password"
+             onChange={e=>setPass(e.target.value)} onKeyDown={e=>e.key==="Enter"&&go()}/>}
+      <button className="btn primary" onClick={go} disabled={loading}>{loading?"Entrando…":"Entrar"}</button>
+      {!ONLINE && <p style={{marginTop:14,fontSize:11.5}}>Modo demo: probá <b>admin@…</b>, <b>editor@…</b> o <b>lector@…</b></p>}
+    </div>
+  );
+}
+
+/* ================== Marcador del plano ================== */
+function Marker({local,onClick,dim}){
+  const p=avancePct(local);
+  return (
+    <div className={"marker"+(dim?" dim":"")} style={{left:local.plano_x+"%",top:local.plano_y+"%",background:colorPct(p)}}
+         title={local.numero+" · "+local.nombre+" ("+p+"%)"} onClick={onClick}>
+      {local.numero}
+    </div>
+  );
+}
+
+/* ================== Detalle de local ================== */
+function partPct(pt){
+  let t=0,d=0;
+  partItems(pt).forEach(e=>{if(PESO[e]===null)return; t++; d+=(PESO[e]||0);});
+  return t?Math.round(100*d/t):0;
+}
+function estadoLeaves(items){ let t=0,d=0; items.forEach(e=>{if(PESO[e]===null)return;t++;d+=(PESO[e]||0);}); return t?Math.round(100*d/t):0; }
+function partAbrev(pt){
+  if(pt.tipo==="TABIQUE") return "T"+(pt.indice||"");
+  if(pt.tipo==="SOLADO") return "S";
+  if(pt.tipo==="CIELORRASO") return "C";
+  return "?";
+}
+function LocalPlan({local,draft,area,zoom,setZoom,mgmt,calPart,setCalPart,svgRef,onSvgClick}){
+  if(local.plano_x==null||local.plano_y==null){
+    return <div className="localplan"><div className="lp-head"><b>Plano del local</b></div>
+      <div className="lp-note">Ubicá este local en el plano del sector (botón <b>⚙ Calibrar locales</b>) para ver su plano individual.</div>
+    </div>;
+  }
+  const W=area.plano_ancho||1000, H=area.plano_alto||1000;
+  const cropW=W*zoom, cropH=cropW*0.62;
+  const cx=local.plano_x/100*W, cy=local.plano_y/100*H;
+  const x0=Math.max(0,Math.min(cx-cropW/2,W-cropW)), y0=Math.max(0,Math.min(cy-cropH/2,H-cropH));
+  const ubic=draft.partes.filter(p=>p.plano_x!=null&&p.plano_y!=null);
+  const sinUbic=draft.partes.filter(p=>p.plano_x==null);
+  const r=cropW*0.018, fs=cropW*0.026;
+  return (
+    <div className="localplan">
+      <div className="lp-head">
+        <b>Plano del local</b>
+        <span className="lp-zoom">
+          <button className="btn sm" onClick={()=>setZoom(z=>Math.min(0.6,+(z+0.06).toFixed(2)))}>–</button>
+          <button className="btn sm" onClick={()=>setZoom(z=>Math.max(0.08,+(z-0.06).toFixed(2)))}>+</button>
+        </span>
+      </div>
+      <div className="lp-svgwrap" style={{aspectRatio:cropW+" / "+cropH}}>
+        <svg ref={svgRef} viewBox={x0+" "+y0+" "+cropW+" "+cropH} width="100%" height="100%"
+             onClick={onSvgClick} style={{cursor:(mgmt&&calPart)?"crosshair":"default",display:"block"}}>
+          <image href={area.plano_url} x="0" y="0" width={W} height={H}/>
+          {ubic.map(pt=>{const c=colorPct(partPct(pt));
+            return <g key={pt.parte_id}>
+              <circle cx={pt.plano_x/100*W} cy={pt.plano_y/100*H} r={r} fill={c} stroke="#fff" strokeWidth={r*0.22}/>
+              <text x={pt.plano_x/100*W} y={pt.plano_y/100*H} fontSize={fs} fill="#fff" fontWeight="800"
+                    textAnchor="middle" dominantBaseline="central">{partAbrev(pt)}</text>
+            </g>;})}
+        </svg>
+      </div>
+      {mgmt && <div className="lp-cal">
+        {calPart? <span>📍 Hacé click en el plano para ubicar la parte seleccionada.</span>
+                : <span>Seleccioná una parte abajo (📍 Ubicar) y hacé click en el plano.</span>}
+        {sinUbic.length>0 && <span className="lp-pend">{sinUbic.length} parte(s) sin ubicar</span>}
+      </div>}
+    </div>
+  );
+}
+function normEtq(s){ return String(s||"").replace(/CIELORASO/gi,"CIELORRASO"); }
+function buildFases(plantilla,pid){
+  let tc=0,sc=0;
+  return (plantilla||[]).map(f=>({
+    id:pid+"::"+f.id, nombre:f.nombre, hito:{nombre:f.hito,valor:"NO"}, comentario:"",
+    grupos:(f.grupos||[]).map(g=>({nombre:g.nombre, tareas:(g.tareas||[]).map(t=>({
+      id:pid+"::t"+(tc++), nombre:t.nombre, estado:"Sin realizar", comentario:"",
+      subtareas:(t.subs||[]).map(s=>({id:pid+"::s"+(sc++), nombre:s.n, grupo:s.g||null, estado:"Sin realizar", comentario:""}))
+    }))}))
+  }));
+}
+function initDraft(local,data){
+  const nd=JSON.parse(JSON.stringify(local));
+  nd.partes.forEach(pt=>{
+    pt.etiqueta=normEtq(pt.etiqueta);
+    if(!pt.fases) pt.fases=buildFases(data.plantilla,pt.parte_id);
+  });
+  return nd;
+}
+/* ---- mutadores de partes con fases (operan sobre una copia de la parte) ---- */
+function findTareaIn(p,faseId,tareaId){
+  const f=(p.fases||[]).find(x=>x.id===faseId); if(!f) return {};
+  for(const g of f.grupos){const t=g.tareas.find(x=>x.id===tareaId); if(t) return {f,g,t};}
+  return {f};
+}
+function rollupEstado(subs){
+  const p=estadoLeaves(subs.map(s=>s.estado));
+  if(subs.length && subs.every(s=>s.estado==="No aplica")) return "No aplica";
+  if(p>=100) return "Terminado"; if(p>0) return "Iniciado"; return "Sin realizar";
+}
+function nid(pfx){ return pfx+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36); }
+function PhasedTasks({pt,editable,editMode,patch}){
+  const [openF,setOpenF]=useState({});
+  const [exp,setExp]=useState({});
+  const [oc,setOc]=useState({});
+  const [nt,setNt]=useState({});     // "faseId|gi" -> texto tarea nueva
+  const [nst,setNst]=useState({});   // tareaId -> texto subtarea nueva
+  const [nf,setNf]=useState("");     // nombre fase nueva
+  const stop=e=>e.stopPropagation();
+  function addTarea(faseId,gi){
+    const nombre=(nt[faseId+"|"+gi]||"").trim(); if(!nombre) return;
+    patch(p=>{const f=p.fases.find(x=>x.id===faseId);
+      f.grupos[gi].tareas.push({id:nid("t_"),nombre,estado:"Sin realizar",comentario:"",subtareas:[]});});
+    setNt(x=>({...x,[faseId+"|"+gi]:""}));
+  }
+  function addSub(faseId,tareaId){
+    const nombre=(nst[tareaId]||"").trim(); if(!nombre) return;
+    patch(p=>{const {t}=findTareaIn(p,faseId,tareaId); if(t){t.subtareas=t.subtareas||[]; t.subtareas.push({id:nid("s_"),nombre,grupo:null,estado:"Sin realizar",comentario:""});}});
+    setNst(x=>({...x,[tareaId]:""})); setExp(e=>({...e,[tareaId]:true}));
+  }
+  function addFase(){
+    const nombre=(nf||"").trim(); if(!nombre) return;
+    patch(p=>{p.fases.push({id:nid("f_"),nombre,hito:{nombre:"Completo",valor:"NO"},comentario:"",grupos:[{nombre:null,tareas:[]}]});});
+    setNf("");
+  }
+  return (
+    <div className="fases">
+      {pt.fases.map(f=>{
+        const items=[]; f.grupos.forEach(g=>g.tareas.forEach(t=>
+          (t.subtareas&&t.subtareas.length)?t.subtareas.forEach(s=>items.push(s.estado)):items.push(t.estado)));
+        const fpct=estadoLeaves(items);
+        const fopen=!!openF[f.id];
+        return (
+        <div className="fase" key={f.id}>
+          <div className="fase-h" onClick={()=>setOpenF(o=>({...o,[f.id]:!fopen}))}>
+            <span className="twist">{fopen?"▾":"▸"}</span>
+            <span className="fase-n">{f.nombre}</span>
+            <span className="fase-pct" style={{color:colorPct(fpct)}}>{fpct}%</span>
+            {editMode && <button className="rmtask" title="Quitar etapa" onClick={e=>{stop(e);
+              patch(p=>{p.fases=p.fases.filter(x=>x.id!==f.id);});}}>✕</button>}
+          </div>
+          {fopen && <React.Fragment>
+          {f.grupos.map((g,gi)=>(
+            <div className="grupo" key={gi}>
+              {g.nombre && <div className="grupo-n">{g.nombre}</div>}
+              {g.tareas.map(t=>{
+                const has=!!(t.subtareas&&t.subtareas.length);
+                const canExp=has||editMode;
+                const abierto=!!exp[t.id];
+                return (
+                <div className="tarea" key={t.id}>
+                  <div className={"tarea-row"+(canExp?" clickable":"")} onClick={()=>canExp&&setExp(e=>({...e,[t.id]:!abierto}))}>
+                    <button className={"twist"+(canExp?"":" no")}>{canExp?(abierto?"▾":"▸"):"•"}</button>
+                    <span className="tarea-n">{t.nombre}{has?<span className="subc"> · {t.subtareas.length} etapas</span>:(editMode?<span className="subc"> · + subtareas</span>:null)}</span>
+                    <button className={"notebtn"+(t.comentario?" has":"")} title="Comentario"
+                      onClick={e=>{stop(e);setOc(o=>({...o,[t.id]:!o[t.id]}));}}>💬</button>
+                    {editMode && <button className="rmtask" title="Quitar tarea"
+                      onClick={e=>{stop(e);patch(p=>{const ff=p.fases.find(x=>x.id===f.id); ff.grupos.forEach(gg=>gg.tareas=gg.tareas.filter(x=>x.id!==t.id));});}}>✕</button>}
+                    {has
+                      ? <span className="estado-sel ro" data-e={rollupEstado(t.subtareas)}>{rollupEstado(t.subtareas)}</span>
+                      : <select className="estado-sel" data-e={t.estado} value={t.estado} disabled={!editable} onClick={stop}
+                          onChange={e=>patch(p=>{const {t:tt}=findTareaIn(p,f.id,t.id); if(tt)tt.estado=e.target.value;})}>
+                          {ESTADOS.map(o=><option key={o} value={o}>{o}</option>)}
+                        </select>}
+                  </div>
+                  {oc[t.id] && <input className="nota-inp" placeholder="Comentario de la tarea…" value={t.comentario||""} readOnly={!editable}
+                    onChange={e=>patch(p=>{const {t:tt}=findTareaIn(p,f.id,t.id); if(tt)tt.comentario=e.target.value;})}/>}
+                  {abierto && canExp && (
+                    <div className="subtareas">
+                      {t.subtareas.map(s=>(
+                        <div className="sub" key={s.id}>
+                          <span className="sub-n">{s.grupo?<em>{s.grupo} · </em>:null}{s.nombre}</span>
+                          <button className={"notebtn"+(s.comentario?" has":"")} onClick={()=>setOc(o=>({...o,[s.id]:!o[s.id]}))}>💬</button>
+                          {editMode && <button className="rmtask" title="Quitar subtarea"
+                            onClick={()=>patch(p=>{const {t:tt}=findTareaIn(p,f.id,t.id); if(tt)tt.subtareas=tt.subtareas.filter(x=>x.id!==s.id);})}>✕</button>}
+                          <select className="estado-sel sm" data-e={s.estado} value={s.estado} disabled={!editable}
+                            onChange={e=>patch(p=>{const {t:tt}=findTareaIn(p,f.id,t.id); const ss=tt&&tt.subtareas.find(x=>x.id===s.id); if(ss)ss.estado=e.target.value;})}>
+                            {ESTADOS.map(o=><option key={o} value={o}>{o}</option>)}
+                          </select>
+                          {oc[s.id] && <input className="nota-inp" placeholder="Comentario…" value={s.comentario||""} readOnly={!editable}
+                            onChange={e=>patch(p=>{const {t:tt}=findTareaIn(p,f.id,t.id); const ss=tt&&tt.subtareas.find(x=>x.id===s.id); if(ss)ss.comentario=e.target.value;})}/>}
+                        </div>
+                      ))}
+                      {editMode && (
+                        <div className="addtarea sub">
+                          <input placeholder="Nueva subtarea…" value={nst[t.id]||""}
+                            onChange={e=>setNst(x=>({...x,[t.id]:e.target.value}))}
+                            onKeyDown={e=>e.key==="Enter"&&addSub(f.id,t.id)}/>
+                          <button className="btn sm primary" onClick={()=>addSub(f.id,t.id)}>+ Subtarea</button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>);
+              })}
+              {editMode && (
+                <div className="addtarea">
+                  <input placeholder="Nueva tarea…" value={nt[f.id+"|"+gi]||""}
+                    onChange={e=>setNt(x=>({...x,[f.id+"|"+gi]:e.target.value}))}
+                    onKeyDown={e=>e.key==="Enter"&&addTarea(f.id,gi)}/>
+                  <button className="btn sm primary" onClick={()=>addTarea(f.id,gi)}>+ Tarea</button>
+                </div>
+              )}
+            </div>
+          ))}
+          <div className="hito">
+            <span className="hito-n">{f.hito.nombre}:</span>
+            <button className={f.hito.valor==="SI"?"on-si":""} disabled={!editable}
+              onClick={()=>patch(p=>{const ff=p.fases.find(x=>x.id===f.id); ff.hito.valor="SI";})}>SI</button>
+            <button className={f.hito.valor==="NO"?"on-no":""} disabled={!editable}
+              onClick={()=>patch(p=>{const ff=p.fases.find(x=>x.id===f.id); ff.hito.valor="NO";})}>NO</button>
+          </div>
+          </React.Fragment>}
+        </div>);
+      })}
+      {editMode && (
+        <div className="addtarea addfase">
+          <input placeholder="Nueva etapa (fase)…" value={nf} onChange={e=>setNf(e.target.value)}
+            onKeyDown={e=>e.key==="Enter"&&addFase()}/>
+          <button className="btn sm primary" onClick={addFase}>+ Etapa</button>
+        </div>
+      )}
+    </div>
+  );
+}
+function LocalDetail({local,data,user,onClose,onSaved,initialParte}){
+  const editable = puedeEditar(user,local.local_id);
+  const isAdmin = user.rol==="admin";
+  const [draft,setDraft]=useState(()=>initDraft(local,data));
+  function patchParte(pid,fn){
+    setDraft(d=>{const nd=JSON.parse(JSON.stringify(d)); const pt=nd.partes.find(p=>p.parte_id===pid); if(pt)fn(pt); return nd;});
+    setDirty(true);
+  }
+  const [customR,setCustomR]=useState({});           // id -> nombre (tareas nuevas)
+  const [newTask,setNewTask]=useState({});            // parte_id -> texto del input
+  const [openCom,setOpenCom]=useState({});            // "parte|rid" -> bool (nota abierta)
+  const [openP,setOpenP]=useState(()=>initialParte?{[initialParte]:true}:{}); // parte_id -> abierto (acordeón elementos)
+  const [edit,setEdit]=useState(false);               // modo editar (admin)
+  const [nuevoTipo,setNuevoTipo]=useState("TABIQUE");
+  const [dirty,setDirty]=useState(false);
+  const [saving,setSaving]=useState(false);
+  const [msg,setMsg]=useState("");
+
+  const rubrosById = useMemo(()=>Object.fromEntries((data.rubros||[]).map(r=>[r.id,r])),[data]);
+  const nombreDe = (rid)=> customR[rid] || (rubrosById[rid]||{}).nombre || rid;
+
+  function addParte(tipo){
+    setDraft(d=>{const nd=JSON.parse(JSON.stringify(d));
+      let idx="";
+      if(tipo==="TABIQUE"){ const ns=nd.partes.filter(p=>p.tipo==="TABIQUE").map(p=>+p.indice||0);
+        idx=(ns.length?Math.max.apply(null,ns):0)+1; }
+      const etq = tipo==="TABIQUE"?("TABIQUE "+idx):tipo;
+      const pid = nd.local_id+"::"+tipo.slice(0,3)+(idx||"")+"_"+Date.now().toString(36);
+      nd.partes.push({parte_id:pid,tipo,indice:idx,etiqueta:etq,tipologia:"",comentarios:"",
+        plano_x:null,plano_y:null,fases:buildFases(data.plantilla,pid)});
+      return nd;});
+    setDirty(true);
+  }
+  function removeParte(pid){
+    setDraft(d=>({...d,partes:d.partes.filter(p=>p.parte_id!==pid)}));
+    setDirty(true);
+  }
+
+  function setEstado(parte_id,rid,valor){
+    if(!editable) return;
+    setDraft(d=>{const nd=JSON.parse(JSON.stringify(d));
+      const pt=nd.partes.find(x=>x.parte_id===parte_id); pt.avance[rid]=valor; return nd;});
+    setDirty(true);
+  }
+  function setComTarea(parte_id,rid,texto){
+    if(!editable) return;
+    setDraft(d=>{const nd=JSON.parse(JSON.stringify(d));
+      const pt=nd.partes.find(x=>x.parte_id===parte_id);
+      pt.com_tareas=pt.com_tareas||{}; pt.com_tareas[rid]=texto; return nd;});
+    setDirty(true);
+  }
+  function setParteCampo(parte_id,campo,valor){
+    if(!editable) return;
+    setDraft(d=>{const nd=JSON.parse(JSON.stringify(d));
+      const pt=nd.partes.find(x=>x.parte_id===parte_id); pt[campo]=valor; return nd;});
+    setDirty(true);
+  }
+  function quitarTarea(parte_id,rid){
+    setDraft(d=>{const nd=JSON.parse(JSON.stringify(d));
+      const pt=nd.partes.find(x=>x.parte_id===parte_id);
+      pt.tareas=pt.tareas.filter(r=>r!==rid); delete pt.avance[rid]; return nd;});
+    setDirty(true);
+  }
+  function agregarTarea(parte_id){
+    const nombre=(newTask[parte_id]||"").trim();
+    if(!nombre) return;
+    // ¿coincide con una tarea del catálogo?
+    let rid=(data.rubros||[]).find(r=>r.nombre.toLowerCase()===nombre.toLowerCase());
+    rid=rid?rid.id:null;
+    if(!rid){ // tarea nueva (personalizada)
+      rid="cst_"+nombre.toLowerCase().replace(/[^a-z0-9]+/g,"_")+"_"+Date.now().toString(36);
+      setCustomR(c=>({...c,[rid]:nombre}));
+    }
+    setDraft(d=>{const nd=JSON.parse(JSON.stringify(d));
+      const pt=nd.partes.find(x=>x.parte_id===parte_id);
+      if(!pt.tareas.includes(rid)){ pt.tareas.push(rid); pt.avance[rid]="Sin realizar"; }
+      return nd;});
+    setNewTask(t=>({...t,[parte_id]:""})); setDirty(true);
+  }
+  async function guardar(){
+    setSaving(true); setMsg("");
+    const partes=[], cambios=[];
+    const origIds=new Set(local.partes.map(p=>p.parte_id));
+    const draftIds=new Set(draft.partes.map(p=>p.parte_id));
+    const borrar=local.partes.filter(p=>!draftIds.has(p.parte_id)).map(p=>p.parte_id);
+    borrar.forEach(pid=>cambios.push({tipo:'baja_parte',parte_id:pid,item:'',campo:'',anterior:'',nuevo:''}));
+
+    draft.partes.forEach(pt=>{
+      const orig=local.partes.find(x=>x.parte_id===pt.parte_id);
+      const origFases = orig ? (orig.fases||buildFases(data.plantilla,pt.parte_id)) : null;
+      const nuevo = !orig;
+      const dcam = orig ? diffFases(origFases, pt.fases, pt.parte_id) : [];
+      const comCambio = (pt.comentarios||"") !== ((orig&&orig.comentarios)||"");
+      if(nuevo || dcam.length || comCambio){
+        partes.push({parte_id:pt.parte_id,tipo:pt.tipo,indice:pt.indice,etiqueta:pt.etiqueta,
+          tipologia:pt.tipologia||"",plano_x:pt.plano_x,plano_y:pt.plano_y,comentarios:pt.comentarios||"",fases:pt.fases});
+        if(nuevo) cambios.push({tipo:'alta_parte',parte_id:pt.parte_id,item:pt.etiqueta,campo:'',anterior:'',nuevo:pt.tipo});
+        dcam.forEach(c=>cambios.push(c));
+        if(comCambio) cambios.push({tipo:'comentario',parte_id:pt.parte_id,item:'(elemento)',campo:'comentario general',anterior:(orig&&orig.comentarios)||'',nuevo:pt.comentarios||''});
+      }
+    });
+    const res=await apiPost({action:"guardar",email:user.email,local_id:local.local_id,
+                             partes,borrar,cambios});
+    setSaving(false);
+    if(res.ok){ setMsg("Guardado ✓"); setDirty(false); onSaved(draft); }
+    else setMsg("Error: "+(res.error||"desconocido"));
+    return res;
+  }
+  useEffect(()=>{ if(initialParte){ const el=document.getElementById("pt-"+initialParte);
+    if(el) el.scrollIntoView({behavior:"smooth",block:"start"}); } },[initialParte]);
+  const orderTipo={SOLADO:0,TABIQUE:1,CIELORRASO:2};
+  const partes=[...draft.partes].sort((a,b)=>(orderTipo[a.tipo]-orderTipo[b.tipo])||((a.indice||0)-(b.indice||0)));
+
+  return (
+    <div className="overlay" onClick={e=>{if(e.target.className==="overlay")onClose()}}>
+      <div className="modal">
+        <div className="mhead">
+          <div>
+            <h2><span style={{opacity:.85,fontWeight:600}}>{local.numero}</span> · {local.nombre}</h2>
+            <div style={{fontSize:12,opacity:.85}}>Mód. {local.modulo} · {nNom(local.nivel)} — {avancePct(draft)}% completado</div>
+          </div>
+          {isAdmin && <button className={"btn sm"+(edit?" primary":"")} style={{marginLeft:"auto"}}
+                       onClick={()=>setEdit(v=>!v)}>{edit?"✔ Listo":"✏️ Editar"}</button>}
+          {!editable && <span className="rochip">Solo lectura</span>}
+          <button className="x" onClick={onClose}>×</button>
+        </div>
+        <div className="mbody">
+          {edit && (
+            <div className="addparte">
+              <b>Agregar elemento:</b>
+              <select value={nuevoTipo} onChange={e=>setNuevoTipo(e.target.value)}>
+                <option value="TABIQUE">Tabique</option>
+                <option value="SOLADO">Solado</option>
+                <option value="CIELORRASO">Cielorraso</option>
+              </select>
+              <button className="btn sm primary" onClick={()=>addParte(nuevoTipo)}>+ Agregar</button>
+              <span className="hint">Podés quitar elementos (🗑) y editar etapas/tareas/subtareas dentro de cada uno.</span>
+            </div>
+          )}
+          {partes.map(pt=>{
+            const tareas=pt.tareas||[];
+            const open=!!openP[pt.parte_id];
+            const catDisp=(data.rubros||[]).filter(r=>!tareas.includes(r.id));
+            return (
+            <div className={"parte"+(open?" abierta":"")} key={pt.parte_id} id={"pt-"+pt.parte_id}>
+              <div className="ph clickable" onClick={()=>setOpenP(o=>({...o,[pt.parte_id]:!open}))}>
+                <span className="twist">{open?"▾":"▸"}</span>
+                <span className="t">{normEtq(pt.etiqueta)}</span>
+                {pt.tipologia && <span className="tip">· {pt.tipologia}</span>}
+                <span className="mini" style={{color:colorPct(partPct(pt))}}>{partPct(pt)}%</span>
+                {isAdmin && edit && <button className="btn sm danger" title="Quitar elemento"
+                  onClick={e=>{e.stopPropagation(); removeParte(pt.parte_id);}}>🗑</button>}
+              </div>
+              {open && (pt.fases
+                ? <PhasedTasks pt={pt} editable={editable} editMode={edit} patch={fn=>patchParte(pt.parte_id,fn)}/>
+                : <React.Fragment>
+              <div className="rubros">
+                {tareas.map(rid=>{
+                  const est=pt.avance[rid]||"Sin realizar";
+                  const ck=pt.parte_id+"|"+rid;
+                  const nota=(pt.com_tareas||{})[rid]||"";
+                  const abierto=openCom[ck]||!!nota;
+                  return (
+                    <div className="rubro" key={rid}>
+                      <span className="rn">
+                        <span className="rn-txt">{nombreDe(rid)}</span>
+                        <span className="rn-act">
+                          {!edit && <button className={"notebtn"+(nota?" has":"")} title="Comentario de la tarea"
+                            onClick={()=>setOpenCom(o=>({...o,[ck]:!abierto}))}>💬</button>}
+                          {edit && <button className="rmtask" title="Quitar tarea"
+                            onClick={()=>quitarTarea(pt.parte_id,rid)}>✕</button>}
+                        </span>
+                      </span>
+                      <select className="estado-sel" data-e={est} value={est}
+                              disabled={!editable||edit}
+                              onChange={e=>setEstado(pt.parte_id,rid,e.target.value)}>
+                        {ESTADOS.map(o=><option key={o} value={o}>{o}</option>)}
+                      </select>
+                      {abierto && !edit &&
+                        <input className="nota-inp" placeholder="Comentario de esta tarea…"
+                               value={nota} readOnly={!editable}
+                               onChange={e=>setComTarea(pt.parte_id,rid,e.target.value)}/>}
+                    </div>
+                  );
+                })}
+                {edit && (
+                  <div className="rubro addtask">
+                    <input list={"cat_"+pt.parte_id} placeholder="Nueva tarea…"
+                      value={newTask[pt.parte_id]||""}
+                      onChange={e=>setNewTask(t=>({...t,[pt.parte_id]:e.target.value}))}
+                      onKeyDown={e=>e.key==="Enter"&&agregarTarea(pt.parte_id)}/>
+                    <datalist id={"cat_"+pt.parte_id}>
+                      {catDisp.map(r=><option key={r.id} value={r.nombre}/>)}
+                    </datalist>
+                    <button className="estado" style={{background:"#1f3a5f"}}
+                            onClick={()=>agregarTarea(pt.parte_id)}>+ Agregar</button>
+                  </div>
+                )}
+              </div>
+              <div className="pfoot">
+                <div className="toggle">Aprob. preliminar:
+                  <button className={pt.aprob_preliminar==="SI"?"on-si":""} onClick={()=>setParteCampo(pt.parte_id,"aprob_preliminar","SI")} disabled={!editable}>SI</button>
+                  <button className={pt.aprob_preliminar==="NO"?"on-no":""} onClick={()=>setParteCampo(pt.parte_id,"aprob_preliminar","NO")} disabled={!editable}>NO</button>
+                </div>
+                <div className="toggle">Habilitado final:
+                  <button className={pt.habilitado_final==="SI"?"on-si":""} onClick={()=>setParteCampo(pt.parte_id,"habilitado_final","SI")} disabled={!editable}>SI</button>
+                  <button className={pt.habilitado_final==="NO"?"on-no":""} onClick={()=>setParteCampo(pt.parte_id,"habilitado_final","NO")} disabled={!editable}>NO</button>
+                </div>
+              </div>
+                </React.Fragment>)}
+              {open && <React.Fragment>
+                <div className="comlbl">Comentario general del elemento</div>
+                <textarea className="coment" placeholder="Observaciones generales de este elemento…" value={pt.comentarios||""}
+                        onChange={e=>setParteCampo(pt.parte_id,"comentarios",e.target.value)} readOnly={!editable}/>
+              </React.Fragment>}
+            </div>
+          )})}
+        </div>
+        {editable && (
+          <div className="savebar">
+            <button className="btn primary" disabled={!dirty||saving} onClick={guardar}>{saving?"Guardando…":"Guardar cambios"}</button>
+            <span className="msg">{msg||(dirty?"Hay cambios sin guardar":"")}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+function parteResumen(pt,aplicables){
+  let t=0,d=0; aplicables.forEach(r=>{const e=pt.avance[r]||"Sin realizar"; if(PESO[e]===null)return; t++; d+=PESO[e];});
+  return t? Math.round(100*d/t)+"%":"—";
+}
+
+/* ================== Cambiar contraseña ================== */
+function CambiarPwd({onClose}){
+  const [p1,setP1]=useState(""); const [p2,setP2]=useState("");
+  const [msg,setMsg]=useState(""); const [saving,setSaving]=useState(false);
+  async function guardar(){
+    if(p1.length<6){ setMsg("La contraseña debe tener al menos 6 caracteres."); return; }
+    if(p1!==p2){ setMsg("Las contraseñas no coinciden."); return; }
+    setSaving(true); setMsg("");
+    const sb=getSB();
+    const {error}=await sb.auth.updateUser({password:p1});
+    setSaving(false);
+    if(error){ setMsg("Error: "+error.message); }
+    else { setMsg("✓ Contraseña actualizada."); setTimeout(onClose,1200); }
+  }
+  return (
+    <div className="overlay" onClick={e=>{if(e.target.className==="overlay")onClose()}}>
+      <div className="modal" style={{maxWidth:400}}>
+        <div className="mhead"><div><h2 style={{fontSize:17}}>Cambiar contraseña</h2></div>
+          <button className="x" onClick={onClose}>×</button></div>
+        <div className="mbody">
+          <input className="pwinp" type="password" placeholder="Nueva contraseña" value={p1}
+                 onChange={e=>setP1(e.target.value)} autoFocus/>
+          <input className="pwinp" type="password" placeholder="Repetir contraseña" value={p2}
+                 onChange={e=>setP2(e.target.value)} onKeyDown={e=>e.key==="Enter"&&guardar()}/>
+          <button className="btn primary" style={{width:"100%",padding:11}} disabled={saving} onClick={guardar}>
+            {saving?"Guardando…":"Guardar contraseña"}</button>
+          {msg && <div style={{marginTop:10,fontSize:13,fontWeight:600,
+            color:msg.startsWith("✓")?"#166534":"#b91c1c"}}>{msg}</div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+/* ================== Panel de usuarios (admin) ================== */
+function UsuariosPanel({onClose}){
+  const [rows,setRows]=useState(null);
+  const [msg,setMsg]=useState("");
+  const [nuevo,setNuevo]=useState({email:"",nombre:"",rol:"lector",activo:true,locales:""});
+  async function cargar(){
+    const sb=getSB();
+    const {data,error}=await sb.from("av_perfiles").select("*").order("email");
+    if(error){ setMsg("Error al cargar: "+error.message); setRows([]); }
+    else setRows(data||[]);
+  }
+  useEffect(()=>{ cargar(); },[]);
+  async function guardar(p){
+    setMsg("Guardando "+p.email+"…");
+    const sb=getSB();
+    const {data,error}=await sb.rpc("av_upsert_perfil",{p_email:p.email,p_nombre:p.nombre||"",
+      p_rol:p.rol,p_activo:!!p.activo,p_locales:p.locales_edicion||p.locales||""});
+    if(error){ setMsg("Error: "+error.message); return false; }
+    if(data&&data.ok===false){ setMsg(data.error||"No se pudo guardar"); return false; }
+    setMsg("✓ Guardado "+p.email); await cargar(); return true;
+  }
+  function upd(id,campo,val){ setRows(rs=>rs.map(r=>r.id===id?{...r,[campo]:val}:r)); }
+  async function agregar(){
+    if(!nuevo.email.trim()){ setMsg("Poné un email."); return; }
+    const ok=await guardar(nuevo);
+    if(ok) setNuevo({email:"",nombre:"",rol:"lector",activo:true,locales:""});
+  }
+  return (
+    <div className="overlay" onClick={e=>{if(e.target.className==="overlay")onClose()}}>
+      <div className="modal" style={{maxWidth:820}}>
+        <div className="mhead"><div><h2 style={{fontSize:18}}>Usuarios y permisos</h2>
+          <div style={{fontSize:12,opacity:.85}}>El login (email+contraseña) se crea en Supabase; acá asignás rol y permisos.</div></div>
+          <button className="x" onClick={onClose}>×</button></div>
+        <div className="mbody">
+          <div className="addparte" style={{alignItems:"flex-end"}}>
+            <div style={{display:"flex",gap:8,flexWrap:"wrap",width:"100%"}}>
+              <input className="pwinp" style={{flex:"2 1 180px",margin:0}} placeholder="email@…" value={nuevo.email}
+                onChange={e=>setNuevo(n=>({...n,email:e.target.value}))}/>
+              <input className="pwinp" style={{flex:"1 1 120px",margin:0}} placeholder="nombre" value={nuevo.nombre}
+                onChange={e=>setNuevo(n=>({...n,nombre:e.target.value}))}/>
+              <select className="pwinp" style={{flex:"0 0 110px",margin:0}} value={nuevo.rol}
+                onChange={e=>setNuevo(n=>({...n,rol:e.target.value}))}>
+                <option value="lector">lector</option><option value="editor">editor</option><option value="admin">admin</option>
+              </select>
+              <input className="pwinp" style={{flex:"1 1 130px",margin:0}} placeholder="locales (* o lista)" value={nuevo.locales}
+                onChange={e=>setNuevo(n=>({...n,locales:e.target.value}))}/>
+              <button className="btn sm primary" onClick={agregar}>+ Asignar</button>
+            </div>
+          </div>
+          {rows===null ? <div className="loading">Cargando…</div> : (
+            <table className="utab">
+              <thead><tr><th>Email</th><th>Nombre</th><th>Rol</th><th>Activo</th><th>Locales que edita</th><th></th></tr></thead>
+              <tbody>
+                {rows.map(r=>(
+                  <tr key={r.id}>
+                    <td className="uemail">{r.email}</td>
+                    <td><input className="ucell" value={r.nombre||""} onChange={e=>upd(r.id,"nombre",e.target.value)}/></td>
+                    <td><select className="ucell" value={r.rol} onChange={e=>upd(r.id,"rol",e.target.value)}>
+                      <option value="lector">lector</option><option value="editor">editor</option><option value="admin">admin</option></select></td>
+                    <td style={{textAlign:"center"}}><input type="checkbox" checked={!!r.activo} onChange={e=>upd(r.id,"activo",e.target.checked)}/></td>
+                    <td><input className="ucell" placeholder="* o A-PB-101,…" value={r.locales_edicion||""}
+                      onChange={e=>upd(r.id,"locales_edicion",e.target.value)} disabled={r.rol!=="editor"}/></td>
+                    <td><button className="btn sm primary" onClick={()=>guardar(r)}>Guardar</button></td>
+                  </tr>
+                ))}
+                {rows.length===0 && <tr><td colSpan="6" style={{color:"#64748b",padding:14}}>Todavía no hay perfiles de obra. Asigná el primero arriba.</td></tr>}
+              </tbody>
+            </table>
+          )}
+          {msg && <div style={{marginTop:10,fontSize:13,fontWeight:600,color:msg.startsWith("✓")?"#166534":(msg.startsWith("Guardando")?"#64748b":"#b91c1c")}}>{msg}</div>}
+          <div style={{marginTop:10,fontSize:11.5,color:"#64748b"}}>
+            <b>Rol:</b> admin (edita todo + gestiona usuarios) · editor (edita los locales de la lista) · lector (solo consulta).
+            En <b>Locales que edita</b>: <code>*</code> = todos, o IDs separados por coma (ej. <code>A-PB-101,A-PB-104</code>). Solo aplica a editores.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+/* ================== App ================== */
+const MODS=["A","B","C"];
+const NIVS=[["PB","Planta Baja"],["PA","Planta Alta"],["EP","Entrepiso"]];
+function App(){
+  const [user,setUser]=useState(null);
+  const [data,setData]=useState(null);
+  const [error,setError]=useState("");
+  const [loading,setLoading]=useState(false);
+  const [modulo,setModulo]=useState("A");
+  const [nivel,setNivel]=useState("PB");
+  const [mode,setMode]=useState("plano");   // "plano" | "botones"
+  const [sel,setSel]=useState(null);
+  const [selParte,setSelParte]=useState(null);   // parte a abrir al entrar (click desde el plano)
+  const [calib,setCalib]=useState(false);
+  const [calibSel,setCalibSel]=useState(null);      // local_id a calibrar
+  const [calibTarget,setCalibTarget]=useState("local"); // "local" | parte_id
+  const [calibMsg,setCalibMsg]=useState("");
+  const imgRef=useRef(null);
+
+  async function login(email, password){
+    if(!email){setError("Ingresá un email");return;}
+    if(ONLINE && !password){setError("Ingresá tu contraseña");return;}
+    setLoading(true); setError("");
+    const res=await apiGet(email, password);
+    setLoading(false);
+    if(!res.ok){ setError(res.error||"No se pudo cargar"); return; }
+    store.set("avance_email",email);
+    setUser(res.usuario); setData(res);
+  }
+  // En modo demo re-login automático; en online requiere contraseña, no auto-login.
+  useEffect(()=>{ if(!ONLINE){ const e=store.get("avance_email"); if(e) login(e); } },[]);
+  async function logout(){ store.del("avance_email"); if(ONLINE){ const sb=getSB(); if(sb) await sb.auth.signOut(); } setUser(null); setData(null); }
+  const [pwOpen,setPwOpen]=useState(false);
+  const [usersOpen,setUsersOpen]=useState(false);
+
+  const areas = (data&&data.areas)||[];
+  const area = areas.find(a=>a.modulo===modulo&&a.nivel===nivel)||{modulo,nivel,plano_url:""};
+  const localesArea = data? data.locales.filter(l=>l.modulo===modulo&&l.nivel===nivel):[];
+
+  const global = useMemo(()=>{
+    if(!data) return 0;
+    let t=0,d=0;
+    data.locales.forEach(l=>l.partes.forEach(p=>partItems(p).forEach(e=>{
+      if(PESO[e]===null)return; t++; d+=(PESO[e]||0);})));
+    return t?Math.round(100*d/t):0;
+  },[data]);
+
+  function cambiarArea(m,n){ setModulo(m); setNivel(n); setCalib(false); setCalibSel(null); setCalibMsg("");
+    const a=areas.find(x=>x.modulo===m&&x.nivel===n); setMode((a&&a.plano_url)?"plano":"botones"); }
+
+  function onSaved(updatedLocal){
+    setData(d=>{const nd={...d,locales:d.locales.map(l=>l.local_id===updatedLocal.local_id?updatedLocal:l)};return nd;});
+    setSel(s=>s&&s.local_id===updatedLocal.local_id?updatedLocal:s);
+  }
+
+  async function planoClick(ev){
+    if(!calib||!calibSel) return;
+    const rect=imgRef.current.getBoundingClientRect();
+    const x=+(100*(ev.clientX-rect.left)/rect.width).toFixed(2);
+    const y=+(100*(ev.clientY-rect.top)/rect.height).toFixed(2);
+    if(calibTarget==="local"){
+      setData(d=>({...d,locales:d.locales.map(l=>l.local_id===calibSel?{...l,plano_x:x,plano_y:y}:l)}));
+      await apiPost({action:"calibrar",email:user.email,posiciones:[{local_id:calibSel,plano_x:x,plano_y:y}]});
+      setCalibMsg("Ubicado el local ✓");
+    } else {
+      setData(d=>({...d,locales:d.locales.map(l=>l.local_id!==calibSel?l:
+        {...l,partes:l.partes.map(p=>p.parte_id===calibTarget?{...p,plano_x:x,plano_y:y}:p)})}));
+      await apiPost({action:"calibrar_parte",email:user.email,local_id:calibSel,parte_id:calibTarget,plano_x:x,plano_y:y});
+      setCalibMsg("Ubicada la parte ✓");
+    }
+  }
+  const calLocal = calib&&calibSel ? localesArea.find(l=>l.local_id===calibSel) : null;
+
+  if(!user) return <Login onLogin={login} error={error} loading={loading}/>;
+  if(loading||!data) return <div className="loading">Cargando…</div>;
+
+  const conf=data.config;
+  const sinUbicar=localesArea.filter(l=>l.plano_x==null||l.plano_y==null);
+  const cnt=(m,n)=>data.locales.filter(l=>l.modulo===m&&l.nivel===n).length;
+  const tienePlano=(m,n)=>{const a=areas.find(x=>x.modulo===m&&x.nivel===n);return a&&a.plano_url;};
+
+  return (
+  <div className="app">
+    <header className="top">
+      <div className="row">
+        <div>
+          <h1>Avance de Obra — {mNom(modulo)} · {nNom(nivel)}</h1>
+          <div className="sub">{localesArea.length} locales en el sector · {data.locales.length} en total · {user.rol==="admin"?"Administrador":user.rol==="editor"?"Editor":"Solo lectura"}</div>
+        </div>
+        <div className="spacer"></div>
+        <div className="userbox"><b>{user.nombre||user.email}</b><span>{user.email}</span></div>
+        {ONLINE && user.rol==="admin" && <button className="btn ghost sm" title="Usuarios y permisos" onClick={()=>setUsersOpen(true)}>👥 Usuarios</button>}
+        {ONLINE && <button className="btn ghost sm" title="Cambiar contraseña" onClick={()=>setPwOpen(true)}>🔑</button>}
+        <button className="btn ghost sm" onClick={logout}>Salir</button>
+      </div>
+      <div className="globalbar">
+        <span style={{fontSize:12,opacity:.9}}>Avance global</span>
+        <div className="track"><div className="fill" style={{width:global+"%"}}></div></div>
+        <b style={{fontSize:14}}>{global}%</b>
+      </div>
+    </header>
+
+    {/* Selector de área: Módulo + Planta */}
+    <div className="areabar">
+      <div className="areagrp">
+        <span className="lbl">Módulo</span>
+        {MODS.map(m=><button key={m} className={"achip"+(modulo===m?" on":"")}
+                     onClick={()=>cambiarArea(m,nivel)}>{m}</button>)}
+      </div>
+      <div className="areagrp">
+        <span className="lbl">Planta</span>
+        {NIVS.map(([code,nom])=>{const c=cnt(modulo,code);
+          return <button key={code} className={"achip wide"+(nivel===code?" on":"")}
+                   onClick={()=>cambiarArea(modulo,code)}>
+                   {nom}{tienePlano(modulo,code)?" 🗺️":""}{c?<span className="cbadge">{c}</span>:null}
+                 </button>;})}
+      </div>
+    </div>
+
+    <div className="tabs">
+      <button className={mode==="plano"?"active":""} onClick={()=>setMode("plano")}>🗺️ Plano</button>
+      <button className={mode==="botones"?"active":""} onClick={()=>setMode("botones")}>🔢 Botones</button>
+      {(user.rol==="admin"||user.rol==="editor") && area.plano_url && mode==="plano" &&
+        <button className={calib?"active":""} onClick={()=>{setCalib(c=>!c);setCalibMsg("")}} style={{marginLeft:"auto"}}>
+          {calib?"✔ Terminar calibración":"⚙ Calibrar"}</button>}
+    </div>
+
+    {calib && (
+      <div className="calibbar">
+        <div className="calibrow">
+          <b>Calibrar.</b>
+          <span>Elegí un local:</span>
+          <select value={calibSel||""} onChange={e=>{setCalibSel(e.target.value);setCalibTarget("local");}}>
+            <option value="">— elegir local —</option>
+            {localesArea.map(l=><option key={l.local_id} value={l.local_id}>{l.numero} · {l.nombre}{(l.plano_x==null?" (sin ubicar)":"")}</option>)}
+          </select>
+          <span style={{color:"#166534",fontWeight:600,marginLeft:"auto"}}>{calibMsg}</span>
+        </div>
+        {calLocal && (
+          <div className="calibrow chips">
+            <span className="lbl">Ubicar:</span>
+            <button className={"chip"+(calibTarget==="local"?" on":"")} onClick={()=>setCalibTarget("local")}>
+              📍 El local{calLocal.plano_x==null?" ·sin ubicar":""}</button>
+            {[...calLocal.partes].sort((a,b)=>({SOLADO:0,TABIQUE:1,CIELORRASO:2}[a.tipo]-{SOLADO:0,TABIQUE:1,CIELORRASO:2}[b.tipo])||((a.indice||0)-(b.indice||0))).map(p=>
+              <button key={p.parte_id} className={"chip"+(calibTarget===p.parte_id?" on":"")+(p.plano_x==null?" pend":"")}
+                onClick={()=>setCalibTarget(p.parte_id)}>{normEtq(p.etiqueta)}</button>)}
+            <span className="calhint">→ hacé click en el plano</span>
+          </div>
+        )}
+      </div>
+    )}
+
+    {mode==="plano" && (
+      area.plano_url ? (
+        <div>
+          <div className="planowrap"><div className="inner">
+            <img ref={imgRef} src={area.plano_url} alt="Plano" onClick={planoClick}
+                 style={{cursor:calib&&calibSel?"crosshair":"default"}}/>
+            {localesArea.map(l=> (l.plano_x!=null&&l.plano_y!=null) &&
+              <Marker key={l.local_id} local={l} dim={calib&&calibSel&&calibSel!==l.local_id}
+                      onClick={()=>{ if(!calib){ setSelParte(null); setSel(l); } }}/> )}
+            {localesArea.flatMap(l=>l.partes.filter(p=>p.plano_x!=null&&p.plano_y!=null).map(p=>(
+              <div key={l.local_id+"::"+p.parte_id}
+                   className={"pmarker"+(calib&&calibTarget===p.parte_id?" sel":"")+(calib&&calibSel&&calibSel!==l.local_id?" dim":"")}
+                   style={{left:p.plano_x+"%",top:p.plano_y+"%",background:colorPct(partPct(p)),
+                           pointerEvents:calib?"none":"auto"}}
+                   title={l.numero+" · "+normEtq(p.etiqueta)}
+                   onClick={()=>{ if(!calib){ setSelParte(p.parte_id); setSel(l); } }}>{partAbrev(p)}</div>)))}
+          </div></div>
+          <div className="legend">
+            <span className="k"><span className="dot" style={{background:"#16a34a"}}></span>Completo</span>
+            <span className="k"><span className="dot" style={{background:"#f59e0b"}}></span>En proceso</span>
+            <span className="k"><span className="dot" style={{background:"#dc2626"}}></span>Sin iniciar</span>
+            {localesArea.length>0 && sinUbicar.length>0 && <span style={{marginLeft:"auto",color:"#b45309"}}>
+              {sinUbicar.length} local(es) sin ubicar{(user.rol==="admin"||user.rol==="editor")?" — usá “⚙ Calibrar”":""}.</span>}
+            {localesArea.length===0 && <span style={{marginLeft:"auto",color:"#64748b"}}>
+              Este sector todavía no tiene locales cargados.</span>}
+          </div>
+        </div>
+      ) : (
+        <div className="planowrap"><div className="noplano">
+          <p style={{fontSize:15,fontWeight:600,color:"#334155"}}>Todavía no hay plano para {mNom(modulo)} · {nNom(nivel)}.</p>
+          <p>Poné la imagen en la subcarpeta <b>planos</b> y cargá su nombre en la hoja <b>AREAS</b> (columna <code>plano_url</code>).<br/>
+          Mientras tanto podés usar la vista <b>Botones</b>.</p>
+        </div></div>
+      )
+    )}
+
+    {mode==="botones" && (
+      localesArea.length? (
+        <div className="grid">
+          {localesArea.map(l=>{const p=avancePct(l);
+            const habil=l.partes.length && l.partes.every(x=>x.habilitado_final==="SI");
+            return (
+            <div className="card" key={l.local_id} onClick={()=>setSel(l)}>
+              <div className="name-lg">{l.nombre}</div>
+              <div className="num-sm">Local {l.numero}</div>
+              <div className="track"><div className="fill" style={{width:p+"%",background:colorPct(p)}}></div></div>
+              <div className="pctlbl"><span>{l.partes.length} partes</span><b style={{color:colorPct(p)}}>{p}%</b></div>
+              <span className={"badge "+(habil?"hab":"nohab")}>{habil?"Habilitado":"En obra"}</span>
+            </div>
+          )})}
+        </div>
+      ) : (
+        <div className="planowrap"><div className="noplano">
+          <p style={{fontSize:15,fontWeight:600,color:"#334155"}}>{mNom(modulo)} · {nNom(nivel)} todavía no tiene locales cargados.</p>
+          <p>A medida que sumes sectores, van a aparecer acá como botones.</p>
+        </div></div>
+      )
+    )}
+
+    {sel && <LocalDetail local={data.locales.find(l=>l.local_id===sel.local_id)} data={data} user={user}
+                         initialParte={selParte}
+                         onClose={()=>{setSel(null);setSelParte(null);}} onSaved={onSaved}/>}
+    {pwOpen && <CambiarPwd onClose={()=>setPwOpen(false)}/>}
+    {usersOpen && <UsuariosPanel onClose={()=>setUsersOpen(false)}/>}
+
+    <div className="foot">
+      Avance de Obra · beta {ONLINE?"· en línea (Supabase)":"· MODO DEMO (datos de ejemplo)"}
+    </div>
+  </div>
+  );
+}
+function mNom(m){ return "Módulo "+m; }
+function nNom(n){ const f=NIVS.find(x=>x[0]===n); return f?f[1]:n; }
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
