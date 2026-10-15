@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 <title>Avance de Obra</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231f3a5f'/%3E%3Crect x='14' y='34' width='8' height='16' rx='2' fill='%23ffffff'/%3E%3Crect x='28' y='26' width='8' height='24' rx='2' fill='%23ffffff'/%3E%3Crect x='42' y='16' width='8' height='34' rx='2' fill='%2316a34a'/%3E%3C/svg%3E" />
 <style>
   :root{
     --bg:#0f172a; --panel:#ffffff; --ink:#1e293b; --muted:#64748b; --line:#e2e8f0;
@@ -263,6 +264,11 @@ async function apiGet(email, password){
   if(locR.error) return {ok:false, error: locR.error.message};
   const config = Object.fromEntries((cfgR.data||[]).map(r=>[r.clave, r.valor]));
   const plantilla = config.plantilla || [];
+  const plantillas = {
+    TABIQUE:    config.plantilla_TABIQUE    || plantilla,
+    SOLADO:     config.plantilla_SOLADO     || plantilla,
+    CIELORRASO: config.plantilla_CIELORRASO || plantilla
+  };
   const perfil = (perfR.data&&perfR.data[0]) || {rol:'lector', locales_edicion:'', nombre:email};
   if(perfil.activo===false) return {ok:false, error:"Tu usuario todavía no está habilitado. Pedí al administrador que lo active."};
   const locales = (locR.data||[]).map(l=>({
@@ -274,7 +280,7 @@ async function apiGet(email, password){
   const raw=String(perfil.locales_edicion||"").trim();
   const puede = perfil.rol==='admin' ? '*' : (raw==='*' ? '*' : (raw? raw.split(',').map(s=>s.trim()).filter(Boolean) : []));
   return {ok:true, config:{titulo:(config.titulo||"Avance de Obra")}, areas:(areasR.data||[]),
-    plantilla, locales, usuario:{email, nombre:perfil.nombre||email, rol:perfil.rol, puede_editar:puede}};
+    plantilla, plantillas, locales, usuario:{email, nombre:perfil.nombre||email, rol:perfil.rol, puede_editar:puede}};
 }
 async function apiPost(payload){
   if(!ONLINE){ return demoPost(payload); }
@@ -295,6 +301,21 @@ async function apiPost(payload){
       const {error}=await sb.rpc('av_guardar_local',{
         p_local_id:payload.local_id, p_local_pos:payload.local_pos||null,
         p_partes:payload.partes||[], p_borrar:payload.borrar||[], p_cambios:payload.cambios||[]});
+      if(error) throw error; return {ok:true};
+    }
+    if(payload.action==='matriz'){
+      const {error}=await sb.rpc('av_aplicar_matriz',{
+        p_tipo:payload.tipo, p_plantilla:payload.plantilla, p_partes:payload.partes||[]});
+      if(error) throw error; return {ok:true};
+    }
+    if(payload.action==='crear_local'){
+      const {error}=await sb.rpc('av_crear_local',{
+        p_local_id:payload.local_id, p_modulo:payload.modulo, p_nivel:payload.nivel,
+        p_numero:payload.numero, p_nombre:payload.nombre||''});
+      if(error) throw error; return {ok:true};
+    }
+    if(payload.action==='borrar_local'){
+      const {error}=await sb.rpc('av_borrar_local',{p_local_id:payload.local_id});
       if(error) throw error; return {ok:true};
     }
     return {ok:false, error:"acción desconocida"};
@@ -457,11 +478,40 @@ function buildFases(plantilla,pid){
     }))}))
   }));
 }
+/* plantilla vigente para un tipo de elemento (TABIQUE/SOLADO/CIELORRASO) */
+function plantillaDe(data,tipo){
+  return (data&&data.plantillas&&data.plantillas[tipo]) || (data&&data.plantilla) || [];
+}
+/* Reconstruye las fases de una parte desde una plantilla nueva, CONSERVANDO el avance
+   ya cargado emparejando por nombre (etapa › tarea › subtarea[+subgrupo]). Las que
+   dejan de existir se descartan; las nuevas arrancan en "Sin realizar". */
+function mergeFasesByName(plantilla,pid,oldFases){
+  const fresh=buildFases(plantilla,pid);
+  const oldF={}; (oldFases||[]).forEach(f=>{ oldF[f.nombre]=f; });
+  fresh.forEach(nf=>{
+    const of=oldF[nf.nombre]; if(!of) return;
+    if(of.hito&&nf.hito) nf.hito.valor=of.hito.valor;
+    const oT={}, oS={};
+    (of.grupos||[]).forEach(g=>(g.tareas||[]).forEach(t=>{
+      oT[t.nombre]=t;
+      (t.subtareas||[]).forEach(s=>{ oS[t.nombre+'\u0000'+(s.grupo||'')+'\u0000'+s.nombre]=s; });
+    }));
+    (nf.grupos||[]).forEach(g=>(g.tareas||[]).forEach(t=>{
+      const ot=oT[t.nombre];
+      if(ot){ t.estado=ot.estado||t.estado; t.comentario=ot.comentario||""; }
+      (t.subtareas||[]).forEach(s=>{
+        const os=oS[t.nombre+'\u0000'+(s.grupo||'')+'\u0000'+s.nombre];
+        if(os){ s.estado=os.estado||s.estado; s.comentario=os.comentario||""; }
+      });
+    }));
+  });
+  return fresh;
+}
 function initDraft(local,data){
   const nd=JSON.parse(JSON.stringify(local));
   nd.partes.forEach(pt=>{
     pt.etiqueta=normEtq(pt.etiqueta);
-    if(!pt.fases) pt.fases=buildFases(data.plantilla,pt.parte_id);
+    if(!pt.fases) pt.fases=buildFases(plantillaDe(data,pt.tipo),pt.parte_id);
   });
   return nd;
 }
@@ -618,6 +668,9 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte}){
   const [dirty,setDirty]=useState(false);
   const [saving,setSaving]=useState(false);
   const [msg,setMsg]=useState("");
+  const [askClose,setAskClose]=useState(false);
+  function tryClose(){ if(dirty && !saving){ setAskClose(true); } else { onClose(); } }
+  async function guardarYcerrar(){ const res=await guardar(); if(res&&res.ok){ onClose(); } else { setAskClose(false); } }
 
   const rubrosById = useMemo(()=>Object.fromEntries((data.rubros||[]).map(r=>[r.id,r])),[data]);
   const nombreDe = (rid)=> customR[rid] || (rubrosById[rid]||{}).nombre || rid;
@@ -630,7 +683,7 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte}){
       const etq = tipo==="TABIQUE"?("TABIQUE "+idx):tipo;
       const pid = nd.local_id+"::"+tipo.slice(0,3)+(idx||"")+"_"+Date.now().toString(36);
       nd.partes.push({parte_id:pid,tipo,indice:idx,etiqueta:etq,tipologia:"",comentarios:"",
-        plano_x:null,plano_y:null,fases:buildFases(data.plantilla,pid)});
+        plano_x:null,plano_y:null,fases:buildFases(plantillaDe(data,tipo),pid)});
       return nd;});
     setDirty(true);
   }
@@ -690,11 +743,12 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte}){
 
     draft.partes.forEach(pt=>{
       const orig=local.partes.find(x=>x.parte_id===pt.parte_id);
-      const origFases = orig ? (orig.fases||buildFases(data.plantilla,pt.parte_id)) : null;
+      const origFases = orig ? (orig.fases||buildFases(plantillaDe(data,pt.tipo),pt.parte_id)) : null;
       const nuevo = !orig;
       const dcam = orig ? diffFases(origFases, pt.fases, pt.parte_id) : [];
       const comCambio = (pt.comentarios||"") !== ((orig&&orig.comentarios)||"");
-      if(nuevo || dcam.length || comCambio){
+      const estructuraCambio = orig ? (JSON.stringify(origFases)!==JSON.stringify(pt.fases)) : true;
+      if(nuevo || estructuraCambio || dcam.length || comCambio){
         partes.push({parte_id:pt.parte_id,tipo:pt.tipo,indice:pt.indice,etiqueta:pt.etiqueta,
           tipologia:pt.tipologia||"",plano_x:pt.plano_x,plano_y:pt.plano_y,comentarios:pt.comentarios||"",fases:pt.fases});
         if(nuevo) cambios.push({tipo:'alta_parte',parte_id:pt.parte_id,item:pt.etiqueta,campo:'',anterior:'',nuevo:pt.tipo});
@@ -715,8 +769,21 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte}){
   const partes=[...draft.partes].sort((a,b)=>(orderTipo[a.tipo]-orderTipo[b.tipo])||((a.indice||0)-(b.indice||0)));
 
   return (
-    <div className="overlay" onClick={e=>{if(e.target.className==="overlay")onClose()}}>
+    <div className="overlay" onClick={e=>{if(e.target.className==="overlay")tryClose()}}>
       <div className="modal">
+        {askClose && (
+          <div className="overlay" style={{zIndex:60}} onClick={e=>{if(e.target===e.currentTarget)setAskClose(false)}}>
+            <div className="modal" style={{maxWidth:380,width:"90%"}}>
+              <div className="mhead"><div><h2>¿Guardar cambios?</h2>
+                <div style={{fontSize:12,opacity:.85}}>Tenés cambios sin guardar en este local.</div></div></div>
+              <div className="mbody" style={{display:"flex",flexDirection:"column",gap:8}}>
+                <button className="btn primary" disabled={saving} onClick={guardarYcerrar}>{saving?"Guardando…":"💾 Guardar y cerrar"}</button>
+                <button className="btn danger" disabled={saving} onClick={()=>{setAskClose(false);onClose();}}>Cerrar sin guardar</button>
+                <button className="btn" disabled={saving} onClick={()=>setAskClose(false)}>Seguir editando</button>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="mhead">
           <div>
             <h2><span style={{opacity:.85,fontWeight:600}}>{local.numero}</span> · {local.nombre}</h2>
@@ -725,7 +792,7 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte}){
           {editable && <button className={"btn sm"+(edit?" primary":"")} style={{marginLeft:"auto"}}
                        onClick={()=>setEdit(v=>!v)}>{edit?"✔ Listo":"✏️ Editar"}</button>}
           {!editable && <span className="rochip">Solo lectura</span>}
-          <button className="x" onClick={onClose}>×</button>
+          <button className="x" onClick={tryClose}>×</button>
         </div>
         <div className="mbody">
           {edit && (
@@ -737,7 +804,7 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte}){
                 <option value="CIELORRASO">Cielorraso</option>
               </select>
               <button className="btn sm primary" onClick={()=>addParte(nuevoTipo)}>+ Agregar</button>
-              <span className="hint">Podés quitar elementos (🗑) y editar etapas/tareas/subtareas dentro de cada uno.</span>
+              <span className="hint">Acá solo se agregan o quitan (🗑) elementos. Las etapas/tareas/subtareas se definen en <b>Configuración matriz</b>.</span>
             </div>
           )}
           {partes.map(pt=>{
@@ -755,7 +822,7 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte}){
                   onClick={e=>{e.stopPropagation(); removeParte(pt.parte_id);}}>🗑</button>}
               </div>
               {open && (pt.fases
-                ? <PhasedTasks pt={pt} editable={editable} editMode={edit} patch={fn=>patchParte(pt.parte_id,fn)}/>
+                ? <PhasedTasks pt={pt} editable={editable} editMode={false} patch={fn=>patchParte(pt.parte_id,fn)}/>
                 : <React.Fragment>
               <div className="rubros">
                 {tareas.map(rid=>{
@@ -946,6 +1013,144 @@ function UsuariosPanel({onClose}){
     </div>
   );
 }
+/* ================== Configuración matriz (solo admin) ================== */
+const TIPOS_MATRIZ=[["TABIQUE","Tabiques"],["SOLADO","Solados"],["CIELORRASO","Cielorrasos"]];
+function MatrizPanel({data,onClose,onApplied}){
+  const [tipo,setTipo]=useState("TABIQUE");
+  const base=()=> (data.plantillas&&data.plantillas[tipo]) || data.plantilla || [];
+  const [pl,setPl]=useState(()=>JSON.parse(JSON.stringify(base())));
+  const [dirty,setDirty]=useState(false);
+  const [saving,setSaving]=useState(false);
+  const [msg,setMsg]=useState("");
+  const [openF,setOpenF]=useState({});
+  const [ask,setAsk]=useState(false);
+  useEffect(()=>{ setPl(JSON.parse(JSON.stringify(base()))); setDirty(false); setMsg(""); setOpenF({}); },[tipo]);
+  function mut(fn){ setPl(p=>{const np=JSON.parse(JSON.stringify(p)); fn(np); return np;}); setDirty(true); }
+  const afectados = data.locales.reduce((n,l)=>n+l.partes.filter(p=>p.tipo===tipo).length,0);
+
+  function tryClose(){ if(dirty&&!saving) setAsk(true); else onClose(); }
+  async function aplicar(){
+    setSaving(true); setMsg("");
+    const partes=[], b=base();
+    data.locales.forEach(l=>l.partes.forEach(p=>{ if(p.tipo===tipo){
+      const old=p.fases||buildFases(b,p.parte_id);
+      partes.push({parte_id:p.parte_id, fases:mergeFasesByName(pl,p.parte_id,old)});
+    }}));
+    const res=await apiPost({action:'matriz', tipo, plantilla:pl, partes});
+    setSaving(false);
+    if(res.ok){ setMsg("Aplicado ✓ a "+partes.length+" elemento(s)"); setDirty(false);
+      onApplied(tipo,pl,partes); setAsk(false); }
+    else { setMsg("Error: "+(res.error||"desconocido")); setAsk(false); }
+  }
+  // mutadores por índice
+  const addEtapa=()=>mut(p=>p.push({id:nid("f_"),nombre:"Nueva etapa",hito:"Hito",grupos:[{nombre:null,tareas:[]}]}));
+  const delEtapa=(fi)=>mut(p=>p.splice(fi,1));
+  const addGrupo=(fi)=>mut(p=>p[fi].grupos.push({nombre:"",tareas:[]}));
+  const delGrupo=(fi,gi)=>mut(p=>p[fi].grupos.splice(gi,1));
+  const addTarea=(fi,gi)=>mut(p=>p[fi].grupos[gi].tareas.push({nombre:"Nueva tarea",subs:[]}));
+  const delTarea=(fi,gi,ti)=>mut(p=>p[fi].grupos[gi].tareas.splice(ti,1));
+  const addSub=(fi,gi,ti)=>mut(p=>{const t=p[fi].grupos[gi].tareas[ti]; t.subs=t.subs||[]; t.subs.push({n:"Nueva subtarea",g:null});});
+  const delSub=(fi,gi,ti,si)=>mut(p=>p[fi].grupos[gi].tareas[ti].subs.splice(si,1));
+
+  return (
+    <div className="overlay" onClick={e=>{if(e.target.className==="overlay")tryClose()}}>
+      <div className="modal" style={{maxWidth:900}}>
+        {ask && (
+          <div className="overlay" style={{zIndex:60}} onClick={e=>{if(e.target===e.currentTarget)setAsk(false)}}>
+            <div className="modal" style={{maxWidth:420,width:"92%"}}>
+              <div className="mhead"><div><h2>Aplicar cambios de la matriz</h2>
+                <div style={{fontSize:12,opacity:.85}}>Se va a reescribir la estructura de <b>{afectados}</b> elemento(s) de tipo <b>{tipo}</b> en toda la obra. El avance ya cargado se conserva por nombre.</div></div></div>
+              <div className="mbody" style={{display:"flex",flexDirection:"column",gap:8}}>
+                <button className="btn primary" disabled={saving} onClick={aplicar}>{saving?"Aplicando…":"Sí, aplicar a toda la obra"}</button>
+                <button className="btn" disabled={saving} onClick={()=>setAsk(false)}>Cancelar</button>
+              </div>
+            </div>
+          </div>
+        )}
+        <div className="mhead">
+          <div><h2 style={{fontSize:18}}>🧩 Configuración matriz</h2>
+            <div style={{fontSize:12,opacity:.85}}>Definí la estructura de etapas, tareas y subtareas. Al aplicar, se replica a <b>todos</b> los elementos de ese tipo.</div></div>
+          <button className="x" onClick={tryClose}>×</button>
+        </div>
+        <div className="mbody">
+          <div className="addparte" style={{gap:10,flexWrap:"wrap"}}>
+            <b>Tipo:</b>
+            {TIPOS_MATRIZ.map(([k,n])=>
+              <button key={k} className={"btn sm"+(tipo===k?" primary":"")} onClick={()=>setTipo(k)}>{n}</button>)}
+            <span className="hint" style={{marginLeft:"auto"}}>{afectados} elemento(s) de este tipo en la obra</span>
+          </div>
+          <div className="fases" style={{marginTop:10}}>
+            {pl.map((f,fi)=>{
+              const fopen=!!openF[f.id||fi];
+              return (
+              <div className="fase" key={f.id||fi}>
+                <div className="fase-h" style={{gap:8}}>
+                  <span className="twist" onClick={()=>setOpenF(o=>({...o,[f.id||fi]:!fopen}))} style={{cursor:"pointer"}}>{fopen?"▾":"▸"}</span>
+                  <input value={f.nombre||""} onChange={e=>mut(p=>p[fi].nombre=e.target.value)}
+                    style={{flex:"1 1 160px",fontWeight:700,border:"1px solid var(--line)",borderRadius:6,padding:"4px 8px"}} placeholder="Nombre de etapa"/>
+                  <input value={f.hito||""} onChange={e=>mut(p=>p[fi].hito=e.target.value)}
+                    title="Nombre del hito de esta etapa"
+                    style={{flex:"0 1 170px",fontSize:12,border:"1px solid var(--line)",borderRadius:6,padding:"4px 8px"}} placeholder="Hito"/>
+                  <button className="rmtask" title="Quitar etapa" onClick={()=>delEtapa(fi)}>✕</button>
+                </div>
+                {fopen && <div style={{padding:"4px 8px 10px 22px"}}>
+                  {(f.grupos||[]).map((g,gi)=>(
+                    <div className="grupo" key={gi} style={{borderLeft:"2px solid var(--line)",paddingLeft:8,marginBottom:8}}>
+                      <div style={{display:"flex",alignItems:"center",gap:6,margin:"4px 0"}}>
+                        <input value={g.nombre||""} onChange={e=>mut(p=>p[fi].grupos[gi].nombre=e.target.value||null)}
+                          placeholder="Grupo (opcional)"
+                          style={{flex:"1 1 140px",fontSize:12,fontWeight:600,border:"1px dashed var(--line)",borderRadius:6,padding:"3px 7px"}}/>
+                        {(f.grupos.length>1) && <button className="rmtask" title="Quitar grupo" onClick={()=>delGrupo(fi,gi)}>✕</button>}
+                      </div>
+                      {(g.tareas||[]).map((t,ti)=>(
+                        <div className="tarea" key={ti} style={{marginLeft:6}}>
+                          <div className="tarea-row" style={{gap:6}}>
+                            <span className="twist no">•</span>
+                            <input value={t.nombre||""} onChange={e=>mut(p=>p[fi].grupos[gi].tareas[ti].nombre=e.target.value)}
+                              placeholder="Nombre de tarea"
+                              style={{flex:"1 1 160px",border:"1px solid var(--line)",borderRadius:6,padding:"3px 7px"}}/>
+                            <span className="subc">{(t.subs&&t.subs.length)?t.subs.length+" sub":""}</span>
+                            <button className="rmtask" title="Quitar tarea" onClick={()=>delTarea(fi,gi,ti)}>✕</button>
+                          </div>
+                          <div className="subtareas">
+                            {(t.subs||[]).map((s,si)=>(
+                              <div className="sub" key={si} style={{gap:6}}>
+                                <input value={s.g||""} onChange={e=>mut(p=>p[fi].grupos[gi].tareas[ti].subs[si].g=e.target.value||null)}
+                                  placeholder="(subgrupo)"
+                                  style={{flex:"0 1 110px",fontSize:12,border:"1px dashed var(--line)",borderRadius:6,padding:"2px 6px"}}/>
+                                <input value={s.n||""} onChange={e=>mut(p=>p[fi].grupos[gi].tareas[ti].subs[si].n=e.target.value)}
+                                  placeholder="Nombre de subtarea"
+                                  style={{flex:"1 1 150px",fontSize:12,border:"1px solid var(--line)",borderRadius:6,padding:"2px 6px"}}/>
+                                <button className="rmtask" title="Quitar subtarea" onClick={()=>delSub(fi,gi,ti,si)}>✕</button>
+                              </div>
+                            ))}
+                            <div className="addtarea sub">
+                              <button className="btn sm" onClick={()=>addSub(fi,gi,ti)}>+ Subtarea</button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      <div className="addtarea"><button className="btn sm" onClick={()=>addTarea(fi,gi)}>+ Tarea</button></div>
+                    </div>
+                  ))}
+                  <button className="btn sm" onClick={()=>addGrupo(fi)}>+ Grupo</button>
+                </div>}
+              </div>);
+            })}
+            <div className="addtarea addfase"><button className="btn sm primary" onClick={addEtapa}>+ Etapa</button></div>
+          </div>
+        </div>
+        <div className="savebar">
+          <span style={{color:msg.startsWith("Error")?"#b91c1c":"#166534",fontWeight:600}}>{msg}</span>
+          <div className="spacer"></div>
+          <button className="btn" onClick={tryClose}>Cerrar</button>
+          <button className="btn primary" disabled={!dirty||saving} onClick={()=>setAsk(true)}>
+            {saving?"Aplicando…":"Aplicar a toda la obra"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
 /* ================== App ================== */
 const MODS=["A","B","C"];
 const NIVS=[["PB","Planta Baja"],["PA","Planta Alta"],["EP","Entrepiso"]];
@@ -963,6 +1168,10 @@ function App(){
   const [calibSel,setCalibSel]=useState(null);      // local_id a calibrar
   const [calibTarget,setCalibTarget]=useState("local"); // "local" | parte_id
   const [calibMsg,setCalibMsg]=useState("");
+  const [matrizOpen,setMatrizOpen]=useState(false);
+  const [nlNum,setNlNum]=useState("");
+  const [nlNom,setNlNom]=useState("");
+  const [confirmDel,setConfirmDel]=useState(null);
   const imgRef=useRef(null);
 
   async function login(email, password){
@@ -999,6 +1208,35 @@ function App(){
   function onSaved(updatedLocal){
     setData(d=>{const nd={...d,locales:d.locales.map(l=>l.local_id===updatedLocal.local_id?updatedLocal:l)};return nd;});
     setSel(s=>s&&s.local_id===updatedLocal.local_id?updatedLocal:s);
+  }
+
+  function onMatriz(tipo,plantilla,partes){
+    const fmap=Object.fromEntries(partes.map(x=>[x.parte_id,x.fases]));
+    setData(d=>({...d, plantillas:{...(d.plantillas||{}),[tipo]:plantilla},
+      locales:d.locales.map(l=>({...l,partes:l.partes.map(p=>fmap[p.parte_id]?{...p,fases:fmap[p.parte_id]}:p)}))}));
+    setSel(s=>{ if(!s) return s; return {...s,partes:s.partes.map(p=>fmap[p.parte_id]?{...p,fases:fmap[p.parte_id]}:p)}; });
+  }
+
+  async function crearLocal(){
+    const num=(nlNum||"").trim(); if(!num){ setCalibMsg("Poné un número de local."); return; }
+    const lid=modulo+"-"+nivel+"-"+num;
+    if(data.locales.some(l=>l.local_id===lid)){ setCalibMsg("Ya existe un local con ese número en este sector."); return; }
+    const res=await apiPost({action:'crear_local',local_id:lid,modulo,nivel,numero:num,nombre:(nlNom||"").trim()});
+    if(res.ok){
+      const nuevo={local_id:lid,modulo,nivel,numero:num,nombre:(nlNom||"").trim(),orden:9999,plano_x:null,plano_y:null,partes:[]};
+      setData(d=>({...d,locales:[...d.locales,nuevo]}));
+      setUser(u=>(u.rol==='editor'&&u.puede_editar!=='*')
+        ? {...u,puede_editar:[...(Array.isArray(u.puede_editar)?u.puede_editar:[]),lid]} : u);
+      setNlNum(""); setNlNom(""); setCalibSel(lid); setCalibTarget("local");
+      setCalibMsg("Local creado ✓ — ubicalo haciendo click en el plano.");
+    } else setCalibMsg("Error: "+(res.error||"no se pudo crear"));
+  }
+  async function doBorrarLocal(l){
+    const res=await apiPost({action:'borrar_local',local_id:l.local_id});
+    if(res.ok){ setData(d=>({...d,locales:d.locales.filter(x=>x.local_id!==l.local_id)}));
+      if(calibSel===l.local_id) setCalibSel(null); setCalibMsg("Local eliminado ✓"); }
+    else setCalibMsg("Error: "+(res.error||"no se pudo eliminar"));
+    setConfirmDel(null);
   }
 
   async function planoClick(ev){
@@ -1068,8 +1306,11 @@ function App(){
     <div className="tabs">
       <button className={mode==="plano"?"active":""} onClick={()=>setMode("plano")}>🗺️ Plano</button>
       <button className={mode==="botones"?"active":""} onClick={()=>setMode("botones")}>🔢 Botones</button>
+      {user.rol==="admin" &&
+        <button onClick={()=>setMatrizOpen(true)} style={{marginLeft:"auto"}}>🧩 Configuración matriz</button>}
       {(user.rol==="admin"||user.rol==="editor") && area.plano_url && mode==="plano" &&
-        <button className={calib?"active":""} onClick={()=>{setCalib(c=>!c);setCalibMsg("")}} style={{marginLeft:"auto"}}>
+        <button className={calib?"active":""} onClick={()=>{setCalib(c=>!c);setCalibMsg("")}}
+          style={{marginLeft:user.rol==="admin"?"8px":"auto"}}>
           {calib?"✔ Terminar calibración":"⚙ Calibrar"}</button>}
     </div>
 
@@ -1082,7 +1323,16 @@ function App(){
             <option value="">— elegir local —</option>
             {localesArea.map(l=><option key={l.local_id} value={l.local_id}>{l.numero} · {l.nombre}{(l.plano_x==null?" (sin ubicar)":"")}</option>)}
           </select>
-          <span style={{color:"#166534",fontWeight:600,marginLeft:"auto"}}>{calibMsg}</span>
+          <span style={{color:calibMsg.startsWith("Error")?"#b91c1c":"#166534",fontWeight:600,marginLeft:"auto"}}>{calibMsg}</span>
+        </div>
+        <div className="calibrow" style={{flexWrap:"wrap"}}>
+          <b>Locales.</b>
+          <input placeholder="N°" value={nlNum} onChange={e=>setNlNum(e.target.value)} style={{width:70}}/>
+          <input placeholder="Nombre (ej. Oficina)" value={nlNom} onChange={e=>setNlNom(e.target.value)}
+            onKeyDown={e=>e.key==="Enter"&&crearLocal()} style={{minWidth:150}}/>
+          <button className="btn sm primary" onClick={crearLocal}>+ Agregar local</button>
+          {calibSel && (()=>{const l=localesArea.find(x=>x.local_id===calibSel); return l?
+            <button className="btn sm danger" onClick={()=>setConfirmDel(l)}>🗑 Quitar “{l.numero} · {l.nombre}”</button>:null;})()}
         </div>
         {calLocal && (
           <div className="calibrow chips">
@@ -1162,6 +1412,19 @@ function App(){
                          onClose={()=>{setSel(null);setSelParte(null);}} onSaved={onSaved}/>}
     {pwOpen && <CambiarPwd onClose={()=>setPwOpen(false)}/>}
     {usersOpen && <UsuariosPanel onClose={()=>setUsersOpen(false)}/>}
+    {matrizOpen && <MatrizPanel data={data} onClose={()=>setMatrizOpen(false)} onApplied={onMatriz}/>}
+    {confirmDel && (
+      <div className="overlay" onClick={e=>{if(e.target.className==="overlay")setConfirmDel(null)}}>
+        <div className="modal" style={{maxWidth:420,width:"92%"}}>
+          <div className="mhead"><div><h2>Quitar local</h2>
+            <div style={{fontSize:12,opacity:.85}}>Se va a eliminar <b>{confirmDel.numero} · {confirmDel.nombre}</b> y todos sus elementos ({confirmDel.partes.length}). No se puede deshacer.</div></div></div>
+          <div className="mbody" style={{display:"flex",flexDirection:"column",gap:8}}>
+            <button className="btn danger" onClick={()=>doBorrarLocal(confirmDel)}>Sí, quitar local</button>
+            <button className="btn" onClick={()=>setConfirmDel(null)}>Cancelar</button>
+          </div>
+        </div>
+      </div>
+    )}
 
     <div className="foot">
       Avance de Obra · beta {ONLINE?"· en línea (Supabase)":"· MODO DEMO (datos de ejemplo)"}
