@@ -1036,11 +1036,20 @@ function MatrizPanel({data,onClose,onApplied}){
       const old=p.fases||buildFases(b,p.parte_id);
       partes.push({parte_id:p.parte_id, fases:mergeFasesByName(pl,p.parte_id,old)});
     }}));
-    const res=await apiPost({action:'matriz', tipo, plantilla:pl, partes});
-    setSaving(false);
-    if(res.ok){ setMsg("Aplicado ✓ a "+partes.length+" elemento(s)"); setDirty(false);
-      onApplied(tipo,pl,partes); setAsk(false); }
-    else { setMsg("Error: "+(res.error||"desconocido")); setAsk(false); }
+    // Se aplica POR LOTES para no superar el límite de tiempo de Supabase.
+    // La plantilla se manda solo en el primer lote.
+    const CH=100, total=partes.length;
+    const lotes=[]; for(let i=0;i<total;i+=CH) lotes.push(partes.slice(i,i+CH));
+    if(lotes.length===0) lotes.push([]);   // al menos un lote: guarda la plantilla aunque no haya elementos
+    for(let i=0;i<lotes.length;i++){
+      setMsg(total? ("Aplicando… "+Math.min((i+1)*CH,total)+"/"+total) : "Guardando plantilla…");
+      const res=await apiPost({action:'matriz', tipo, plantilla:i===0?pl:null, partes:lotes[i]});
+      if(!res.ok){ setSaving(false);
+        setMsg("Error: "+(res.error||"desconocido")+(i>0?(" — se aplicó parcial ("+(i*CH)+"/"+total+"). Tocá “Aplicar” otra vez para completar."):""));
+        setAsk(false); return; }
+    }
+    setSaving(false); setMsg("Aplicado ✓ a "+total+" elemento(s)"); setDirty(false);
+    onApplied(tipo,pl,partes); setAsk(false);
   }
   // mutadores por índice
   const addEtapa=()=>mut(p=>p.push({id:nid("f_"),nombre:"Nueva etapa",hito:"Hito",grupos:[{nombre:null,tareas:[]}]}));
