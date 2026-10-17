@@ -180,6 +180,20 @@
   .toggle button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 10px;font-size:11.5px;font-weight:700}
   .toggle button.on-si{background:var(--term);color:#fff;border-color:var(--term)}
   .toggle button.on-no{background:var(--sin);color:#fff;border-color:var(--sin)}
+  /* rev5: gates (permite continuar / verificación final) y editor de rubros per-local */
+  .gate{display:flex;align-items:center;gap:8px;padding:9px 12px;background:#fbfcfe;border-top:1px solid var(--line);font-size:12.5px;font-weight:700}
+  .gate.pp{background:#fff7ed;border-top:1px dashed #fdba74}
+  .gate-n{color:var(--ink);margin-right:2px}
+  .gate button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 12px;font-size:12px;font-weight:800}
+  .gate button.on-si{background:var(--term);color:#fff;border-color:var(--term)}
+  .gate button.on-no{background:var(--sin);color:#fff;border-color:var(--sin)}
+  .gatehint{font-size:11px;color:#b45309;font-weight:600;margin-left:6px}
+  .lockchip{margin-left:6px;font-size:12px}
+  .perlocalbar{border-top:1px solid var(--line);background:#f8fafc}
+  .addrubro{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:9px 12px}
+  .addrubro b{font-size:12.5px}
+  .addrubro select{border:1px solid var(--line);border-radius:7px;padding:5px 9px;font-size:12.5px;font-family:inherit}
+  .addrubro .hint{font-size:11px;color:var(--muted)}
   .comlbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin:4px 14px 0}
   .coment{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px;font-size:12.5px;font-family:inherit;margin:4px 14px 12px;width:calc(100% - 28px);resize:vertical}
   .savebar{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);padding:12px 16px;display:flex;gap:10px;align-items:center}
@@ -282,6 +296,20 @@ let _sb=null;
 function getSB(){ if(!_sb && ONLINE && window.supabase){ _sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON); } return _sb; }
 
 const ESTADOS = ["Sin realizar","Iniciado","Terminado","No aplica"];
+// rev5: la matriz gobierna SOLO estas etapas; el resto es por local
+const PP_NOMBRE = "Primeros pasos";
+const ETAPA_PERLOCAL = {TABIQUE:"Revestimiento", CIELORRASO:"Terminaciones"}; // SOLADO: ninguna
+const PERLOCAL_NOMBRES = ["Revestimiento","Terminaciones"];
+const RUBROS_REVEST = {
+  "Madera":["Tipo","Perchas / fijaciones","MDF","Terminaciones"],
+  "Cobre":["Tipo","Perchas / fijaciones","MDF","Terminaciones"],
+  "Mármol":["Tipo perchas","Terminaciones"],
+  "Estuco":["Estructura 35","Placa","Tratamiento (ruteado, buñas, etc.)","Terminaciones"],
+  "Pintura":["Preparación de superficie (enduido y lijado)","Terminaciones"],
+  "Cuero":["Terminaciones"]
+};
+const RUBROS_LISTA = ["Madera","Mármol","Cobre","Estuco","Pintura","Cuero"];
+function esRubroValido(n){ return Object.prototype.hasOwnProperty.call(RUBROS_REVEST, n); }
 const COLOR = {Terminado:"#16a34a",Iniciado:"#f59e0b","Sin realizar":"#dc2626","No aplica":"#94a3b8"};
 const PESO = {Terminado:1,Iniciado:0.5,"Sin realizar":0,"No aplica":null};
 
@@ -297,7 +325,7 @@ const store = {
 async function apiGet(email, password){
   if(!ONLINE){
     const d = JSON.parse(JSON.stringify(window.DEMO_DATA));
-    d.usuario = demoUser(email); d.ok = true; return d;
+    d.usuario = demoUser(email); d.ok = true; normalizeData(d); return d;
   }
   const sb=getSB();
   if(!sb) return {ok:false, error:"No se pudo inicializar Supabase (¿cargó supabase-js?)"};
@@ -340,8 +368,10 @@ async function cargarDatos(sb, uid, email){
   }));
   const raw=String(perfil.locales_edicion||"").trim();
   const puede = perfil.rol==='admin' ? '*' : (raw==='*' ? '*' : (raw? raw.split(',').map(s=>s.trim()).filter(Boolean) : []));
-  return {ok:true, config:{titulo:(config.titulo||"Avance de Obra")}, areas:(areasR.data||[]),
+  const res={ok:true, config:{titulo:(config.titulo||"Avance de Obra")}, areas:(areasR.data||[]),
     plantilla, plantillas, locales, usuario:{email, nombre:perfil.nombre||email, rol:perfil.rol, puede_editar:puede}};
+  normalizeData(res);
+  return res;
 }
 async function apiPost(payload){
   if(!ONLINE){ return demoPost(payload); }
@@ -572,13 +602,40 @@ function LocalPlan({local,draft,area,zoom,setZoom,mgmt,calPart,setCalPart,svgRef
 function normEtq(s){ return String(s||"").replace(/CIELORASO/gi,"CIELORRASO"); }
 function buildFases(plantilla,pid){
   let tc=0,sc=0;
-  return (plantilla||[]).map(f=>({
+  // rev5: las etapas per-local (Revestimiento/Terminaciones) NO salen de la matriz
+  return (plantilla||[]).filter(f=>PERLOCAL_NOMBRES.indexOf(f.nombre)<0).map(f=>({
     id:pid+"::"+f.id, nombre:f.nombre, hito:{nombre:f.hito,valor:"NO"}, comentario:"",
     grupos:(f.grupos||[]).map(g=>({nombre:g.nombre, tareas:(g.tareas||[]).map(t=>({
       id:pid+"::t"+(tc++), nombre:t.nombre, estado:"Sin realizar", comentario:"",
       subtareas:(t.subs||[]).map(s=>({id:pid+"::s"+(sc++), nombre:s.n, grupo:s.g||null, estado:"Sin realizar", comentario:""}))
     }))}))
   }));
+}
+/* etapa per-local vacía (revestimiento en tabiques / terminaciones en cielorraso) */
+function etapaPerLocal(pid,nombre){
+  return {id:pid+"::rev", nombre:nombre, perLocal:true, verificacion:"NO", comentario:"", grupos:[{nombre:null,tareas:[]}]};
+}
+/* normaliza una parte al modelo rev5: PP con "permite continuar", y etapa per-local
+   según el tipo (descartando tareas placeholder viejas, conservando rubros válidos) */
+function normalizeParte(pt){
+  if(!pt||!pt.fases) return pt;
+  const pp=pt.fases.find(f=>f.nombre===PP_NOMBRE);
+  if(pp && pp.permiteContinuar==null) pp.permiteContinuar="SI";
+  const revName=ETAPA_PERLOCAL[pt.tipo];
+  if(revName){
+    let rev=pt.fases.find(f=>f.nombre===revName || f.perLocal);
+    if(!rev){ rev=etapaPerLocal(pt.parte_id,revName); pt.fases.push(rev); }
+    rev.nombre=revName; rev.perLocal=true;
+    if(rev.verificacion==null) rev.verificacion="NO";
+    const rubros=[];
+    (rev.grupos||[]).forEach(g=>(g.tareas||[]).forEach(t=>{ if(esRubroValido(t.nombre)) rubros.push(t); }));
+    rev.grupos=[{nombre:null, tareas:rubros}];
+  }
+  return pt;
+}
+function normalizeData(data){
+  (data&&data.locales||[]).forEach(l=>(l.partes||[]).forEach(p=>{ if(p.fases) normalizeParte(p); }));
+  return data;
 }
 /* plantilla vigente para un tipo de elemento (TABIQUE/SOLADO/CIELORRASO) */
 function plantillaDe(data,tipo){
@@ -593,6 +650,7 @@ function mergeFasesByName(plantilla,pid,oldFases){
   fresh.forEach(nf=>{
     const of=oldF[nf.nombre]; if(!of) return;
     if(of.hito&&nf.hito) nf.hito.valor=of.hito.valor;
+    if(of.permiteContinuar!=null) nf.permiteContinuar=of.permiteContinuar;  // conservar "permite continuar"
     const oT={}, oS={};
     (of.grupos||[]).forEach(g=>(g.tareas||[]).forEach(t=>{
       oT[t.nombre]=t;
@@ -607,6 +665,11 @@ function mergeFasesByName(plantilla,pid,oldFases){
       });
     }));
   });
+  // PP: asegurar "permite continuar"
+  const ppF=fresh.find(f=>f.nombre===PP_NOMBRE); if(ppF&&ppF.permiteContinuar==null) ppF.permiteContinuar="SI";
+  // rev5: preservar las etapas per-local (no vienen de la matriz) tal cual estaban
+  const names=new Set(fresh.map(f=>f.nombre));
+  (oldFases||[]).forEach(of=>{ if(!names.has(of.nombre)) fresh.push(of); });
   return fresh;
 }
 function initDraft(local,data){
@@ -614,6 +677,7 @@ function initDraft(local,data){
   nd.partes.forEach(pt=>{
     pt.etiqueta=normEtq(pt.etiqueta);
     if(!pt.fases) pt.fases=buildFases(plantillaDe(data,pt.tipo),pt.parte_id);
+    normalizeParte(pt);
   });
   return nd;
 }
@@ -636,7 +700,19 @@ function PhasedTasks({pt,editable,editMode,patch}){
   const [nt,setNt]=useState({});     // "faseId|gi" -> texto tarea nueva
   const [nst,setNst]=useState({});   // tareaId -> texto subtarea nueva
   const [nf,setNf]=useState("");     // nombre fase nueva
+  const [rubroSel,setRubroSel]=useState({}); // faseId -> rubro elegido en el dropdown
   const stop=e=>e.stopPropagation();
+  const revName=ETAPA_PERLOCAL[pt.tipo];
+  function addRubro(faseId,rubro){
+    if(!esRubroValido(rubro)) return;
+    patch(p=>{const f=p.fases.find(x=>x.id===faseId); if(!f)return; if(!f.grupos||!f.grupos.length)f.grupos=[{nombre:null,tareas:[]}];
+      const subs=RUBROS_REVEST[rubro].map(n=>({id:nid("s_"),nombre:n,grupo:null,estado:"Sin realizar",comentario:""}));
+      f.grupos[0].tareas.push({id:nid("t_"),nombre:rubro,estado:"Sin realizar",comentario:"",subtareas:subs});});
+  }
+  function removeRubro(faseId,tareaId){
+    patch(p=>{const f=p.fases.find(x=>x.id===faseId); if(!f)return; (f.grupos||[]).forEach(g=>g.tareas=g.tareas.filter(x=>x.id!==tareaId));});
+  }
+  function setGate(faseId,campo,valor){ patch(p=>{const f=p.fases.find(x=>x.id===faseId); if(f)f[campo]=valor;}); }
   function addTarea(faseId,gi){
     const nombre=(nt[faseId+"|"+gi]||"").trim(); if(!nombre) return;
     patch(p=>{const f=p.fases.find(x=>x.id===faseId);
@@ -660,12 +736,15 @@ function PhasedTasks({pt,editable,editMode,patch}){
           (t.subtareas&&t.subtareas.length)?t.subtareas.forEach(s=>items.push(s.estado)):items.push(t.estado)));
         const fpct=estadoLeaves(items);
         const fopen=!!openF[f.id];
+        const esPP = f.nombre===PP_NOMBRE;
+        const perLocal = !!f.perLocal || f.nombre===revName;
+        const bloqueado = esPP && f.permiteContinuar==="NO";   // no permite continuar → rojo
         return (
         <div className="fase" key={f.id}>
           <div className="fase-h" onClick={()=>setOpenF(o=>({...o,[f.id]:!fopen}))}>
             <span className="twist">{fopen?"▾":"▸"}</span>
-            <span className="fase-n">{f.nombre}</span>
-            <span className="fase-pct" style={{color:colorPct(fpct)}}>{fpct}%</span>
+            <span className="fase-n">{f.nombre}{bloqueado&&<span className="lockchip" title="No permite continuar">⛔</span>}</span>
+            <span className="fase-pct" style={{color:bloqueado?"#dc2626":colorPct(fpct)}}>{fpct}%</span>
             {editMode && <button className="rmtask" title="Quitar etapa" onClick={e=>{stop(e);
               patch(p=>{p.fases=p.fases.filter(x=>x.id!==f.id);});}}>✕</button>}
           </div>
@@ -684,8 +763,8 @@ function PhasedTasks({pt,editable,editMode,patch}){
                     <span className="tarea-n">{t.nombre}{has?<span className="subc"> · {t.subtareas.length} etapas</span>:(editMode?<span className="subc"> · + subtareas</span>:null)}</span>
                     <button className={"notebtn"+(t.comentario?" has":"")} title="Comentario"
                       onClick={e=>{stop(e);setOc(o=>({...o,[t.id]:!o[t.id]}));}}>💬</button>
-                    {editMode && <button className="rmtask" title="Quitar tarea"
-                      onClick={e=>{stop(e);patch(p=>{const ff=p.fases.find(x=>x.id===f.id); ff.grupos.forEach(gg=>gg.tareas=gg.tareas.filter(x=>x.id!==t.id));});}}>✕</button>}
+                    {(editMode || (perLocal && editable)) && <button className="rmtask" title={perLocal?"Quitar rubro":"Quitar tarea"}
+                      onClick={e=>{stop(e);removeRubro(f.id,t.id);}}>✕</button>}
                     {has
                       ? <select className="estado-sel" data-e={rollupEstado(t.subtareas)} value={rollupEstado(t.subtareas)} disabled={!editable} onClick={stop}
                           title="Al elegir un estado, se aplica a TODAS las subtareas"
@@ -737,6 +816,32 @@ function PhasedTasks({pt,editable,editMode,patch}){
               )}
             </div>
           ))}
+          {perLocal && (
+            <div className="perlocalbar">
+              {editable && <div className="addrubro">
+                <b>Agregar rubro:</b>
+                <select value={rubroSel[f.id]||""} onChange={e=>setRubroSel(x=>({...x,[f.id]:e.target.value}))}>
+                  <option value="">— elegir —</option>
+                  {RUBROS_LISTA.map(r=><option key={r} value={r}>{r}</option>)}
+                </select>
+                <button className="btn sm primary" onClick={()=>{const r=rubroSel[f.id]; if(r){addRubro(f.id,r); setRubroSel(x=>({...x,[f.id]:""}));}}}>+ Agregar</button>
+                <span className="hint">Elegí un rubro y se agregan sus subtareas.</span>
+              </div>}
+              <div className="gate">
+                <span className="gate-n">Verificación final:</span>
+                <button className={f.verificacion==="SI"?"on-si":""} disabled={!editable} onClick={()=>setGate(f.id,"verificacion","SI")}>SI</button>
+                <button className={f.verificacion!=="SI"?"on-no":""} disabled={!editable} onClick={()=>setGate(f.id,"verificacion","NO")}>NO</button>
+              </div>
+            </div>
+          )}
+          {esPP && (
+            <div className="gate pp">
+              <span className="gate-n">¿Permite continuar?</span>
+              <button className={f.permiteContinuar==="SI"?"on-si":""} disabled={!editable} onClick={()=>setGate(f.id,"permiteContinuar","SI")}>SI</button>
+              <button className={f.permiteContinuar==="NO"?"on-no":""} disabled={!editable} onClick={()=>setGate(f.id,"permiteContinuar","NO")}>NO</button>
+              {bloqueado && <span className="gatehint">Primeros pasos queda en rojo aunque esté al 100%.</span>}
+            </div>
+          )}
           </React.Fragment>}
         </div>);
       })}
@@ -781,8 +886,10 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte}){
         idx=(ns.length?Math.max.apply(null,ns):0)+1; }
       const etq = tipo==="TABIQUE"?("TABIQUE "+idx):tipo;
       const pid = nd.local_id+"::"+tipo.slice(0,3)+(idx||"")+"_"+Date.now().toString(36);
-      nd.partes.push({parte_id:pid,tipo,indice:idx,etiqueta:etq,tipologia:"",comentarios:"",
-        plano_x:null,plano_y:null,fases:buildFases(plantillaDe(data,tipo),pid)});
+      const nuevo={parte_id:pid,tipo,indice:idx,etiqueta:etq,tipologia:"",comentarios:"",
+        plano_x:null,plano_y:null,fases:buildFases(plantillaDe(data,tipo),pid)};
+      normalizeParte(nuevo);
+      nd.partes.push(nuevo);
       return nd;});
     setDirty(true);
   }
@@ -1116,7 +1223,8 @@ function UsuariosPanel({onClose}){
 const TIPOS_MATRIZ=[["TABIQUE","Tabiques"],["SOLADO","Solados"],["CIELORRASO","Cielorrasos"]];
 function MatrizPanel({data,onClose,onApplied}){
   const [tipo,setTipo]=useState("TABIQUE");
-  const base=()=> (data.plantillas&&data.plantillas[tipo]) || data.plantilla || [];
+  // rev5: la matriz solo edita las etapas que NO son per-local (Revestimiento/Terminaciones)
+  const base=()=> ((data.plantillas&&data.plantillas[tipo]) || data.plantilla || []).filter(f=>PERLOCAL_NOMBRES.indexOf(f.nombre)<0);
   const [pl,setPl]=useState(()=>JSON.parse(JSON.stringify(base())));
   const [dirty,setDirty]=useState(false);
   const [saving,setSaving]=useState(false);
@@ -1146,7 +1254,9 @@ function MatrizPanel({data,onClose,onApplied}){
     const partes=[], b=base();
     data.locales.forEach(l=>l.partes.forEach(p=>{ if(p.tipo===tipo){
       const old=p.fases||buildFases(b,p.parte_id);
-      partes.push({parte_id:p.parte_id, fases:mergeFasesByName(pl,p.parte_id,old)});
+      const tmp={tipo:p.tipo, parte_id:p.parte_id, fases:mergeFasesByName(pl,p.parte_id,old)};
+      normalizeParte(tmp);
+      partes.push({parte_id:p.parte_id, fases:tmp.fases});
     }}));
     // Se aplica POR LOTES para no superar el límite de tiempo de Supabase.
     // La plantilla se manda solo en el primer lote.
