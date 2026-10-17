@@ -7,20 +7,22 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231f3a5f'/%3E%3Crect x='14' y='34' width='8' height='16' rx='2' fill='%23ffffff'/%3E%3Crect x='28' y='26' width='8' height='24' rx='2' fill='%23ffffff'/%3E%3Crect x='42' y='16' width='8' height='34' rx='2' fill='%2316a34a'/%3E%3C/svg%3E" />
 <style>
   :root{
-    --bg:#0f172a; --panel:#ffffff; --ink:#1e293b; --muted:#64748b; --line:#e2e8f0;
-    --brand:#1f3a5f; --brand2:#2c5282;
-    --term:#16a34a; --inic:#f59e0b; --sin:#dc2626; --na:#94a3b8;
-    --shadow:0 10px 30px rgba(15,23,42,.12);
+    --bg:#0f172a; --panel:#ffffff; --ink:#1e293b; --muted:#64748b; --line:#e8edf3;
+    --brand:#1e3a5f; --brand2:#2c5282;
+    --term:#15a34a; --inic:#f59e0b; --sin:#e11d48; --na:#94a3b8;
+    --shadow:0 1px 2px rgba(15,23,42,.04), 0 6px 20px rgba(15,23,42,.07);
+    --shadow-sm:0 1px 3px rgba(15,23,42,.08);
+    --radius:14px;
   }
   *{box-sizing:border-box}
   html,body{margin:0;height:100%}
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-       background:#f1f5f9;color:var(--ink);-webkit-text-size-adjust:100%}
+       background:#eef2f7;color:var(--ink);-webkit-text-size-adjust:100%}
   button{font-family:inherit;cursor:pointer}
   .app{max-width:1200px;margin:0 auto;padding:0 14px 60px}
   /* Header */
-  header.top{position:sticky;top:0;z-index:30;background:var(--brand);color:#fff;
-    margin:0 -14px 16px;padding:12px 16px;box-shadow:var(--shadow)}
+  header.top{position:sticky;top:0;z-index:30;background:linear-gradient(135deg,#1e3a5f,#2c5282);color:#fff;
+    margin:0 -14px 16px;padding:14px 18px;box-shadow:0 2px 14px rgba(15,23,42,.18)}
   .top .row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
   .top h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.2px}
   .top .sub{font-size:12px;opacity:.8;margin-top:2px}
@@ -70,7 +72,7 @@
   .dot{width:12px;height:12px;border-radius:50%;display:inline-block}
   /* Grid list */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
-  .card{background:#fff;border-radius:12px;box-shadow:var(--shadow);padding:14px;cursor:pointer;border:1px solid transparent;transition:.12s}
+  .card{background:#fff;border-radius:12px;box-shadow:var(--shadow);padding:14px;cursor:pointer;border:1px solid #eef2f7;transition:.14s}
   .card:hover{border-color:var(--brand2);transform:translateY(-2px)}
   .card .name-lg{font-size:17px;font-weight:800;color:var(--brand);line-height:1.15}
   .card .num-sm{font-size:12px;color:var(--muted);margin-bottom:8px;margin-top:2px}
@@ -209,6 +211,33 @@
   .calibrow .calhint{font-size:11.5px;color:#8a5a00}
   .loading{padding:60px;text-align:center;color:var(--muted)}
   .foot{margin-top:26px;text-align:center;color:#94a3b8;font-size:11.5px}
+  /* handle de arrastre (matriz) */
+  .draghandle{cursor:grab;color:#94a3b8;font-size:15px;line-height:1;user-select:none;padding:0 2px;flex:0 0 auto}
+  .draghandle:active{cursor:grabbing}
+  .draghandle:hover{color:var(--brand)}
+  /* buscador (modo botones) */
+  .buscador{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:11px;
+    box-shadow:var(--shadow-sm);padding:7px 12px;margin-bottom:12px}
+  .buscador .bicon{font-size:14px;opacity:.6}
+  .buscador input{flex:1;border:0;outline:0;font-size:14px;background:transparent;color:var(--ink)}
+  .buscador .bx{border:0;background:#eef2f7;color:#475569;border-radius:50%;width:22px;height:22px;font-size:15px;font-weight:700;line-height:1}
+  .buscador .bcount{font-size:11.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+  /* QR */
+  .qrsheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:6px}
+  .qrcard{border:1px solid var(--line);border-radius:12px;padding:12px 10px;text-align:center;background:#fff;break-inside:avoid}
+  .qrimg{width:100%;max-width:150px;height:auto;aspect-ratio:1/1;image-rendering:pixelated;margin:0 auto 6px;display:block}
+  .qrnum{font-weight:800;font-size:17px;color:var(--brand);line-height:1.1}
+  .qrnom{font-size:12.5px;color:var(--ink);margin-top:1px}
+  .qrmod{font-size:10.5px;color:var(--muted);margin-top:3px}
+  @media print{
+    body{background:#fff}
+    body *{visibility:hidden}
+    .qrsheet,.qrsheet *{visibility:visible}
+    .qrsheet{position:absolute;left:0;top:0;width:100%;grid-template-columns:repeat(3,1fr);gap:10px}
+    .qr-noprint{display:none!important}
+    .overlay{position:static;background:none}
+    .modal{box-shadow:none;max-width:none;width:100%}
+  }
 </style>
 </head>
 <body>
@@ -219,6 +248,7 @@
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="text/babel">
 const { useState, useEffect, useMemo, useRef } = React;
 
@@ -254,7 +284,19 @@ async function apiGet(email, password){
   if(!sb) return {ok:false, error:"No se pudo inicializar Supabase (¿cargó supabase-js?)"};
   const {data:auth, error} = await sb.auth.signInWithPassword({email, password});
   if(error) return {ok:false, error: error.message};
-  const uid = auth.user.id;
+  return await cargarDatos(sb, auth.user.id, auth.user.email||email);
+}
+// Carga desde una sesión ya existente (sin pedir contraseña). Devuelve null si no hay sesión válida.
+async function apiSesion(){
+  if(!ONLINE) return null;
+  const sb=getSB(); if(!sb) return null;
+  try{
+    const {data:{session}} = await sb.auth.getSession();
+    if(!session||!session.user) return null;
+    return await cargarDatos(sb, session.user.id, session.user.email||"");
+  }catch(e){ return null; }
+}
+async function cargarDatos(sb, uid, email){
   const [cfgR, areasR, locR, perfR] = await Promise.all([
     sb.from('av_config').select('*'),
     sb.from('av_areas').select('*').order('modulo').order('nivel'),
@@ -631,13 +673,6 @@ function PhasedTasks({pt,editable,editMode,patch}){
               )}
             </div>
           ))}
-          <div className="hito">
-            <span className="hito-n">{f.hito.nombre}:</span>
-            <button className={f.hito.valor==="SI"?"on-si":""} disabled={!editable}
-              onClick={()=>patch(p=>{const ff=p.fases.find(x=>x.id===f.id); ff.hito.valor="SI";})}>SI</button>
-            <button className={f.hito.valor==="NO"?"on-no":""} disabled={!editable}
-              onClick={()=>patch(p=>{const ff=p.fases.find(x=>x.id===f.id); ff.hito.valor="NO";})}>NO</button>
-          </div>
           </React.Fragment>}
         </div>);
       })}
@@ -1023,12 +1058,23 @@ function MatrizPanel({data,onClose,onApplied}){
   const [saving,setSaving]=useState(false);
   const [msg,setMsg]=useState("");
   const [openF,setOpenF]=useState({});
-  const [ask,setAsk]=useState(false);
+  const [ask,setAsk]=useState(false);       // confirmar "aplicar a toda la obra"
+  const [askExit,setAskExit]=useState(false); // confirmar "salir sin guardar"
+  const dragRef=useRef(null);
   useEffect(()=>{ setPl(JSON.parse(JSON.stringify(base()))); setDirty(false); setMsg(""); setOpenF({}); },[tipo]);
   function mut(fn){ setPl(p=>{const np=JSON.parse(JSON.stringify(p)); fn(np); return np;}); setDirty(true); }
   const afectados = data.locales.reduce((n,l)=>n+l.partes.filter(p=>p.tipo===tipo).length,0);
 
-  function tryClose(){ if(dirty&&!saving) setAsk(true); else onClose(); }
+  function tryClose(){ if(dirty&&!saving) setAskExit(true); else onClose(); }
+  function cancelarCambios(){ setPl(JSON.parse(JSON.stringify(base()))); setDirty(false); setMsg("Cambios descartados"); }
+  // reordenar arrastrando (dentro de la misma lista)
+  function moveItem(arr,from,to){ if(from===to||from<0||to<0||from>=arr.length||to>=arr.length) return; const [x]=arr.splice(from,1); arr.splice(to,0,x); }
+  function startDrag(desc){ dragRef.current=desc; }
+  function dropOn(desc){ const d=dragRef.current; dragRef.current=null; if(!d||d.lvl!==desc.lvl) return;
+    if(d.lvl==='f'){ mut(p=>moveItem(p,d.idx,desc.idx)); }
+    else if(d.lvl==='t'){ if(d.fi!==desc.fi||d.gi!==desc.gi) return; mut(p=>moveItem(p[desc.fi].grupos[desc.gi].tareas,d.idx,desc.idx)); }
+    else if(d.lvl==='s'){ if(d.fi!==desc.fi||d.gi!==desc.gi||d.ti!==desc.ti) return; mut(p=>moveItem(p[desc.fi].grupos[desc.gi].tareas[desc.ti].subs,d.idx,desc.idx)); }
+  }
   async function aplicar(){
     setSaving(true); setMsg("");
     const partes=[], b=base();
@@ -1076,6 +1122,18 @@ function MatrizPanel({data,onClose,onApplied}){
             </div>
           </div>
         )}
+        {askExit && (
+          <div className="overlay" style={{zIndex:60}} onClick={e=>{if(e.target===e.currentTarget)setAskExit(false)}}>
+            <div className="modal" style={{maxWidth:420,width:"92%"}}>
+              <div className="mhead"><div><h2>¿Salir sin guardar?</h2>
+                <div style={{fontSize:12,opacity:.85}}>Tenés cambios en la matriz que todavía no aplicaste. Si salís, se descartan.</div></div></div>
+              <div className="mbody" style={{display:"flex",flexDirection:"column",gap:8}}>
+                <button className="btn danger" onClick={()=>{setAskExit(false);onClose();}}>Salir sin guardar</button>
+                <button className="btn" onClick={()=>setAskExit(false)}>Seguir editando</button>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="mhead">
           <div><h2 style={{fontSize:18}}>🧩 Configuración matriz</h2>
             <div style={{fontSize:12,opacity:.85}}>Definí la estructura de etapas, tareas y subtareas. Al aplicar, se replica a <b>todos</b> los elementos de ese tipo.</div></div>
@@ -1092,14 +1150,13 @@ function MatrizPanel({data,onClose,onApplied}){
             {pl.map((f,fi)=>{
               const fopen=!!openF[f.id||fi];
               return (
-              <div className="fase" key={f.id||fi}>
+              <div className="fase" key={f.id||fi}
+                   onDragOver={e=>e.preventDefault()} onDrop={()=>dropOn({lvl:'f',idx:fi})}>
                 <div className="fase-h" style={{gap:8}}>
+                  <span className="draghandle" draggable onDragStart={()=>startDrag({lvl:'f',idx:fi})} title="Arrastrar para reordenar la etapa">⠿</span>
                   <span className="twist" onClick={()=>setOpenF(o=>({...o,[f.id||fi]:!fopen}))} style={{cursor:"pointer"}}>{fopen?"▾":"▸"}</span>
                   <input value={f.nombre||""} onChange={e=>mut(p=>p[fi].nombre=e.target.value)}
                     style={{flex:"1 1 160px",fontWeight:700,border:"1px solid var(--line)",borderRadius:6,padding:"4px 8px"}} placeholder="Nombre de etapa"/>
-                  <input value={f.hito||""} onChange={e=>mut(p=>p[fi].hito=e.target.value)}
-                    title="Nombre del hito de esta etapa"
-                    style={{flex:"0 1 170px",fontSize:12,border:"1px solid var(--line)",borderRadius:6,padding:"4px 8px"}} placeholder="Hito"/>
                   <button className="rmtask" title="Quitar etapa" onClick={()=>delEtapa(fi)}>✕</button>
                 </div>
                 {fopen && <div style={{padding:"4px 8px 10px 22px"}}>
@@ -1112,9 +1169,10 @@ function MatrizPanel({data,onClose,onApplied}){
                         {(f.grupos.length>1) && <button className="rmtask" title="Quitar grupo" onClick={()=>delGrupo(fi,gi)}>✕</button>}
                       </div>
                       {(g.tareas||[]).map((t,ti)=>(
-                        <div className="tarea" key={ti} style={{marginLeft:6}}>
+                        <div className="tarea" key={ti} style={{marginLeft:6}}
+                             onDragOver={e=>e.preventDefault()} onDrop={e=>{e.stopPropagation();dropOn({lvl:'t',fi,gi,idx:ti});}}>
                           <div className="tarea-row" style={{gap:6}}>
-                            <span className="twist no">•</span>
+                            <span className="draghandle" draggable onDragStart={e=>{e.stopPropagation();startDrag({lvl:'t',fi,gi,idx:ti});}} title="Arrastrar para reordenar la tarea">⠿</span>
                             <input value={t.nombre||""} onChange={e=>mut(p=>p[fi].grupos[gi].tareas[ti].nombre=e.target.value)}
                               placeholder="Nombre de tarea"
                               style={{flex:"1 1 160px",border:"1px solid var(--line)",borderRadius:6,padding:"3px 7px"}}/>
@@ -1123,7 +1181,9 @@ function MatrizPanel({data,onClose,onApplied}){
                           </div>
                           <div className="subtareas">
                             {(t.subs||[]).map((s,si)=>(
-                              <div className="sub" key={si} style={{gap:6}}>
+                              <div className="sub" key={si} style={{gap:6}}
+                                   onDragOver={e=>e.preventDefault()} onDrop={e=>{e.stopPropagation();dropOn({lvl:'s',fi,gi,ti,idx:si});}}>
+                                <span className="draghandle" draggable onDragStart={e=>{e.stopPropagation();startDrag({lvl:'s',fi,gi,ti,idx:si});}} title="Arrastrar para reordenar la subtarea">⠿</span>
                                 <input value={s.g||""} onChange={e=>mut(p=>p[fi].grupos[gi].tareas[ti].subs[si].g=e.target.value||null)}
                                   placeholder="(subgrupo)"
                                   style={{flex:"0 1 110px",fontSize:12,border:"1px dashed var(--line)",borderRadius:6,padding:"2px 6px"}}/>
@@ -1153,8 +1213,55 @@ function MatrizPanel({data,onClose,onApplied}){
           <span style={{color:msg.startsWith("Error")?"#b91c1c":"#166534",fontWeight:600}}>{msg}</span>
           <div className="spacer"></div>
           <button className="btn" onClick={tryClose}>Cerrar</button>
+          <button className="btn danger" disabled={!dirty||saving} onClick={cancelarCambios}>Cancelar cambios</button>
           <button className="btn primary" disabled={!dirty||saving} onClick={()=>setAsk(true)}>
             {saving?"Aplicando…":"Aplicar a toda la obra"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+/* ================== Códigos QR por local (admin) ================== */
+function qrDataURL(texto){
+  try{ const qr=window.qrcode(0,'M'); qr.addData(texto); qr.make(); return qr.createDataURL(6,2); }
+  catch(e){ return null; }
+}
+function QRPanel({data,modulo,nivel,onClose}){
+  const [scope,setScope]=useState("sector");   // "sector" | "todos"
+  const baseURL = (window.location.origin+window.location.pathname).replace(/[?#].*$/,"");
+  const locs = (scope==="sector")
+    ? data.locales.filter(l=>l.modulo===modulo&&l.nivel===nivel)
+    : [...data.locales].sort((a,b)=> (a.modulo+a.nivel).localeCompare(b.modulo+b.nivel) || (a.numero||"").localeCompare(b.numero||"",'es',{numeric:true}));
+  const hayLib = !!window.qrcode;
+  return (
+    <div className="overlay" onClick={e=>{if(e.target.className==="overlay")onClose()}}>
+      <div className="modal" style={{maxWidth:900}}>
+        <div className="mhead qr-noprint">
+          <div><h2 style={{fontSize:18}}>🔳 Códigos QR de locales</h2>
+            <div style={{fontSize:12,opacity:.85}}>Imprimí y pegá el QR en cada local. Al escanearlo, se abre ese local directamente.</div></div>
+          <button className="x" onClick={onClose}>×</button>
+        </div>
+        <div className="mbody">
+          <div className="addparte qr-noprint" style={{gap:10,flexWrap:"wrap"}}>
+            <b>Mostrar:</b>
+            <button className={"btn sm"+(scope==="sector"?" primary":"")} onClick={()=>setScope("sector")}>Este sector ({mNom(modulo)} · {nNom(nivel)})</button>
+            <button className={"btn sm"+(scope==="todos"?" primary":"")} onClick={()=>setScope("todos")}>Toda la obra</button>
+            <button className="btn sm" style={{marginLeft:"auto"}} onClick={()=>window.print()}>🖨️ Imprimir</button>
+          </div>
+          {!hayLib && <div className="noplano" style={{margin:"10px 0"}}><p>No se pudo cargar el generador de QR (revisá la conexión). Volvé a abrir este panel.</p></div>}
+          {hayLib && (locs.length? (
+            <div className="qrsheet">
+              {locs.map(l=>{ const url=baseURL+"?local="+encodeURIComponent(l.local_id); const img=qrDataURL(url);
+                return (
+                <div className="qrcard" key={l.local_id}>
+                  {img? <img src={img} alt={l.local_id} className="qrimg"/> : <div className="qrimg"/>}
+                  <div className="qrnum">{l.numero}</div>
+                  <div className="qrnom">{l.nombre}</div>
+                  <div className="qrmod">{mNom(l.modulo)} · {nNom(l.nivel)}</div>
+                </div>);
+              })}
+            </div>
+          ) : <div className="noplano"><p>No hay locales en esta selección.</p></div>)}
         </div>
       </div>
     </div>
@@ -1178,9 +1285,13 @@ function App(){
   const [calibTarget,setCalibTarget]=useState("local"); // "local" | parte_id
   const [calibMsg,setCalibMsg]=useState("");
   const [matrizOpen,setMatrizOpen]=useState(false);
+  const [qrOpen,setQrOpen]=useState(false);
   const [nlNum,setNlNum]=useState("");
   const [nlNom,setNlNom]=useState("");
   const [confirmDel,setConfirmDel]=useState(null);
+  const [filtro,setFiltro]=useState("");         // buscador en modo Botones
+  const [booting,setBooting]=useState(ONLINE);   // mientras chequea si ya hay sesión iniciada
+  const pendingLocalRef=useRef(null);            // local_id a abrir por deep-link (QR)
   const imgRef=useRef(null);
 
   async function login(email, password){
@@ -1193,8 +1304,21 @@ function App(){
     store.set("avance_email",email);
     setUser(res.usuario); setData(res);
   }
-  // En modo demo re-login automático; en online requiere contraseña, no auto-login.
-  useEffect(()=>{ if(!ONLINE){ const e=store.get("avance_email"); if(e) login(e); } },[]);
+  function abrirLocalPorId(lid){
+    const l=(data&&data.locales||[]).find(x=>x.local_id===lid);
+    if(l){ setModulo(l.modulo); setNivel(l.nivel); setSelParte(null); setSel(l); }
+  }
+  // Arranque: lee el local del QR (?local=…) y, en online, entra directo si ya hay sesión.
+  useEffect(()=>{
+    try{ const u=new URL(window.location.href);
+      const lp=u.searchParams.get("local")||((u.hash.match(/local=([^&]+)/)||[])[1]);
+      if(lp) pendingLocalRef.current=decodeURIComponent(lp);
+    }catch(e){}
+    if(!ONLINE){ const e=store.get("avance_email"); if(e) login(e); return; }
+    (async()=>{ const res=await apiSesion(); if(res&&res.ok){ setUser(res.usuario); setData(res); } setBooting(false); })();
+  },[]);
+  // Cuando ya cargó todo, si venía un local por QR, lo abre.
+  useEffect(()=>{ if(data&&user&&pendingLocalRef.current){ abrirLocalPorId(pendingLocalRef.current); pendingLocalRef.current=null; } },[data,user]);
   async function logout(){ store.del("avance_email"); if(ONLINE){ const sb=getSB(); if(sb) await sb.auth.signOut(); } setUser(null); setData(null); }
   const [pwOpen,setPwOpen]=useState(false);
   const [usersOpen,setUsersOpen]=useState(false);
@@ -1266,6 +1390,7 @@ function App(){
   }
   const calLocal = calib&&calibSel ? localesArea.find(l=>l.local_id===calibSel) : null;
 
+  if(ONLINE && booting && !user) return <div className="loading">Cargando…</div>;
   if(!user) return <Login onLogin={login} error={error} loading={loading}/>;
   if(loading||!data) return <div className="loading">Cargando…</div>;
 
@@ -1316,7 +1441,9 @@ function App(){
       <button className={mode==="plano"?"active":""} onClick={()=>setMode("plano")}>🗺️ Plano</button>
       <button className={mode==="botones"?"active":""} onClick={()=>setMode("botones")}>🔢 Botones</button>
       {user.rol==="admin" &&
-        <button onClick={()=>setMatrizOpen(true)} style={{marginLeft:"auto"}}>🧩 Configuración matriz</button>}
+        <button onClick={()=>setQrOpen(true)} style={{marginLeft:"auto"}}>🔳 QR</button>}
+      {user.rol==="admin" &&
+        <button onClick={()=>setMatrizOpen(true)} style={{marginLeft:"8px"}}>🧩 Configuración matriz</button>}
       {(user.rol==="admin"||user.rol==="editor") && area.plano_url && mode==="plano" &&
         <button className={calib?"active":""} onClick={()=>{setCalib(c=>!c);setCalibMsg("")}}
           style={{marginLeft:user.rol==="admin"?"8px":"auto"}}>
@@ -1394,9 +1521,20 @@ function App(){
     )}
 
     {mode==="botones" && (
-      localesArea.length? (
-        <div className="grid">
-          {localesArea.map(l=>{const p=avancePct(l);
+      localesArea.length? (()=>{
+        const q=filtro.trim().toLowerCase();
+        const lista=q? localesArea.filter(l=>((l.numero||"")+" "+(l.nombre||"")).toLowerCase().includes(q)) : localesArea;
+        return (
+        <div>
+          <div className="buscador">
+            <span className="bicon">🔍</span>
+            <input placeholder="Buscar local por número o nombre…" value={filtro} onChange={e=>setFiltro(e.target.value)}/>
+            {filtro && <button className="bx" onClick={()=>setFiltro("")} title="Limpiar">×</button>}
+            <span className="bcount">{lista.length} de {localesArea.length}</span>
+          </div>
+          {lista.length? (
+          <div className="grid">
+          {lista.map(l=>{const p=avancePct(l);
             const habil=l.partes.length && l.partes.every(x=>x.habilitado_final==="SI");
             return (
             <div className="card" key={l.local_id} onClick={()=>setSel(l)}>
@@ -1407,8 +1545,10 @@ function App(){
               <span className={"badge "+(habil?"hab":"nohab")}>{habil?"Habilitado":"En obra"}</span>
             </div>
           )})}
-        </div>
-      ) : (
+          </div>
+          ) : <div className="planowrap"><div className="noplano"><p>No hay locales que coincidan con “{filtro}”.</p></div></div>}
+        </div>);
+      })() : (
         <div className="planowrap"><div className="noplano">
           <p style={{fontSize:15,fontWeight:600,color:"#334155"}}>{mNom(modulo)} · {nNom(nivel)} todavía no tiene locales cargados.</p>
           <p>A medida que sumes sectores, van a aparecer acá como botones.</p>
@@ -1422,6 +1562,7 @@ function App(){
     {pwOpen && <CambiarPwd onClose={()=>setPwOpen(false)}/>}
     {usersOpen && <UsuariosPanel onClose={()=>setUsersOpen(false)}/>}
     {matrizOpen && <MatrizPanel data={data} onClose={()=>setMatrizOpen(false)} onApplied={onMatriz}/>}
+    {qrOpen && <QRPanel data={data} modulo={modulo} nivel={nivel} onClose={()=>setQrOpen(false)}/>}
     {confirmDel && (
       <div className="overlay" onClick={e=>{if(e.target.className==="overlay")setConfirmDel(null)}}>
         <div className="modal" style={{maxWidth:420,width:"92%"}}>
