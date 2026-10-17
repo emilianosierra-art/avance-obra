@@ -56,7 +56,7 @@
   .planowrap img{display:block;width:100%;height:auto;user-select:none}
   .noplano{padding:40px 20px;text-align:center;color:var(--muted)}
   .marker{position:absolute;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:50%;
-    border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;
+    border:2.5px solid #fff;box-shadow:0 0 0 2.5px #0f172a, 0 2px 8px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;
     font-size:11px;font-weight:800;color:#fff;cursor:pointer;transition:transform .1s}
   .marker:hover{transform:translate(-50%,-50%) scale(1.15);z-index:5}
   .marker.dim{opacity:.35}
@@ -211,6 +211,11 @@
   .calibrow .calhint{font-size:11.5px;color:#8a5a00}
   .loading{padding:60px;text-align:center;color:var(--muted)}
   .foot{margin-top:26px;text-align:center;color:#94a3b8;font-size:11.5px}
+  /* toggle "cómo ver" el plano */
+  .verbar{display:flex;align-items:center;gap:8px;margin:0 0 10px;flex-wrap:wrap}
+  .verbar .lbl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
+  .vchip{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:9px;padding:6px 12px;font-size:12.5px;font-weight:700}
+  .vchip.on{background:var(--brand);color:#fff;border-color:var(--brand)}
   /* handle de arrastre (matriz) */
   .draghandle{cursor:grab;color:#94a3b8;font-size:15px;line-height:1;user-select:none;padding:0 2px;flex:0 0 auto}
   .draghandle:active{cursor:grabbing}
@@ -222,6 +227,19 @@
   .buscador input{flex:1;border:0;outline:0;font-size:14px;background:transparent;color:var(--ink)}
   .buscador .bx{border:0;background:#eef2f7;color:#475569;border-radius:50%;width:22px;height:22px;font-size:15px;font-weight:700;line-height:1}
   .buscador .bcount{font-size:11.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+  /* Filtros */
+  .fgrid{display:flex;flex-direction:column;gap:8px}
+  .frow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .frow .lbl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);min-width:92px}
+  .fsel{border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:13px;font-family:inherit;min-width:180px;background:#fff}
+  .fresumen{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0 8px;padding-top:10px;border-top:1px solid var(--line)}
+  .fchip-r{color:#fff;border-radius:99px;padding:3px 10px;font-size:11.5px;font-weight:800}
+  .ftable{display:flex;flex-direction:column;gap:5px}
+  .ftr{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;cursor:pointer;background:#fff}
+  .ftr:hover{border-color:var(--brand2);background:#f8fafc}
+  .ftr .ftloc{font-weight:800;color:var(--brand);min-width:38px}
+  .ftr .ftnom{font-size:13px;color:var(--ink)}
+  .ftr .ftel{font-size:12px;color:var(--muted)}
   /* QR */
   .qrsheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:6px}
   .qrcard{border:1px solid var(--line);border-radius:12px;padding:12px 10px;text-align:center;background:#fff;break-inside:avoid}
@@ -249,6 +267,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script type="text/babel">
 const { useState, useEffect, useMemo, useRef } = React;
 
@@ -416,10 +435,51 @@ function avancePct(local){
   return tot? Math.round(100*done/tot):0;
 }
 function colorPct(p){ if(p>=100)return"#16a34a"; if(p>=60)return"#65a30d"; if(p>=30)return"#f59e0b"; if(p>0)return"#ea580c"; return"#dc2626"; }
+/* color por estado de los ítems hoja: verde=todo terminado, naranja=algo iniciado/terminado,
+   rojo=nada. Así cualquier avance (por chico que sea) cambia el color, sin depender del %. */
+function colorItems(items){
+  if(!items||items.length===0) return "#dc2626";        // sin datos cargados → sin iniciar (rojo)
+  const rel=items.filter(e=>PESO[e]!==null);           // excluye "No aplica"
+  if(rel.length===0) return "#94a3b8";                  // todo "No aplica" → gris
+  if(rel.every(e=>e==="Terminado")) return "#16a34a";   // todo terminado → verde
+  if(rel.some(e=>e==="Terminado"||e==="Iniciado")) return "#f59e0b"; // algo de avance → naranja
+  return "#dc2626";                                     // sin iniciar → rojo
+}
+function colorLocal(local){ const it=[]; (local.partes||[]).forEach(p=>partItems(p).forEach(e=>it.push(e))); return colorItems(it); }
+function colorParte(p){ return colorItems(partItems(p)); }
 function puedeEditar(user,local_id){
   if(!user) return false;
   if(user.puede_editar==="*") return true;
   return Array.isArray(user.puede_editar) && user.puede_editar.indexOf(local_id)>=0;
+}
+/* ---- Backup: exporta a Excel (o CSV si no cargó la librería) un cuadro con
+   cada local, cada tabique/solado/cielorraso y el estado de cada ítem ---- */
+function exportarBackup(data){
+  const rows=[["Modulo","Nivel","Local N°","Local nombre","Elemento","Etapa","Grupo","Tarea","Subgrupo","Subtarea","Estado","Comentario"]];
+  (data.locales||[]).forEach(l=>(l.partes||[]).forEach(p=>{
+    const fs=p.fases||[];
+    if(!fs.length){ rows.push([l.modulo,l.nivel,l.numero,l.nombre,normEtq(p.etiqueta),"","","","","","(sin cargar)",p.comentarios||""]); return; }
+    fs.forEach(f=>(f.grupos||[]).forEach(g=>(g.tareas||[]).forEach(t=>{
+      if(t.subtareas&&t.subtareas.length){
+        t.subtareas.forEach(s=>rows.push([l.modulo,l.nivel,l.numero,l.nombre,normEtq(p.etiqueta),f.nombre,g.nombre||"",t.nombre,s.grupo||"",s.nombre,s.estado,s.comentario||""]));
+      } else {
+        rows.push([l.modulo,l.nivel,l.numero,l.nombre,normEtq(p.etiqueta),f.nombre,g.nombre||"",t.nombre,"","",t.estado,t.comentario||""]);
+      }
+    })));
+  }));
+  const fecha=new Date().toISOString().slice(0,10);
+  try{
+    if(window.XLSX){
+      const ws=XLSX.utils.aoa_to_sheet(rows);
+      ws['!cols']=[{wch:7},{wch:6},{wch:8},{wch:20},{wch:14},{wch:16},{wch:16},{wch:18},{wch:14},{wch:22},{wch:12},{wch:24}];
+      const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"Avance");
+      XLSX.writeFile(wb,"backup_avance_"+fecha+".xlsx");
+    } else {
+      const csv="﻿"+rows.map(r=>r.map(c=>'"'+String(c==null?"":c).replace(/"/g,'""')+'"').join(";")).join("\n");
+      const a=document.createElement("a"); a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv);
+      a.download="backup_avance_"+fecha+".csv"; document.body.appendChild(a); a.click(); a.remove();
+    }
+  }catch(e){ alert("No se pudo generar el backup: "+(e&&e.message||e)); }
 }
 
 /* ================== Login ================== */
@@ -447,7 +507,7 @@ function Login({onLogin,error,loading}){
 function Marker({local,onClick,dim}){
   const p=avancePct(local);
   return (
-    <div className={"marker"+(dim?" dim":"")} style={{left:local.plano_x+"%",top:local.plano_y+"%",background:colorPct(p)}}
+    <div className={"marker"+(dim?" dim":"")} style={{left:local.plano_x+"%",top:local.plano_y+"%",background:colorLocal(local)}}
          title={local.numero+" · "+local.nombre+" ("+p+"%)"} onClick={onClick}>
       {local.numero}
     </div>
@@ -627,7 +687,11 @@ function PhasedTasks({pt,editable,editMode,patch}){
                     {editMode && <button className="rmtask" title="Quitar tarea"
                       onClick={e=>{stop(e);patch(p=>{const ff=p.fases.find(x=>x.id===f.id); ff.grupos.forEach(gg=>gg.tareas=gg.tareas.filter(x=>x.id!==t.id));});}}>✕</button>}
                     {has
-                      ? <span className="estado-sel ro" data-e={rollupEstado(t.subtareas)}>{rollupEstado(t.subtareas)}</span>
+                      ? <select className="estado-sel" data-e={rollupEstado(t.subtareas)} value={rollupEstado(t.subtareas)} disabled={!editable} onClick={stop}
+                          title="Al elegir un estado, se aplica a TODAS las subtareas"
+                          onChange={e=>patch(p=>{const {t:tt}=findTareaIn(p,f.id,t.id); if(tt&&tt.subtareas){const v=e.target.value; tt.subtareas.forEach(s=>s.estado=v);}})}>
+                          {ESTADOS.map(o=><option key={o} value={o}>{o}</option>)}
+                        </select>
                       : <select className="estado-sel" data-e={t.estado} value={t.estado} disabled={!editable} onClick={stop}
                           onChange={e=>patch(p=>{const {t:tt}=findTareaIn(p,f.id,t.id); if(tt)tt.estado=e.target.value;})}>
                           {ESTADOS.map(o=><option key={o} value={o}>{o}</option>)}
@@ -1060,12 +1124,14 @@ function MatrizPanel({data,onClose,onApplied}){
   const [openF,setOpenF]=useState({});
   const [ask,setAsk]=useState(false);       // confirmar "aplicar a toda la obra"
   const [askExit,setAskExit]=useState(false); // confirmar "salir sin guardar"
+  const [pendingTipo,setPendingTipo]=useState(null); // cambio de tipo con cambios sin aplicar
   const dragRef=useRef(null);
   useEffect(()=>{ setPl(JSON.parse(JSON.stringify(base()))); setDirty(false); setMsg(""); setOpenF({}); },[tipo]);
   function mut(fn){ setPl(p=>{const np=JSON.parse(JSON.stringify(p)); fn(np); return np;}); setDirty(true); }
   const afectados = data.locales.reduce((n,l)=>n+l.partes.filter(p=>p.tipo===tipo).length,0);
 
   function tryClose(){ if(dirty&&!saving) setAskExit(true); else onClose(); }
+  function cambiarTipo(k){ if(k===tipo) return; if(dirty&&!saving){ setPendingTipo(k); } else { setTipo(k); } }
   function cancelarCambios(){ setPl(JSON.parse(JSON.stringify(base()))); setDirty(false); setMsg("Cambios descartados"); }
   // reordenar arrastrando (dentro de la misma lista)
   function moveItem(arr,from,to){ if(from===to||from<0||to<0||from>=arr.length||to>=arr.length) return; const [x]=arr.splice(from,1); arr.splice(to,0,x); }
@@ -1134,6 +1200,18 @@ function MatrizPanel({data,onClose,onApplied}){
             </div>
           </div>
         )}
+        {pendingTipo && (
+          <div className="overlay" style={{zIndex:60}} onClick={e=>{if(e.target===e.currentTarget)setPendingTipo(null)}}>
+            <div className="modal" style={{maxWidth:420,width:"92%"}}>
+              <div className="mhead"><div><h2>Cambiar de tipo</h2>
+                <div style={{fontSize:12,opacity:.85}}>Tenés cambios sin aplicar en <b>{tipo}</b>. Si cambiás de tipo ahora, se descartan.</div></div></div>
+              <div className="mbody" style={{display:"flex",flexDirection:"column",gap:8}}>
+                <button className="btn danger" onClick={()=>{const k=pendingTipo;setPendingTipo(null);setTipo(k);}}>Descartar y cambiar</button>
+                <button className="btn" onClick={()=>setPendingTipo(null)}>Seguir editando</button>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="mhead">
           <div><h2 style={{fontSize:18}}>🧩 Configuración matriz</h2>
             <div style={{fontSize:12,opacity:.85}}>Definí la estructura de etapas, tareas y subtareas. Al aplicar, se replica a <b>todos</b> los elementos de ese tipo.</div></div>
@@ -1143,7 +1221,7 @@ function MatrizPanel({data,onClose,onApplied}){
           <div className="addparte" style={{gap:10,flexWrap:"wrap"}}>
             <b>Tipo:</b>
             {TIPOS_MATRIZ.map(([k,n])=>
-              <button key={k} className={"btn sm"+(tipo===k?" primary":"")} onClick={()=>setTipo(k)}>{n}</button>)}
+              <button key={k} className={"btn sm"+(tipo===k?" primary":"")} onClick={()=>cambiarTipo(k)}>{n}</button>)}
             <span className="hint" style={{marginLeft:"auto"}}>{afectados} elemento(s) de este tipo en la obra</span>
           </div>
           <div className="fases" style={{marginTop:10}}>
@@ -1267,6 +1345,95 @@ function QRPanel({data,modulo,nivel,onClose}){
     </div>
   );
 }
+/* ================== Filtros por tarea/subtarea (vista transversal) ================== */
+function FiltrosPanel({data,modulo:m0,nivel:n0,onClose,onAbrirLocal}){
+  const [m,setM]=useState(m0);
+  const [n,setN]=useState(n0);
+  const [loc,setLoc]=useState("*");
+  const [tarea,setTarea]=useState("");
+  const [sub,setSub]=useState("");
+  useEffect(()=>{ setLoc("*"); },[m,n]);
+  useEffect(()=>{ setSub(""); },[tarea]);
+  const locs=data.locales.filter(l=>l.modulo===m&&l.nivel===n);
+  const scopeLocs = loc==="*" ? locs : locs.filter(l=>l.local_id===loc);
+  // tareas y subtareas presentes en el alcance
+  const tMap=new Map();
+  scopeLocs.forEach(l=>l.partes.forEach(p=>(p.fases||[]).forEach(f=>(f.grupos||[]).forEach(g=>(g.tareas||[]).forEach(t=>{
+    if(!tMap.has(t.nombre)) tMap.set(t.nombre,new Map());
+    (t.subtareas||[]).forEach(s=>{ const k=(s.grupo||"")+"\u0000"+s.nombre; tMap.get(t.nombre).set(k,(s.grupo?s.grupo+" · ":"")+s.nombre); });
+  })))));
+  const tareas=[...tMap.keys()].sort((a,b)=>a.localeCompare(b,'es'));
+  const subsDisp = tarea&&tMap.get(tarea) ? [...tMap.get(tarea).entries()] : [];
+  function estadoDe(p){
+    let found=null;
+    (p.fases||[]).forEach(f=>(f.grupos||[]).forEach(g=>(g.tareas||[]).forEach(t=>{ if(t.nombre===tarea) found=t; })));
+    if(!found) return null;
+    if(sub){ const s=(found.subtareas||[]).find(x=>((x.grupo||"")+"\u0000"+x.nombre)===sub); return s?s.estado:null; }
+    if(found.subtareas&&found.subtareas.length) return rollupEstado(found.subtareas);
+    return found.estado;
+  }
+  const filas=[];
+  if(tarea) scopeLocs.forEach(l=>l.partes.forEach(p=>{ const e=estadoDe(p); if(e!=null) filas.push({l,p,e}); }));
+  const resumen={}; filas.forEach(f=>{resumen[f.e]=(resumen[f.e]||0)+1;});
+  const ordTipo={SOLADO:0,TABIQUE:1,CIELORRASO:2};
+  filas.sort((a,b)=> (a.l.numero||"").localeCompare(b.l.numero||"",'es',{numeric:true}) || (ordTipo[a.p.tipo]-ordTipo[b.p.tipo]) || ((a.p.indice||0)-(b.p.indice||0)));
+  return (
+    <div className="overlay" onClick={e=>{if(e.target.className==="overlay")onClose()}}>
+      <div className="modal" style={{maxWidth:820}}>
+        <div className="mhead">
+          <div><h2 style={{fontSize:18}}>🔎 Filtros</h2>
+            <div style={{fontSize:12,opacity:.85}}>Elegí módulo, piso, local y una tarea/subtarea para ver su estado en todos los elementos.</div></div>
+          <button className="x" onClick={onClose}>×</button>
+        </div>
+        <div className="mbody">
+          <div className="fgrid">
+            <div className="frow"><span className="lbl">Módulo</span>
+              {["A","B","C"].map(x=><button key={x} className={"vchip"+(m===x?" on":"")} onClick={()=>setM(x)}>{x}</button>)}</div>
+            <div className="frow"><span className="lbl">Piso</span>
+              {[["PB","Planta Baja"],["PA","Planta Alta"],["EP","Entrepiso"]].map(([c,nm])=>
+                <button key={c} className={"vchip"+(n===c?" on":"")} onClick={()=>setN(c)}>{nm}</button>)}</div>
+            <div className="frow"><span className="lbl">Local</span>
+              <select value={loc} onChange={e=>setLoc(e.target.value)} className="fsel">
+                <option value="*">Todos ({locs.length})</option>
+                {locs.map(l=><option key={l.local_id} value={l.local_id}>{l.numero} · {l.nombre}</option>)}
+              </select></div>
+            <div className="frow"><span className="lbl">Rubro / Tarea</span>
+              <select value={tarea} onChange={e=>setTarea(e.target.value)} className="fsel">
+                <option value="">— elegir —</option>
+                {tareas.map(t=><option key={t} value={t}>{t}</option>)}
+              </select></div>
+            {tarea && subsDisp.length>0 && <div className="frow"><span className="lbl">Subtarea</span>
+              <select value={sub} onChange={e=>setSub(e.target.value)} className="fsel">
+                <option value="">(toda la tarea)</option>
+                {subsDisp.map(([k,label])=><option key={k} value={k}>{label}</option>)}
+              </select></div>}
+          </div>
+          {!tarea && <div className="noplano" style={{marginTop:12}}><p>Elegí un rubro/tarea para ver resultados.</p></div>}
+          {tarea && (
+            <React.Fragment>
+              <div className="fresumen">
+                {Object.keys(resumen).sort().map(k=>
+                  <span key={k} className="fchip-r" style={{background:COLOR[k]||"#94a3b8"}}>{k}: {resumen[k]}</span>)}
+                <span style={{marginLeft:"auto",fontSize:12,color:"var(--muted)",fontWeight:700}}>{filas.length} elemento(s)</span>
+              </div>
+              <div className="ftable">
+                {filas.map(({l,p,e},i)=>(
+                  <div className="ftr" key={i} onClick={()=>{onAbrirLocal(l.local_id,p.parte_id);onClose();}}>
+                    <span className="ftloc">{l.numero}</span>
+                    <span className="ftnom">{l.nombre}</span>
+                    <span className="ftel">{normEtq(p.etiqueta)}</span>
+                    <span className="estado-sel ro" data-e={e} style={{marginLeft:"auto"}}>{e}</span>
+                  </div>
+                ))}
+                {filas.length===0 && <div className="noplano"><p>Ningún elemento del alcance tiene esa tarea.</p></div>}
+              </div>
+            </React.Fragment>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 /* ================== App ================== */
 const MODS=["A","B","C"];
 const NIVS=[["PB","Planta Baja"],["PA","Planta Alta"],["EP","Entrepiso"]];
@@ -1290,6 +1457,8 @@ function App(){
   const [nlNom,setNlNom]=useState("");
   const [confirmDel,setConfirmDel]=useState(null);
   const [filtro,setFiltro]=useState("");         // buscador en modo Botones
+  const [planoVer,setPlanoVer]=useState("todos");// "todos" | "local" (cómo ver el plano)
+  const [filtrosOpen,setFiltrosOpen]=useState(false); // panel de filtros por tarea/subtarea
   const [booting,setBooting]=useState(ONLINE);   // mientras chequea si ya hay sesión iniciada
   const pendingLocalRef=useRef(null);            // local_id a abrir por deep-link (QR)
   const imgRef=useRef(null);
@@ -1409,6 +1578,7 @@ function App(){
         </div>
         <div className="spacer"></div>
         <div className="userbox"><b>{user.nombre||user.email}</b><span>{user.email}</span></div>
+        {user.rol==="admin" && <button className="btn ghost sm" title="Descargar backup en Excel" onClick={()=>exportarBackup(data)}>⬇️ Backup</button>}
         {ONLINE && user.rol==="admin" && <button className="btn ghost sm" title="Usuarios y permisos" onClick={()=>setUsersOpen(true)}>👥 Usuarios</button>}
         {ONLINE && <button className="btn ghost sm" title="Cambiar contraseña" onClick={()=>setPwOpen(true)}>🔑</button>}
         <button className="btn ghost sm" onClick={logout}>Salir</button>
@@ -1440,6 +1610,7 @@ function App(){
     <div className="tabs">
       <button className={mode==="plano"?"active":""} onClick={()=>setMode("plano")}>🗺️ Plano</button>
       <button className={mode==="botones"?"active":""} onClick={()=>setMode("botones")}>🔢 Botones</button>
+      <button onClick={()=>setFiltrosOpen(true)}>🔎 Filtros</button>
       {user.rol==="admin" &&
         <button onClick={()=>setQrOpen(true)} style={{marginLeft:"auto"}}>🔳 QR</button>}
       {user.rol==="admin" &&
@@ -1487,16 +1658,21 @@ function App(){
     {mode==="plano" && (
       area.plano_url ? (
         <div>
+          {!calib && <div className="verbar">
+            <span className="lbl">Cómo ver:</span>
+            <button className={"vchip"+(planoVer==="todos"?" on":"")} onClick={()=>setPlanoVer("todos")}>Ver todos los tabiques</button>
+            <button className={"vchip"+(planoVer==="local"?" on":"")} onClick={()=>setPlanoVer("local")}>Solo número de local</button>
+          </div>}
           <div className="planowrap"><div className="inner">
             <img ref={imgRef} src={area.plano_url} alt="Plano" onClick={planoClick}
                  style={{cursor:calib&&calibSel?"crosshair":"default"}}/>
             {localesArea.map(l=> (l.plano_x!=null&&l.plano_y!=null) &&
               <Marker key={l.local_id} local={l} dim={calib&&calibSel&&calibSel!==l.local_id}
                       onClick={()=>{ if(!calib){ setSelParte(null); setSel(l); } }}/> )}
-            {localesArea.flatMap(l=>l.partes.filter(p=>p.plano_x!=null&&p.plano_y!=null).map(p=>(
+            {(calib || planoVer==="todos") && localesArea.flatMap(l=>l.partes.filter(p=>p.plano_x!=null&&p.plano_y!=null).map(p=>(
               <div key={l.local_id+"::"+p.parte_id}
                    className={"pmarker"+(calib&&calibTarget===p.parte_id?" sel":"")+(calib&&calibSel&&calibSel!==l.local_id?" dim":"")}
-                   style={{left:p.plano_x+"%",top:p.plano_y+"%",background:colorPct(partPct(p)),
+                   style={{left:p.plano_x+"%",top:p.plano_y+"%",background:colorParte(p),
                            pointerEvents:calib?"none":"auto"}}
                    title={l.numero+" · "+normEtq(p.etiqueta)}
                    onClick={()=>{ if(!calib){ setSelParte(p.parte_id); setSel(l); } }}>{partAbrev(p)}</div>)))}
@@ -1563,6 +1739,8 @@ function App(){
     {usersOpen && <UsuariosPanel onClose={()=>setUsersOpen(false)}/>}
     {matrizOpen && <MatrizPanel data={data} onClose={()=>setMatrizOpen(false)} onApplied={onMatriz}/>}
     {qrOpen && <QRPanel data={data} modulo={modulo} nivel={nivel} onClose={()=>setQrOpen(false)}/>}
+    {filtrosOpen && <FiltrosPanel data={data} modulo={modulo} nivel={nivel} onClose={()=>setFiltrosOpen(false)}
+       onAbrirLocal={(lid,pid)=>{const l=data.locales.find(x=>x.local_id===lid); if(l){setModulo(l.modulo);setNivel(l.nivel);setSelParte(pid||null);setSel(l);}}}/>}
     {confirmDel && (
       <div className="overlay" onClick={e=>{if(e.target.className==="overlay")setConfirmDel(null)}}>
         <div className="modal" style={{maxWidth:420,width:"92%"}}>
