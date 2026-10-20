@@ -409,6 +409,14 @@ async function apiPost(payload){
       const {error}=await sb.rpc('av_borrar_local',{p_local_id:payload.local_id});
       if(error) throw error; return {ok:true};
     }
+    if(payload.action==='editar_local'){
+      const {error}=await sb.rpc('av_editar_local',{p_local_id:payload.local_id,p_numero:payload.numero||'',p_nombre:payload.nombre||''});
+      if(error) throw error; return {ok:true};
+    }
+    if(payload.action==='descalibrar_local'){
+      const {error}=await sb.rpc('av_descalibrar_local',{p_local_id:payload.local_id});
+      if(error) throw error; return {ok:true};
+    }
     return {ok:false, error:"acción desconocida"};
   }catch(e){ return {ok:false, error:(e&&e.message)||String(e)}; }
 }
@@ -667,9 +675,10 @@ function mergeFasesByName(plantilla,pid,oldFases){
   });
   // PP: asegurar "permite continuar"
   const ppF=fresh.find(f=>f.nombre===PP_NOMBRE); if(ppF&&ppF.permiteContinuar==null) ppF.permiteContinuar="SI";
-  // rev5: preservar las etapas per-local (no vienen de la matriz) tal cual estaban
+  // preservar SOLO las etapas per-local conocidas (Revestimiento/Terminaciones).
+  // Cualquier otra etapa que no esté en la matriz fue BORRADA a propósito → no se reañade.
   const names=new Set(fresh.map(f=>f.nombre));
-  (oldFases||[]).forEach(of=>{ if(!names.has(of.nombre)) fresh.push(of); });
+  (oldFases||[]).forEach(of=>{ if(!names.has(of.nombre) && PERLOCAL_NOMBRES.indexOf(of.nombre)>=0) fresh.push(of); });
   return fresh;
 }
 function initDraft(local,data){
@@ -1565,6 +1574,8 @@ function App(){
   const [qrOpen,setQrOpen]=useState(false);
   const [nlNum,setNlNum]=useState("");
   const [nlNom,setNlNom]=useState("");
+  const [edNum,setEdNum]=useState("");   // editar N° del local seleccionado
+  const [edNom,setEdNom]=useState("");   // editar nombre del local seleccionado
   const [confirmDel,setConfirmDel]=useState(null);
   const [filtro,setFiltro]=useState("");         // buscador en modo Botones
   const [planoVer,setPlanoVer]=useState("todos");// "todos" | "local" (cómo ver el plano)
@@ -1650,6 +1661,25 @@ function App(){
     else setCalibMsg("Error: "+(res.error||"no se pudo eliminar"));
     setConfirmDel(null);
   }
+  async function editarLocal(){
+    if(!calibSel) return;
+    const num=(edNum||"").trim(), nom=(edNom||"").trim();
+    const res=await apiPost({action:'editar_local',local_id:calibSel,numero:num,nombre:nom});
+    if(res.ok){ setData(d=>({...d,locales:d.locales.map(l=>l.local_id===calibSel?{...l,numero:num||l.numero,nombre:nom}:l)}));
+      setCalibMsg("Local actualizado ✓"); }
+    else setCalibMsg("Error: "+(res.error||"no se pudo editar"));
+  }
+  async function quitarDelPlano(){
+    if(!calibSel) return;
+    const res=await apiPost({action:'descalibrar_local',local_id:calibSel});
+    if(res.ok){ setData(d=>({...d,locales:d.locales.map(l=>l.local_id===calibSel
+        ? {...l,plano_x:null,plano_y:null,partes:l.partes.map(p=>({...p,plano_x:null,plano_y:null}))} : l)}));
+      setCalibMsg("Local quitado del plano ✓ — queda para recalibrar."); }
+    else setCalibMsg("Error: "+(res.error||"no se pudo quitar del plano"));
+  }
+  // al elegir un local en Calibrar, precargar su número/nombre en los campos de edición
+  useEffect(()=>{ const l=(data&&data.locales||[]).find(x=>x.local_id===calibSel);
+    setEdNum(l?l.numero||"":""); setEdNom(l?l.nombre||"":""); },[calibSel]);
 
   async function planoClick(ev){
     if(!calib||!calibSel) return;
@@ -1748,9 +1778,17 @@ function App(){
           <input placeholder="Nombre (ej. Oficina)" value={nlNom} onChange={e=>setNlNom(e.target.value)}
             onKeyDown={e=>e.key==="Enter"&&crearLocal()} style={{minWidth:150}}/>
           <button className="btn sm primary" onClick={crearLocal}>+ Agregar local</button>
-          {calibSel && (()=>{const l=localesArea.find(x=>x.local_id===calibSel); return l?
-            <button className="btn sm danger" onClick={()=>setConfirmDel(l)}>🗑 Quitar “{l.numero} · {l.nombre}”</button>:null;})()}
         </div>
+        {calibSel && (()=>{const l=localesArea.find(x=>x.local_id===calibSel); if(!l) return null; return (
+          <div className="calibrow" style={{flexWrap:"wrap",borderTop:"1px dashed #fcd34d",paddingTop:8,marginTop:8}}>
+            <b>Local {l.numero}.</b>
+            <input placeholder="N°" value={edNum} onChange={e=>setEdNum(e.target.value)} style={{width:70}}/>
+            <input placeholder="Nombre" value={edNom} onChange={e=>setEdNom(e.target.value)}
+              onKeyDown={e=>e.key==="Enter"&&editarLocal()} style={{minWidth:150}}/>
+            <button className="btn sm" onClick={editarLocal}>✎ Guardar nombre</button>
+            {l.plano_x!=null && <button className="btn sm" onClick={quitarDelPlano} title="Quita el marcador del plano, sin borrar el local">📍✕ Quitar del plano</button>}
+            <button className="btn sm danger" onClick={()=>setConfirmDel(l)}>🗑 Eliminar local</button>
+          </div>);})()}
         {calLocal && (
           <div className="calibrow chips">
             <span className="lbl">Ubicar:</span>
