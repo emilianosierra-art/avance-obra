@@ -367,7 +367,8 @@ async function cargarDatos(sb, uid, email){
       tipologia:p.tipologia, plano_x:p.plano_x, plano_y:p.plano_y, comentarios:p.comentarios||"", fases:p.fases}))
   }));
   const raw=String(perfil.locales_edicion||"").trim();
-  const puede = perfil.rol==='admin' ? '*' : (raw==='*' ? '*' : (raw? raw.split(',').map(s=>s.trim()).filter(Boolean) : []));
+  // rev7: un lector nunca edita, aunque le haya quedado '*' en locales_edicion (igual que av_puede_editar)
+  const puede = perfil.rol==='admin' ? '*' : perfil.rol!=='editor' ? [] : (raw==='*' ? '*' : (raw? raw.split(',').map(s=>s.trim()).filter(Boolean) : []));
   const res={ok:true, config:{titulo:(config.titulo||"Avance de Obra")}, areas:(areasR.data||[]),
     plantilla, plantillas, locales, usuario:{email, nombre:perfil.nombre||email, rol:perfil.rol, puede_editar:puede}};
   normalizeData(res);
