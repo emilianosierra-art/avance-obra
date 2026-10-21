@@ -350,7 +350,7 @@ const ONLINE = !!(SUPABASE_URL && SUPABASE_ANON);
 let _sb=null;
 function getSB(){ if(!_sb && ONLINE && window.supabase){ _sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON); } return _sb; }
 
-const APP_REV = "rev11";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
+const APP_REV = "rev12";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
 /* rev9: traduce el error del servidor al guardar a un mensaje claro para el usuario */
 function errorGuardado(e){
   const s=String(e||"");
@@ -893,7 +893,11 @@ function Composer({placeholder,onEnviar,autoFocus}){
     <div className="ccomp">
       <textarea rows={2} placeholder={placeholder} value={texto} autoFocus={autoFocus} onChange={e=>setTexto(e.target.value)}/>
       <div className="ccomp-act">
-        <label className="btn sm cfotobtn">📷 Foto
+        {/* rev12: "Cámara" abre directo la cámara trasera del celu; "Galería" elige una foto ya sacada */}
+        <label className="btn sm cfotobtn">📷 Cámara
+          <input type="file" accept="image/*" capture="environment" style={{display:"none"}} onChange={e=>{ setFile(e.target.files&&e.target.files[0]||null); e.target.value=""; }}/>
+        </label>
+        <label className="btn sm cfotobtn">🖼️ Galería
           <input type="file" accept="image/*" style={{display:"none"}} onChange={e=>{ setFile(e.target.files&&e.target.files[0]||null); e.target.value=""; }}/>
         </label>
         {file && <span className="cfile">📎 {file.name.length>22?file.name.slice(0,20)+"…":file.name}
