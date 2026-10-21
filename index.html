@@ -47,7 +47,7 @@
   .achip .cbadge{display:inline-block;margin-left:7px;background:#e2e8f0;color:#334155;border-radius:99px;font-size:10.5px;font-weight:800;padding:1px 6px}
   .achip.on .cbadge{background:rgba(255,255,255,.25);color:#fff}
   /* tabs */
-  .tabs{display:flex;gap:6px;margin-bottom:14px}
+  .tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
   .tabs button{border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:9px;padding:8px 14px;font-size:13px;font-weight:600}
   .tabs button.active{background:var(--brand);color:#fff;border-color:var(--brand)}
   /* Plano */
@@ -57,7 +57,8 @@
   .noplano{padding:40px 20px;text-align:center;color:var(--muted)}
   .marker{position:absolute;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:50%;
     border:2.5px solid #fff;box-shadow:0 0 0 2.5px #0f172a, 0 2px 8px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;
-    font-size:11px;font-weight:800;color:#fff;cursor:pointer;transition:transform .1s}
+    font-size:11px;font-weight:800;color:#fff;cursor:pointer;transition:transform .1s;
+    white-space:nowrap;overflow:hidden;line-height:1;letter-spacing:-.3px;text-align:center;padding:0}
   .marker:hover{transform:translate(-50%,-50%) scale(1.15);z-index:5}
   .marker.dim{opacity:.35}
   .pmarker{position:absolute;transform:translate(-50%,-50%);min-width:22px;height:22px;padding:0 5px;border-radius:11px;
@@ -261,6 +262,30 @@
   .qrnum{font-weight:800;font-size:17px;color:var(--brand);line-height:1.1}
   .qrnom{font-size:12.5px;color:var(--ink);margin-top:1px}
   .qrmod{font-size:10.5px;color:var(--muted);margin-top:3px}
+  /* rev10: celular — la ficha del local (la que abre el QR) ocupa toda la pantalla y se lee cómoda */
+  @media(max-width:640px){
+    .overlay.ov-local{align-items:stretch}
+    .modal.local{max-height:none;height:100vh;height:100dvh;border-radius:0}
+    .modal.local .mhead{padding:10px 12px;gap:8px}
+    .modal.local .mhead h2{font-size:16px;line-height:1.2}
+    .modal.local .mbody{padding:10px 8px 20px}
+    .modal.local .fases{padding:4px 6px}
+    .modal.local .grupo{padding:4px 2px 8px}
+    .modal.local .tarea-row{gap:6px;min-height:40px}
+    .modal.local .tarea-n{font-size:13px}
+    .modal.local .estado-sel{min-width:100px;font-size:12px;padding:8px 6px}
+    .modal.local .estado-sel.sm{min-width:96px}
+    .modal.local .subtareas{margin-left:6px;padding-left:8px}
+    .modal.local .sub{min-height:38px}
+    .modal.local .sub-n{flex:1 1 120px;font-size:12px}
+    .modal.local .parte .ph{padding:12px 10px}
+    .modal.local .coment{margin:4px 8px 10px;width:calc(100% - 16px)}
+    .modal.local .savebar{padding:10px 10px calc(10px + env(safe-area-inset-bottom));flex-wrap:wrap}
+    .modal.local .lp-svgwrap{max-height:240px}
+    .nota-inp,.coment,.addtarea input,.addrubro select,.fsel,.buscador input{font-size:16px}  /* evita el zoom automático de iOS */
+    .top h1{font-size:15px}
+    .userbox span{display:none}
+  }
   @media print{
     body{background:#fff}
     body *{visibility:hidden}
@@ -295,7 +320,7 @@ const ONLINE = !!(SUPABASE_URL && SUPABASE_ANON);
 let _sb=null;
 function getSB(){ if(!_sb && ONLINE && window.supabase){ _sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON); } return _sb; }
 
-const APP_REV = "rev9";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
+const APP_REV = "rev10";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
 /* rev9: traduce el error del servidor al guardar a un mensaje claro para el usuario */
 function errorGuardado(e){
   const s=String(e||"");
@@ -554,8 +579,11 @@ function Login({onLogin,error,loading}){
 /* ================== Marcador del plano ================== */
 function Marker({local,onClick,dim}){
   const p=avancePct(local);
+  // rev10: achicar la letra según la cantidad de caracteres para que el número quede dentro del círculo
+  const n=String(local.numero||"").length;
+  const fs = n<=2?11 : n===3?10.5 : n===4?9.5 : n===5?8 : 6.5;
   return (
-    <div className={"marker"+(dim?" dim":"")} style={{left:local.plano_x+"%",top:local.plano_y+"%",background:colorLocal(local)}}
+    <div className={"marker"+(dim?" dim":"")} style={{left:local.plano_x+"%",top:local.plano_y+"%",background:colorLocal(local),fontSize:fs}}
          title={local.numero+" · "+local.nombre+" ("+p+"%)"} onClick={onClick}>
       {local.numero}
     </div>
@@ -568,6 +596,12 @@ function partPct(pt){
   partItems(pt).forEach(e=>{if(PESO[e]===null)return; t++; d+=(PESO[e]||0);});
   return t?Math.round(100*d/t):0;
 }
+/* rev10: cantidad de ítems hoja terminados / total del elemento ("No aplica" no cuenta) */
+function partConteo(pt){
+  let total=0,hechos=0;
+  partItems(pt).forEach(e=>{ if(PESO[e]===null) return; total++; if(e==="Terminado") hechos++; });
+  return {hechos,total};
+}
 function estadoLeaves(items){ let t=0,d=0; items.forEach(e=>{if(PESO[e]===null)return;t++;d+=(PESO[e]||0);}); return t?Math.round(100*d/t):0; }
 function partAbrev(pt){
   if(pt.tipo==="TABIQUE") return "T"+(pt.indice||"");
@@ -575,44 +609,50 @@ function partAbrev(pt){
   if(pt.tipo==="CIELORRASO") return "C";
   return "?";
 }
-function LocalPlan({local,draft,area,zoom,setZoom,mgmt,calPart,setCalPart,svgRef,onSvgClick}){
+/* rev10: mini-plano del local (zoom del plano del sector centrado en el local, con sus partes calibradas) */
+function LocalPlan({local,draft,area,dims,zoom,setZoom,onParte}){
+  if(!area||!area.plano_url) return null;
   if(local.plano_x==null||local.plano_y==null){
-    return <div className="localplan"><div className="lp-head"><b>Plano del local</b></div>
-      <div className="lp-note">Ubicá este local en el plano del sector (botón <b>⚙ Calibrar locales</b>) para ver su plano individual.</div>
+    return <div className="localplan"><div className="lp-head"><b>📍 Ubicación en el plano</b></div>
+      <div className="lp-note">Este local todavía no está ubicado en el plano (se ubica con <b>⚙ Calibrar</b>).</div>
     </div>;
   }
-  const W=area.plano_ancho||1000, H=area.plano_alto||1000;
-  const cropW=W*zoom, cropH=cropW*0.62;
+  if(!dims) return <div className="localplan"><div className="lp-head"><b>📍 Ubicación en el plano</b></div><div className="lp-note">Cargando plano…</div></div>;
+  const W=dims.w, H=dims.h;
+  const cropW=Math.min(W,W*zoom), cropH=Math.min(H,cropW*0.62);
   const cx=local.plano_x/100*W, cy=local.plano_y/100*H;
   const x0=Math.max(0,Math.min(cx-cropW/2,W-cropW)), y0=Math.max(0,Math.min(cy-cropH/2,H-cropH));
   const ubic=draft.partes.filter(p=>p.plano_x!=null&&p.plano_y!=null);
-  const sinUbic=draft.partes.filter(p=>p.plano_x==null);
-  const r=cropW*0.018, fs=cropW*0.026;
+  const sinUbic=draft.partes.filter(p=>p.plano_x==null||p.plano_y==null);
+  const r=cropW*0.032;
   return (
     <div className="localplan">
       <div className="lp-head">
-        <b>Plano del local</b>
+        <b>📍 Ubicación en el plano</b>
         <span className="lp-zoom">
-          <button className="btn sm" onClick={()=>setZoom(z=>Math.min(0.6,+(z+0.06).toFixed(2)))}>–</button>
-          <button className="btn sm" onClick={()=>setZoom(z=>Math.max(0.08,+(z-0.06).toFixed(2)))}>+</button>
+          <button className="btn sm" title="Alejar" onClick={()=>setZoom(z=>Math.min(1,+(z+0.06).toFixed(2)))}>–</button>
+          <button className="btn sm" title="Acercar" onClick={()=>setZoom(z=>Math.max(0.06,+(z-0.06).toFixed(2)))}>+</button>
         </span>
       </div>
       <div className="lp-svgwrap" style={{aspectRatio:cropW+" / "+cropH}}>
-        <svg ref={svgRef} viewBox={x0+" "+y0+" "+cropW+" "+cropH} width="100%" height="100%"
-             onClick={onSvgClick} style={{cursor:(mgmt&&calPart)?"crosshair":"default",display:"block"}}>
+        <svg viewBox={x0+" "+y0+" "+cropW+" "+cropH} width="100%" height="100%" style={{display:"block"}}>
           <image href={area.plano_url} x="0" y="0" width={W} height={H}/>
-          {ubic.map(pt=>{const c=colorPct(partPct(pt));
-            return <g key={pt.parte_id}>
-              <circle cx={pt.plano_x/100*W} cy={pt.plano_y/100*H} r={r} fill={c} stroke="#fff" strokeWidth={r*0.22}/>
-              <text x={pt.plano_x/100*W} y={pt.plano_y/100*H} fontSize={fs} fill="#fff" fontWeight="800"
-                    textAnchor="middle" dominantBaseline="central">{partAbrev(pt)}</text>
+          {ubic.length===0 && <g>
+            <circle cx={cx} cy={cy} r={r*1.2} fill="#1e3a5f" stroke="#fff" strokeWidth={r*0.2}/>
+            <text x={cx} y={cy} fontSize={r*(String(local.numero).length>3?0.6:0.85)} fill="#fff" fontWeight="800"
+                  textAnchor="middle" dominantBaseline="central">{local.numero}</text>
+          </g>}
+          {ubic.map(pt=>{const lab=partAbrev(pt);
+            return <g key={pt.parte_id} style={{cursor:"pointer"}} onClick={()=>onParte&&onParte(pt.parte_id)}>
+              <circle cx={pt.plano_x/100*W} cy={pt.plano_y/100*H} r={r} fill={colorParte(pt)} stroke="#fff" strokeWidth={r*0.2}/>
+              <text x={pt.plano_x/100*W} y={pt.plano_y/100*H} fontSize={r*(lab.length>2?0.75:0.95)} fill="#fff" fontWeight="800"
+                    textAnchor="middle" dominantBaseline="central">{lab}</text>
             </g>;})}
         </svg>
       </div>
-      {mgmt && <div className="lp-cal">
-        {calPart? <span>📍 Hacé click en el plano para ubicar la parte seleccionada.</span>
-                : <span>Seleccioná una parte abajo (📍 Ubicar) y hacé click en el plano.</span>}
-        {sinUbic.length>0 && <span className="lp-pend">{sinUbic.length} parte(s) sin ubicar</span>}
+      {sinUbic.length>0 && <div className="lp-cal">
+        <span>{ubic.length?"Tocá una parte del plano para abrirla.":"Las partes de este local todavía no están ubicadas en el plano."}</span>
+        <span className="lp-pend">{sinUbic.length} parte(s) sin ubicar</span>
       </div>}
     </div>
   );
@@ -712,9 +752,14 @@ function rollupEstado(subs){
   if(p>=100) return "Terminado"; if(p>0) return "Iniciado"; return "Sin realizar";
 }
 function nid(pfx){ return pfx+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36); }
-function PhasedTasks({pt,editable,editMode,patch}){
-  const [openF,setOpenF]=useState({});
-  const [exp,setExp]=useState({});
+function PhasedTasks({pt,editable,editMode,patch,foco}){
+  // rev10: si viene de Filtros (foco = nombre de tarea), abrir la etapa y desplegar esa tarea
+  const focoIds=useMemo(()=>{ const f={},t={}; if(foco){ (pt.fases||[]).forEach(fa=>(fa.grupos||[]).forEach(g=>(g.tareas||[]).forEach(x=>{
+    if(x.nombre===foco){ f[fa.id]=true; t[x.id]=true; } }))); } return {f,t}; },[]);
+  const [openF,setOpenF]=useState(focoIds.f);
+  const [exp,setExp]=useState(focoIds.t);
+  useEffect(()=>{ const id=Object.keys(focoIds.t)[0]; if(!id) return;
+    setTimeout(()=>{const el=document.getElementById("tk-"+id); if(el) el.scrollIntoView({behavior:"smooth",block:"start"});},80); },[]);
   const [oc,setOc]=useState({});
   const [nt,setNt]=useState({});     // "faseId|gi" -> texto tarea nueva
   const [nst,setNst]=useState({});   // tareaId -> texto subtarea nueva
@@ -776,7 +821,7 @@ function PhasedTasks({pt,editable,editMode,patch}){
                 const canExp=has||editMode;
                 const abierto=!!exp[t.id];
                 return (
-                <div className="tarea" key={t.id}>
+                <div className="tarea" key={t.id} id={"tk-"+t.id}>
                   <div className={"tarea-row"+(canExp?" clickable":"")} onClick={()=>canExp&&setExp(e=>({...e,[t.id]:!abierto}))}>
                     <button className={"twist"+(canExp?"":" no")}>{canExp?(abierto?"▾":"▸"):"•"}</button>
                     <span className="tarea-n">{t.nombre}{has?<span className="subc"> · {t.subtareas.length} etapas</span>:(editMode?<span className="subc"> · + subtareas</span>:null)}</span>
@@ -874,7 +919,7 @@ function PhasedTasks({pt,editable,editMode,patch}){
     </div>
   );
 }
-function LocalDetail({local,data,user,onClose,onSaved,initialParte}){
+function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco}){
   const editable = puedeEditar(user,local.local_id);
   const isAdmin = user.rol==="admin";
   const [draft,setDraft]=useState(()=>initDraft(local,data));
@@ -892,6 +937,14 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte}){
   const [saving,setSaving]=useState(false);
   const [msg,setMsg]=useState("");
   const [askClose,setAskClose]=useState(false);
+  // rev10: mini-plano (tamaño real de la imagen del plano para recortar bien)
+  const area=(data.areas||[]).find(a=>a.modulo===local.modulo&&a.nivel===local.nivel);
+  const [lpZoom,setLpZoom]=useState(0.22);
+  const [dims,setDims]=useState(null);
+  useEffect(()=>{ if(!area||!area.plano_url) return; const im=new Image();
+    im.onload=()=>setDims({w:im.naturalWidth||1000,h:im.naturalHeight||1000}); im.src=area.plano_url; },[area&&area.plano_url]);
+  function abrirParte(pid){ setOpenP(o=>({...o,[pid]:true}));
+    setTimeout(()=>{const el=document.getElementById("pt-"+pid); if(el) el.scrollIntoView({behavior:"smooth",block:"start"});},50); }
   function tryClose(){ if(dirty && !saving){ setAskClose(true); } else { onClose(); } }
   // rev9: si falla, el cartel queda abierto mostrando el error (antes se cerraba sin avisar)
   async function guardarYcerrar(){ const res=await guardar(); if(res&&res.ok){ onClose(); } }
@@ -989,14 +1042,14 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte}){
     else setMsg("Error: "+errorGuardado(res.error));
     return res;
   }
-  useEffect(()=>{ if(initialParte){ const el=document.getElementById("pt-"+initialParte);
+  useEffect(()=>{ if(initialParte && !foco){ const el=document.getElementById("pt-"+initialParte);
     if(el) el.scrollIntoView({behavior:"smooth",block:"start"}); } },[initialParte]);
   const orderTipo={SOLADO:0,TABIQUE:1,CIELORRASO:2};
   const partes=[...draft.partes].sort((a,b)=>(orderTipo[a.tipo]-orderTipo[b.tipo])||((a.indice||0)-(b.indice||0)));
 
   return (
-    <div className="overlay" onClick={e=>{if(e.target.className==="overlay")tryClose()}}>
-      <div className="modal">
+    <div className="overlay ov-local" onClick={e=>{if(e.target===e.currentTarget)tryClose()}}>
+      <div className="modal local">
         {askClose && (
           <div className="overlay" style={{zIndex:60}} onClick={e=>{if(e.target===e.currentTarget)setAskClose(false)}}>
             <div className="modal" style={{maxWidth:380,width:"90%"}}>
@@ -1034,6 +1087,7 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte}){
               <span className="hint">Acá solo se agregan o quitan (🗑) elementos. Las etapas/tareas/subtareas se definen en <b>Configuración matriz</b>.</span>
             </div>
           )}
+          <LocalPlan local={local} draft={draft} area={area} dims={dims} zoom={lpZoom} setZoom={setLpZoom} onParte={abrirParte}/>
           {partes.map(pt=>{
             const tareas=pt.tareas||[];
             const open=!!openP[pt.parte_id];
@@ -1044,12 +1098,14 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte}){
                 <span className="twist">{open?"▾":"▸"}</span>
                 <span className="t">{normEtq(pt.etiqueta)}</span>
                 {pt.tipologia && <span className="tip">· {pt.tipologia}</span>}
-                <span className="mini" style={{color:colorPct(partPct(pt))}}>{partPct(pt)}%</span>
+                {(()=>{const c=partConteo(pt); return <span className="mini" style={{color:colorPct(partPct(pt))}}
+                  title="Ítems terminados / total (sin contar los 'No aplica')">{c.hechos}/{c.total}</span>;})()}
                 {editable && edit && <button className="btn sm danger" title="Quitar elemento"
                   onClick={e=>{e.stopPropagation(); removeParte(pt.parte_id);}}>🗑</button>}
               </div>
               {open && (pt.fases
-                ? <PhasedTasks pt={pt} editable={editable} editMode={false} patch={fn=>patchParte(pt.parte_id,fn)}/>
+                ? <PhasedTasks pt={pt} editable={editable} editMode={false} patch={fn=>patchParte(pt.parte_id,fn)}
+                    foco={pt.parte_id===initialParte?foco:null}/>
                 : <React.Fragment>
               <div className="rubros">
                 {tareas.map(rid=>{
@@ -1551,7 +1607,7 @@ function FiltrosPanel({data,modulo:m0,nivel:n0,onClose,onAbrirLocal}){
               </div>
               <div className="ftable">
                 {filas.map(({l,p,e},i)=>(
-                  <div className="ftr" key={i} onClick={()=>{onAbrirLocal(l.local_id,p.parte_id);onClose();}}>
+                  <div className="ftr" key={i} onClick={()=>{onAbrirLocal(l.local_id,p.parte_id,tarea);onClose();}}>
                     <span className="ftloc">{l.numero}</span>
                     <span className="ftnom">{l.nombre}</span>
                     <span className="ftel">{normEtq(p.etiqueta)}</span>
@@ -1580,6 +1636,7 @@ function App(){
   const [mode,setMode]=useState("plano");   // "plano" | "botones"
   const [sel,setSel]=useState(null);
   const [selParte,setSelParte]=useState(null);   // parte a abrir al entrar (click desde el plano)
+  const [selFoco,setSelFoco]=useState(null);     // rev10: tarea a desplegar al entrar (desde Filtros)
   const [calib,setCalib]=useState(false);
   const [calibSel,setCalibSel]=useState(null);      // local_id a calibrar
   const [calibTarget,setCalibTarget]=useState("local"); // "local" | parte_id
@@ -1895,14 +1952,14 @@ function App(){
     )}
 
     {sel && <LocalDetail local={data.locales.find(l=>l.local_id===sel.local_id)} data={data} user={user}
-                         initialParte={selParte}
-                         onClose={()=>{setSel(null);setSelParte(null);}} onSaved={onSaved}/>}
+                         initialParte={selParte} foco={selFoco}
+                         onClose={()=>{setSel(null);setSelParte(null);setSelFoco(null);}} onSaved={onSaved}/>}
     {pwOpen && <CambiarPwd onClose={()=>setPwOpen(false)}/>}
     {usersOpen && <UsuariosPanel onClose={()=>setUsersOpen(false)}/>}
     {matrizOpen && <MatrizPanel data={data} onClose={()=>setMatrizOpen(false)} onApplied={onMatriz}/>}
     {qrOpen && <QRPanel data={data} modulo={modulo} nivel={nivel} onClose={()=>setQrOpen(false)}/>}
     {filtrosOpen && <FiltrosPanel data={data} modulo={modulo} nivel={nivel} onClose={()=>setFiltrosOpen(false)}
-       onAbrirLocal={(lid,pid)=>{const l=data.locales.find(x=>x.local_id===lid); if(l){setModulo(l.modulo);setNivel(l.nivel);setSelParte(pid||null);setSel(l);}}}/>}
+       onAbrirLocal={(lid,pid,tarea)=>{const l=data.locales.find(x=>x.local_id===lid); if(l){setModulo(l.modulo);setNivel(l.nivel);setSelParte(pid||null);setSelFoco(tarea||null);setSel(l);}}}/>}
     {confirmDel && (
       <div className="overlay" onClick={e=>{if(e.target.className==="overlay")setConfirmDel(null)}}>
         <div className="modal" style={{maxWidth:420,width:"92%"}}>
@@ -1918,7 +1975,7 @@ function App(){
 
     <div className="foot">
       Avance de Obra · beta {ONLINE?"· en línea (Supabase)":"· MODO DEMO (datos de ejemplo)"}
-      <span style={{marginLeft:6,fontSize:9.5,opacity:.55}}>{APP_REV}</span>
+      <span style={{marginLeft:8,fontSize:11.5,fontWeight:700,color:"#475569",background:"#e2e8f0",borderRadius:99,padding:"2px 8px"}}>Rev. {APP_REV.replace(/^rev/,"")}</span>
     </div>
   </div>
   );
