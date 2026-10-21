@@ -295,6 +295,7 @@ const ONLINE = !!(SUPABASE_URL && SUPABASE_ANON);
 let _sb=null;
 function getSB(){ if(!_sb && ONLINE && window.supabase){ _sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON); } return _sb; }
 
+const APP_REV = "rev8";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
 const ESTADOS = ["Sin realizar","Iniciado","Terminado","No aplica"];
 // rev5: la matriz gobierna SOLO estas etapas; el resto es por local
 const PP_NOMBRE = "Primeros pasos";
@@ -1905,6 +1906,7 @@ function App(){
 
     <div className="foot">
       Avance de Obra · beta {ONLINE?"· en línea (Supabase)":"· MODO DEMO (datos de ejemplo)"}
+      <span style={{marginLeft:6,fontSize:9.5,opacity:.55}}>{APP_REV}</span>
     </div>
   </div>
   );
