@@ -295,7 +295,15 @@ const ONLINE = !!(SUPABASE_URL && SUPABASE_ANON);
 let _sb=null;
 function getSB(){ if(!_sb && ONLINE && window.supabase){ _sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON); } return _sb; }
 
-const APP_REV = "rev8";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
+const APP_REV = "rev9";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
+/* rev9: traduce el error del servidor al guardar a un mensaje claro para el usuario */
+function errorGuardado(e){
+  const s=String(e||"");
+  if(/permiso|42501/i.test(s)) return "No tenés permiso para editar este local. Pedile al administrador que te habilite. (Los cambios NO se guardaron.)";
+  if(/jwt|token|expired|session|sesi[oó]n/i.test(s)) return "Tu sesión venció. Anotá los cambios, salí y volvé a entrar. (Los cambios NO se guardaron.)";
+  if(/fetch|network|failed to|timeout|conex/i.test(s)) return "Sin conexión con el servidor. Revisá internet y probá guardar de nuevo.";
+  return "No se pudo guardar: "+(s||"error desconocido");
+}
 const ESTADOS = ["Sin realizar","Iniciado","Terminado","No aplica"];
 // rev5: la matriz gobierna SOLO estas etapas; el resto es por local
 const PP_NOMBRE = "Primeros pasos";
@@ -885,7 +893,8 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte}){
   const [msg,setMsg]=useState("");
   const [askClose,setAskClose]=useState(false);
   function tryClose(){ if(dirty && !saving){ setAskClose(true); } else { onClose(); } }
-  async function guardarYcerrar(){ const res=await guardar(); if(res&&res.ok){ onClose(); } else { setAskClose(false); } }
+  // rev9: si falla, el cartel queda abierto mostrando el error (antes se cerraba sin avisar)
+  async function guardarYcerrar(){ const res=await guardar(); if(res&&res.ok){ onClose(); } }
 
   const rubrosById = useMemo(()=>Object.fromEntries((data.rubros||[]).map(r=>[r.id,r])),[data]);
   const nombreDe = (rid)=> customR[rid] || (rubrosById[rid]||{}).nombre || rid;
@@ -977,7 +986,7 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte}){
                              partes,borrar,cambios});
     setSaving(false);
     if(res.ok){ setMsg("Guardado ✓"); setDirty(false); onSaved(draft); }
-    else setMsg("Error: "+(res.error||"desconocido"));
+    else setMsg("Error: "+errorGuardado(res.error));
     return res;
   }
   useEffect(()=>{ if(initialParte){ const el=document.getElementById("pt-"+initialParte);
@@ -994,6 +1003,7 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte}){
               <div className="mhead"><div><h2>¿Guardar cambios?</h2>
                 <div style={{fontSize:12,opacity:.85}}>Tenés cambios sin guardar en este local.</div></div></div>
               <div className="mbody" style={{display:"flex",flexDirection:"column",gap:8}}>
+                {msg.startsWith("Error") && <div className="err" style={{margin:0,fontWeight:600}}>⚠️ {msg.slice(7)}</div>}
                 <button className="btn primary" disabled={saving} onClick={guardarYcerrar}>{saving?"Guardando…":"💾 Guardar y cerrar"}</button>
                 <button className="btn danger" disabled={saving} onClick={()=>{setAskClose(false);onClose();}}>Cerrar sin guardar</button>
                 <button className="btn" disabled={saving} onClick={()=>setAskClose(false)}>Seguir editando</button>
@@ -1106,7 +1116,9 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte}){
         {editable && (
           <div className="savebar">
             <button className="btn primary" disabled={!dirty||saving} onClick={guardar}>{saving?"Guardando…":"Guardar cambios"}</button>
-            <span className="msg">{msg||(dirty?"Hay cambios sin guardar":"")}</span>
+            {msg.startsWith("Error")
+              ? <div className="err" style={{margin:0,flex:1,fontWeight:600}}>⚠️ {msg.slice(7)}</div>
+              : <span className="msg">{msg||(dirty?"Hay cambios sin guardar":"")}</span>}
           </div>
         )}
       </div>
