@@ -274,6 +274,9 @@
   .chead{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:12px}
   .chead b{color:var(--brand)}
   .chead span{color:var(--muted);font-size:11px}
+  .chead .cedit{margin-left:auto;display:inline-flex;gap:10px}
+  .chead .cedit .clink{font-size:11.5px;color:var(--muted)}
+  .chead .cedit .clink.cdel:hover{color:#b91c1c}
   .ctexto{font-size:13px;color:var(--ink);white-space:pre-wrap;word-break:break-word}
   .cfoto{max-width:180px;max-height:180px;border-radius:8px;border:1px solid var(--line);cursor:zoom-in;object-fit:cover;margin-top:4px}
   .cfoto-load{font-size:11.5px;color:var(--muted);margin-top:4px}
@@ -361,7 +364,7 @@ const ONLINE = !!(SUPABASE_URL && SUPABASE_ANON);
 let _sb=null;
 function getSB(){ if(!_sb && ONLINE && window.supabase){ _sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON); } return _sb; }
 
-const APP_REV = "rev13";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
+const APP_REV = "rev14";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
 /* rev9: traduce el error del servidor al guardar a un mensaje claro para el usuario */
 function errorGuardado(e){
   const s=String(e||"");
@@ -530,6 +533,19 @@ async function apiCerrarComentario(id, cerrado){
   const {data,error}=await getSB().rpc('av_cerrar_comentario',{p_id:id, p_cerrado:cerrado});
   if(error) return {ok:false, error:error.message};
   return {ok:true, row:data};
+}
+// rev14: editar / borrar comentarios (autor o admin)
+async function apiEditarComentario(id, texto){
+  if(!ONLINE) return {ok:true, row:{texto, editado_en:new Date().toISOString()}};
+  const {data,error}=await getSB().rpc('av_editar_comentario',{p_id:id, p_texto:texto});
+  if(error) return {ok:false, error:error.message};
+  return {ok:true, row:data};
+}
+async function apiBorrarComentario(id){
+  if(!ONLINE) return {ok:true};
+  const {error}=await getSB().rpc('av_borrar_comentario',{p_id:id});
+  if(error) return {ok:false, error:error.message};
+  return {ok:true};
 }
 // Achica la foto en el navegador (máx. 1600 px, JPEG) para que pese ~200-400 KB
 function achicarFoto(file){
@@ -921,10 +937,42 @@ function Composer({placeholder,onEnviar,autoFocus}){
   );
 }
 function CMsg({c}){
+  const ctx=React.useContext(ComCtx);
+  const [editando,setEditando]=useState(false);
+  const [txt,setTxt]=useState(c.texto||"");
+  const [ocupado,setOcupado]=useState(false);
+  const puede=ctx&&ctx.puedeTocar(c);
+  async function guardarEdicion(){
+    setOcupado(true);
+    const r=await apiEditarComentario(c.id, txt.trim());
+    setOcupado(false);
+    if(!r.ok){ alert("No se pudo editar: "+r.error); return; }
+    ctx.actualizar(c.id,{texto:(r.row&&r.row.texto!=null)?r.row.texto:txt.trim(), editado_en:r.row&&r.row.editado_en});
+    setEditando(false);
+  }
+  async function borrar(){
+    const resp=!c.parent_id && ctx.coms.some(x=>x.parent_id===c.id);
+    if(!confirm("¿Borrar este comentario"+(resp?" y TODAS sus respuestas":"")+"? No se puede deshacer.")) return;
+    const r=await apiBorrarComentario(c.id);
+    if(!r.ok){ alert("No se pudo borrar: "+r.error); return; }
+    ctx.borrar(c.id);
+  }
   return (
     <div className="cmsg">
-      <div className="chead"><b>{c.autor_nombre||c.autor_email||"?"}</b><span>{fmtFecha(c.creado_en)}</span></div>
-      {c.texto && <div className="ctexto">{c.texto}</div>}
+      <div className="chead"><b>{c.autor_nombre||c.autor_email||"?"}</b><span>{fmtFecha(c.creado_en)}{c.editado_en?" · editado":""}</span>
+        {puede && !editando && <span className="cedit">
+          <button className="clink" title="Editar" onClick={()=>{setTxt(c.texto||"");setEditando(true);}}>✏️ Editar</button>
+          <button className="clink cdel" title="Borrar" onClick={borrar}>🗑 Borrar</button></span>}
+      </div>
+      {editando
+        ? <div className="ccomp">
+            <textarea rows={2} value={txt} autoFocus onChange={e=>setTxt(e.target.value)}/>
+            <div className="ccomp-act">
+              <button className="btn sm" onClick={()=>setEditando(false)} disabled={ocupado}>Cancelar</button>
+              <button className="btn sm primary" onClick={guardarEdicion} disabled={ocupado||(!txt.trim()&&!c.foto_path)}>{ocupado?"Guardando…":"Guardar"}</button>
+            </div>
+          </div>
+        : c.texto && <div className="ctexto">{c.texto}</div>}
       {c.foto_path && <Foto path={c.foto_path}/>}
     </div>
   );
@@ -1168,7 +1216,17 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco}){
   useEffect(()=>{ if(comCtx) comCtx.refrescar(local.local_id); },[local.local_id]);
   // rev10: mini-plano (tamaño real de la imagen del plano para recortar bien)
   const area=(data.areas||[]).find(a=>a.modulo===local.modulo&&a.nivel===local.nivel);
-  const [lpZoom,setLpZoom]=useState(0.22);
+  const [lpZoom,setLpZoom]=useState(0.40);
+  // rev14: al cargar el plano, zoom inicial más alejado (≈3 clics del anterior) y, si hace falta,
+  // más todavía para que entren TODAS las partes ubicadas del local
+  useEffect(()=>{ if(!dims||local.plano_x==null||local.plano_y==null) return;
+    const cx=local.plano_x/100*dims.w, cy=local.plano_y/100*dims.h;
+    let necW=0;
+    (local.partes||[]).forEach(p=>{ if(p.plano_x==null||p.plano_y==null) return;
+      const dx=Math.abs(p.plano_x/100*dims.w-cx), dy=Math.abs(p.plano_y/100*dims.h-cy);
+      necW=Math.max(necW, 2*dx*1.3, 2*dy*1.3/0.62); });   // 0.62 = alto/ancho del recorte
+    setLpZoom(Math.min(1, Math.max(0.40, +(necW/dims.w).toFixed(2))));
+  },[dims]);
   const [dims,setDims]=useState(null);
   useEffect(()=>{ if(!area||!area.plano_url) return; const im=new Image();
     im.onload=()=>setDims({w:im.naturalWidth||1000,h:im.naturalHeight||1000}); im.src=area.plano_url; },[area&&area.plano_url]);
@@ -2085,6 +2143,9 @@ function App(){
     agregar:row=>setData(d=>({...d,comentarios:[...(d.comentarios||[]),row]})),
     actualizar:(id,patch)=>setData(d=>({...d,comentarios:(d.comentarios||[]).map(c=>c.id===id?{...c,...patch}:c)})),
     puedeCerrar:c=>!!user && !c.parent_id && ((c.autor_id&&c.autor_id===user.id) || user.rol==="admin" || puedeEditar(user,c.local_id)),
+    // rev14: editar/borrar → solo el autor o un admin
+    puedeTocar:c=>!!user && ((c.autor_id&&c.autor_id===user.id) || user.rol==="admin"),
+    borrar:id=>setData(d=>({...d,comentarios:(d.comentarios||[]).filter(c=>c.id!==id&&c.parent_id!==id)})),
     refrescar:async lid=>{ if(!ONLINE) return; const sb=getSB(); if(!sb) return;
       const nuevos=await leerComentarios(sb,lid);
       setData(d=>d?({...d,comentarios:[...(d.comentarios||[]).filter(c=>c.local_id!==lid),...nuevos]}):d); }
