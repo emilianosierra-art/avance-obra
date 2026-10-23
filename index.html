@@ -291,6 +291,17 @@
   .cfotobtn{cursor:pointer;border:1px solid var(--line)}
   .cfile{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink)}
   .reptxt{width:100%;min-height:55vh;border:1px solid var(--line);border-radius:10px;padding:12px;font-family:ui-monospace,Consolas,monospace;font-size:12.5px;line-height:1.5;margin-top:10px;white-space:pre;background:#fff}
+  /* rev13: panel de usuarios */
+  .umsg{display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:3;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:10px;padding:9px 12px;margin-bottom:10px;font-size:13px;font-weight:600}
+  .umsg.ok{background:#dcfce7;border-color:#86efac;color:#166534}
+  .umsg.bad{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+  .umsg .btn{margin-left:auto}
+  .utab tr.udirty td{background:#fffbeb}
+  .utab tr.uerr td{background:#fef2f2}
+  .utab tr.uinact td{opacity:.6}
+  .uerrtxt{color:#b91c1c;font-size:11.5px;font-weight:700;margin-top:3px;white-space:normal}
+  .uyo{color:var(--muted);font-weight:600;font-size:11px}
+  .umuted{color:var(--muted);font-size:12px}
   /* rev10: celular — la ficha del local (la que abre el QR) ocupa toda la pantalla y se lee cómoda */
   @media(max-width:640px){
     .overlay.ov-local{align-items:stretch}
@@ -350,7 +361,7 @@ const ONLINE = !!(SUPABASE_URL && SUPABASE_ANON);
 let _sb=null;
 function getSB(){ if(!_sb && ONLINE && window.supabase){ _sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON); } return _sb; }
 
-const APP_REV = "rev12";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
+const APP_REV = "rev13";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
 /* rev9: traduce el error del servidor al guardar a un mensaje claro para el usuario */
 function errorGuardado(e){
   const s=String(e||"");
@@ -1439,39 +1450,100 @@ function CambiarPwd({onClose}){
   );
 }
 /* ================== Panel de usuarios (admin) ================== */
-function UsuariosPanel({onClose}){
+/* rev13: modo demo del panel (para probar sin Supabase) */
+const demoPerfiles=[
+  {id:"demo",email:"demo@obra.com",nombre:"Admin demo",rol:"admin",activo:true,locales_edicion:""},
+  {id:"u2",email:"mariapaz@obra.com",nombre:"Maria Paz",rol:"editor",activo:true,locales_edicion:"*"},
+  {id:"u3",email:"paz@obra.com",nombre:"Paz",rol:"editor",activo:true,locales_edicion:"*"},
+  {id:"u4",email:"lagunas.cocina@gmail.com",nombre:"lagunas.cocina",rol:"lector",activo:false,locales_edicion:""}];
+const ORD_ROL={admin:0,editor:1,lector:2};
+function UsuariosPanel({onClose,user}){
   const [rows,setRows]=useState(null);
   const [msg,setMsg]=useState("");
   const [nuevo,setNuevo]=useState({email:"",nombre:"",rol:"lector",activo:true,locales:""});
+  const [quitar,setQuitar]=useState(null);   // fila a confirmar "quitar de la app"
+  const yo=((user&&user.email)||"").toLowerCase();
+  // rev13: al recargar NO se pisan las filas con cambios sin guardar (antes se perdían)
   async function cargar(){
-    const sb=getSB();
-    const {data,error}=await sb.from("av_perfiles").select("*").order("email");
-    if(error){ setMsg("Error al cargar: "+error.message); setRows([]); }
-    else setRows(data||[]);
+    let lista, error=null;
+    if(!ONLINE){ lista=JSON.parse(JSON.stringify(demoPerfiles)); }
+    else { const r=await getSB().from("av_perfiles").select("*").order("email"); lista=r.data; error=r.error; }
+    if(error){ setMsg("Error al cargar: "+error.message); setRows(rs=>rs||[]); return; }
+    setRows(rs=>{ const sucias={}; (rs||[]).forEach(r=>{ if(r._dirty) sucias[r.id]=r; });
+      return (lista||[]).map(r=>sucias[r.id]||r)
+        .sort((a,b)=>((a.activo?0:1)-(b.activo?0:1))||(ORD_ROL[a.rol]-ORD_ROL[b.rol])||String(a.email).localeCompare(String(b.email))); });
   }
   useEffect(()=>{ cargar(); },[]);
-  async function guardar(p){
-    setMsg("Guardando "+p.email+"…");
-    const sb=getSB();
-    const {data,error}=await sb.rpc("av_upsert_perfil",{p_email:p.email,p_nombre:p.nombre||"",
-      p_rol:p.rol,p_activo:!!p.activo,p_locales:p.locales_edicion||p.locales||""});
-    if(error){ setMsg("Error: "+error.message); return false; }
-    if(data&&data.ok===false){ setMsg(data.error||"No se pudo guardar"); return false; }
-    setMsg("✓ Guardado "+p.email); await cargar(); return true;
+  async function rpc(fn,args){
+    if(!ONLINE){
+      if(fn==="av_quitar_perfil"){ const i=demoPerfiles.findIndex(p=>p.email===args.p_email); if(i>=0) demoPerfiles.splice(i,1); }
+      if(fn==="av_upsert_perfil"){ const p=demoPerfiles.find(x=>x.email===args.p_email);
+        const v={email:args.p_email,nombre:args.p_nombre,rol:args.p_rol,activo:args.p_activo,locales_edicion:args.p_rol==="editor"?args.p_locales:""};
+        if(p) Object.assign(p,v); else demoPerfiles.push({id:"n"+Date.now(),...v}); }
+      return {data:{ok:true},error:null};
+    }
+    return await getSB().rpc(fn,args);
   }
-  function upd(id,campo,val){ setRows(rs=>rs.map(r=>r.id===id?{...r,[campo]:val}:r)); }
+  async function guardarRow(p){
+    setRows(rs=>rs.map(r=>r.id===p.id?{...r,_estado:"guardando"}:r));
+    const {data,error}=await rpc("av_upsert_perfil",{p_email:p.email,p_nombre:p.nombre||"",
+      p_rol:p.rol,p_activo:!!p.activo,p_locales:p.rol==="editor"?(p.locales_edicion||""):""});
+    const err = error ? error.message : (data&&data.ok===false ? (data.error||"No se pudo guardar") : null);
+    setRows(rs=>rs.map(r=>r.id===p.id?{...r,_dirty:!!err,_estado:err?("Error: "+err):"ok"}:r));
+    return !err;
+  }
+  async function guardarTodos(){
+    const sucias=(rows||[]).filter(r=>r._dirty); let ok=0;
+    for(const r of sucias){ if(await guardarRow(r)) ok++; }
+    setMsg(ok===sucias.length ? "✓ Guardados "+ok+" usuario(s)" : "Se guardaron "+ok+" de "+sucias.length+". Revisá las filas en rojo.");
+  }
+  function upd(id,campo,val){ setRows(rs=>rs.map(r=>{ if(r.id!==id) return r;
+    const n={...r,[campo]:val,_dirty:true,_estado:""};
+    if(campo==="rol" && val!=="editor") n.locales_edicion="";        // solo los editores tienen lista de locales
+    if(campo==="rol" && val==="editor" && !n.locales_edicion) n.locales_edicion="*";
+    return n; })); }
   async function agregar(){
-    if(!nuevo.email.trim()){ setMsg("Poné un email."); return; }
-    const ok=await guardar(nuevo);
-    if(ok) setNuevo({email:"",nombre:"",rol:"lector",activo:true,locales:""});
+    const email=nuevo.email.trim().toLowerCase();
+    if(!email){ setMsg("Poné un email."); return; }
+    setMsg("Asignando "+email+"…");
+    const {data,error}=await rpc("av_upsert_perfil",{p_email:email,p_nombre:nuevo.nombre||"",
+      p_rol:nuevo.rol,p_activo:true,p_locales:nuevo.rol==="editor"?(nuevo.locales||"*"):""});
+    const err = error ? error.message : (data&&data.ok===false ? (data.error||"No se pudo asignar") : null);
+    if(err){ setMsg("Error: "+err); return; }
+    setMsg("✓ Asignado "+email); setNuevo({email:"",nombre:"",rol:"lector",activo:true,locales:""}); await cargar();
   }
+  async function doQuitar(r){
+    const {data,error}=await rpc("av_quitar_perfil",{p_email:r.email});
+    setQuitar(null);
+    if(error){ setMsg("Error: "+error.message); return; }
+    setRows(rs=>rs.filter(x=>x.id!==r.id)); setMsg("✓ "+r.email+" ya no tiene acceso a esta app (su login sigue funcionando en las otras apps).");
+  }
+  const nSucias=(rows||[]).filter(r=>r._dirty).length;
+  function tryClose(){ if(nSucias && !confirm("Hay "+nSucias+" usuario(s) con cambios SIN GUARDAR. ¿Cerrar igual y perderlos?")) return; onClose(); }
   return (
-    <div className="overlay" onClick={e=>{if(e.target.className==="overlay")onClose()}}>
-      <div className="modal" style={{maxWidth:820}}>
+    <div className="overlay" onClick={e=>{if(e.target===e.currentTarget)tryClose()}}>
+      <div className="modal" style={{maxWidth:900}}>
+        {quitar && (
+          <div className="overlay" style={{zIndex:60}} onClick={e=>{if(e.target===e.currentTarget)setQuitar(null)}}>
+            <div className="modal" style={{maxWidth:440,width:"92%"}}>
+              <div className="mhead"><div><h2>Quitar de la app</h2>
+                <div style={{fontSize:12,opacity:.85}}><b>{quitar.email}</b> deja de ver Avance de Obra.
+                  Su login <b>NO</b> se borra: sigue entrando normal a las otras apps que comparten usuarios.</div></div></div>
+              <div className="mbody" style={{display:"flex",flexDirection:"column",gap:8}}>
+                <button className="btn danger" onClick={()=>doQuitar(quitar)}>Sí, quitar de esta app</button>
+                <button className="btn" onClick={()=>setQuitar(null)}>Cancelar</button>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="mhead"><div><h2 style={{fontSize:18}}>Usuarios y permisos</h2>
-          <div style={{fontSize:12,opacity:.85}}>El login (email+contraseña) se crea en Supabase; acá asignás rol y permisos.</div></div>
-          <button className="x" onClick={onClose}>×</button></div>
+          <div style={{fontSize:12,opacity:.85}}>El login es compartido con otras apps: acá solo se asigna o quita el acceso a esta obra.</div></div>
+          <button className="x" onClick={tryClose}>×</button></div>
         <div className="mbody">
+          {(msg||nSucias>0) && <div className={"umsg"+(msg.startsWith("✓")?" ok":(msg.startsWith("Error")||msg.startsWith("Se guardaron")?" bad":""))}>
+            <span>{msg||("Hay "+nSucias+" usuario(s) con cambios sin guardar.")}</span>
+            {nSucias>0 && <button className="btn sm primary" onClick={guardarTodos}>💾 Guardar todos los cambios ({nSucias})</button>}
+          </div>}
           <div className="addparte" style={{alignItems:"flex-end"}}>
             <div style={{display:"flex",gap:8,flexWrap:"wrap",width:"100%"}}>
               <input className="pwinp" style={{flex:"2 1 180px",margin:0}} placeholder="email@…" value={nuevo.email}
@@ -1488,29 +1560,40 @@ function UsuariosPanel({onClose}){
             </div>
           </div>
           {rows===null ? <div className="loading">Cargando…</div> : (
+            <div style={{overflowX:"auto"}}>
             <table className="utab">
               <thead><tr><th>Email</th><th>Nombre</th><th>Rol</th><th>Activo</th><th>Locales que edita</th><th></th></tr></thead>
               <tbody>
-                {rows.map(r=>(
-                  <tr key={r.id}>
-                    <td className="uemail">{r.email}</td>
+                {rows.map(r=>{ const esYo=String(r.email||"").toLowerCase()===yo;
+                  const err=String(r._estado||"").startsWith("Error");
+                  return (
+                  <tr key={r.id} className={(r._dirty?"udirty":"")+(err?" uerr":"")+(r.activo?"":" uinact")}>
+                    <td className="uemail">{r.email}{esYo&&<span className="uyo"> (vos)</span>}
+                      {err && <div className="uerrtxt">{r._estado.slice(7)}</div>}</td>
                     <td><input className="ucell" value={r.nombre||""} onChange={e=>upd(r.id,"nombre",e.target.value)}/></td>
-                    <td><select className="ucell" value={r.rol} onChange={e=>upd(r.id,"rol",e.target.value)}>
+                    <td><select className="ucell" value={r.rol} disabled={esYo} title={esYo?"No te podés cambiar el rol a vos mismo":""}
+                      onChange={e=>upd(r.id,"rol",e.target.value)}>
                       <option value="lector">lector</option><option value="editor">editor</option><option value="admin">admin</option></select></td>
-                    <td style={{textAlign:"center"}}><input type="checkbox" checked={!!r.activo} onChange={e=>upd(r.id,"activo",e.target.checked)}/></td>
-                    <td><input className="ucell" placeholder="* o A-PB-101,…" value={r.locales_edicion||""}
-                      onChange={e=>upd(r.id,"locales_edicion",e.target.value)} disabled={r.rol!=="editor"}/></td>
-                    <td><button className="btn sm primary" onClick={()=>guardar(r)}>Guardar</button></td>
-                  </tr>
-                ))}
+                    <td style={{textAlign:"center"}}><input type="checkbox" checked={!!r.activo} disabled={esYo} onChange={e=>upd(r.id,"activo",e.target.checked)}/></td>
+                    <td>{r.rol==="editor"
+                      ? <input className="ucell" placeholder="* o A-PB-101,…" value={r.locales_edicion||""} onChange={e=>upd(r.id,"locales_edicion",e.target.value)}/>
+                      : <span className="umuted">{r.rol==="admin"?"todos (admin)":"— (solo consulta)"}</span>}</td>
+                    <td style={{whiteSpace:"nowrap"}}>
+                      <button className={"btn sm"+(r._dirty?" primary":"")} disabled={!r._dirty||r._estado==="guardando"} onClick={()=>guardarRow(r)}>
+                        {r._estado==="guardando"?"Guardando…":(r._estado==="ok"&&!r._dirty?"✓ Guardado":"Guardar")}</button>
+                      {!esYo && <button className="btn sm danger" style={{marginLeft:6}} title="Quitar de esta app (no borra su login)" onClick={()=>setQuitar(r)}>🗑</button>}
+                    </td>
+                  </tr>);})}
                 {rows.length===0 && <tr><td colSpan="6" style={{color:"#64748b",padding:14}}>Todavía no hay perfiles de obra. Asigná el primero arriba.</td></tr>}
               </tbody>
             </table>
+            </div>
           )}
-          {msg && <div style={{marginTop:10,fontSize:13,fontWeight:600,color:msg.startsWith("✓")?"#166534":(msg.startsWith("Guardando")?"#64748b":"#b91c1c")}}>{msg}</div>}
           <div style={{marginTop:10,fontSize:11.5,color:"#64748b"}}>
-            <b>Rol:</b> admin (edita todo + gestiona usuarios) · editor (edita los locales de la lista) · lector (solo consulta).
-            En <b>Locales que edita</b>: <code>*</code> = todos, o IDs separados por coma (ej. <code>A-PB-101,A-PB-104</code>). Solo aplica a editores.
+            <b>Rol:</b> admin (edita todo + gestiona usuarios) · editor (edita los locales de la lista) · lector (solo consulta y comenta).
+            En <b>Locales que edita</b>: <code>*</code> = todos, o IDs separados por coma (ej. <code>A-PB-101,A-PB-104</code>). Solo aplica a editores.<br/>
+            Las filas en amarillo tienen cambios sin guardar. Los cambios le llegan a la persona cuando recarga la app.
+            🗑 quita el acceso a esta app; el login sigue sirviendo para las otras apps.
           </div>
         </div>
       </div>
@@ -2265,7 +2348,7 @@ function App(){
                          initialParte={selParte} foco={selFoco}
                          onClose={()=>{setSel(null);setSelParte(null);setSelFoco(null);}} onSaved={onSaved}/>}
     {pwOpen && <CambiarPwd onClose={()=>setPwOpen(false)}/>}
-    {usersOpen && <UsuariosPanel onClose={()=>setUsersOpen(false)}/>}
+    {usersOpen && <UsuariosPanel user={user} onClose={()=>setUsersOpen(false)}/>}
     {matrizOpen && <MatrizPanel data={data} onClose={()=>setMatrizOpen(false)} onApplied={onMatriz}/>}
     {qrOpen && <QRPanel data={data} modulo={modulo} nivel={nivel} onClose={()=>setQrOpen(false)}/>}
     {reporteOpen && <ReportePanel data={data} modulo={modulo} nivel={nivel} onClose={()=>setReporteOpen(false)}/>}
