@@ -364,7 +364,7 @@ const ONLINE = !!(SUPABASE_URL && SUPABASE_ANON);
 let _sb=null;
 function getSB(){ if(!_sb && ONLINE && window.supabase){ _sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON); } return _sb; }
 
-const APP_REV = "rev14";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
+const APP_REV = "rev15";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
 /* rev9: traduce el error del servidor al guardar a un mensaje claro para el usuario */
 function errorGuardado(e){
   const s=String(e||"");
@@ -1354,7 +1354,7 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco}){
         <div className="mhead">
           <div>
             <h2><span style={{opacity:.85,fontWeight:600}}>{local.numero}</span> · {local.nombre}</h2>
-            <div style={{fontSize:12,opacity:.85}}>Mód. {local.modulo} · {nNom(local.nivel)} — {avancePct(draft)}% completado</div>
+            <div style={{fontSize:12,opacity:.85}}>{mNom(local.modulo)} · {nNom(local.nivel)} — {avancePct(draft)}% completado</div>
           </div>
           {editable && <button className={"btn sm"+(edit?" primary":"")} style={{marginLeft:"auto"}}
                        onClick={()=>setEdit(v=>!v)}>{edit?"✔ Listo":"✏️ Editar"}</button>}
@@ -1858,7 +1858,7 @@ function QRPanel({data,modulo,nivel,onClose}){
   const baseURL = (window.location.origin+window.location.pathname).replace(/[?#].*$/,"");
   const locs = (scope==="sector")
     ? data.locales.filter(l=>l.modulo===modulo&&l.nivel===nivel)
-    : [...data.locales].sort((a,b)=> (a.modulo+a.nivel).localeCompare(b.modulo+b.nivel) || (a.numero||"").localeCompare(b.numero||"",'es',{numeric:true}));
+    : [...data.locales].sort((a,b)=> ordArea(a,b) || (a.numero||"").localeCompare(b.numero||"",'es',{numeric:true}));
   const hayLib = !!window.qrcode;
   return (
     <div className="overlay" onClick={e=>{if(e.target.className==="overlay")onClose()}}>
@@ -1937,7 +1937,7 @@ function FiltrosPanel({data,modulo:m0,nivel:n0,onClose,onAbrirLocal}){
         <div className="mbody">
           <div className="fgrid">
             <div className="frow"><span className="lbl">Módulo</span>
-              {["A","B","C"].map(x=><button key={x} className={"vchip"+(m===x?" on":"")} onClick={()=>setM(x)}>{x}</button>)}</div>
+              {MODS.map(x=><button key={x} className={"vchip"+(m===x?" on":"")} onClick={()=>setM(x)}>{mLbl(x)}</button>)}</div>
             <div className="frow"><span className="lbl">Piso</span>
               {[["PB","Planta Baja"],["PA","Planta Alta"],["EP","Entrepiso"]].map(([c,nm])=>
                 <button key={c} className={"vchip"+(n===c?" on":"")} onClick={()=>setN(c)}>{nm}</button>)}</div>
@@ -2021,8 +2021,8 @@ function ReportePanel({data,modulo,nivel,onClose}){
   const [copiado,setCopiado]=useState(false);
   const locs = (scope==="sector")
     ? data.locales.filter(l=>l.modulo===modulo&&l.nivel===nivel)
-    : [...data.locales].sort((a,b)=>(a.modulo+a.nivel).localeCompare(b.modulo+b.nivel));
-  const locsOrd=[...locs].sort((a,b)=>(a.modulo+a.nivel).localeCompare(b.modulo+b.nivel)||(a.numero||"").localeCompare(b.numero||"",'es',{numeric:true}));
+    : [...data.locales];
+  const locsOrd=[...locs].sort((a,b)=>ordArea(a,b)||(a.numero||"").localeCompare(b.numero||"",'es',{numeric:true}));
   const titulo = scope==="sector" ? mNom(modulo)+" · "+nNom(nivel) : "Toda la obra";
   const texto=armarReporte(data,locsOrd,titulo);
   async function copiar(){
@@ -2061,7 +2061,7 @@ function ReportePanel({data,modulo,nivel,onClose}){
   );
 }
 /* ================== App ================== */
-const MODS=["A","B","C"];
+const MODS=["A","C1","B","C"];   // rev15: C1 = conector C-1, va entre A y B
 const NIVS=[["PB","Planta Baja"],["PA","Planta Alta"],["EP","Entrepiso"]];
 function App(){
   const [user,setUser]=useState(null);
@@ -2259,7 +2259,7 @@ function App(){
       <div className="areagrp">
         <span className="lbl">Módulo</span>
         {MODS.map(m=><button key={m} className={"achip"+(modulo===m?" on":"")}
-                     onClick={()=>cambiarArea(m,nivel)}>{m}</button>)}
+                     onClick={()=>cambiarArea(m,nivel)}>{mLbl(m)}</button>)}
       </div>
       <div className="areagrp">
         <span className="lbl">Planta</span>
@@ -2436,7 +2436,11 @@ function App(){
   </ComCtx.Provider>
   );
 }
-function mNom(m){ return "Módulo "+m; }
+// rev15: el conector C-1 (código "C1", entre A y B)
+function mNom(m){ return m==="C1" ? "Conector C-1" : "Módulo "+m; }
+function mLbl(m){ return m==="C1" ? "C-1" : m; }
+function ordMod(a,b){ return MODS.indexOf(a)-MODS.indexOf(b); }
+function ordArea(a,b){ return ordMod(a.modulo,b.modulo) || NIVS.findIndex(x=>x[0]===a.nivel)-NIVS.findIndex(x=>x[0]===b.nivel); }
 function nNom(n){ const f=NIVS.find(x=>x[0]===n); return f?f[1]:n; }
 ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
 </script>
