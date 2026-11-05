@@ -323,8 +323,9 @@
     header.top{padding:8px 18px}
     .globalbar{margin-top:2px}
     .verbar{display:none}            /* en TV, "Cómo ver" va arriba de la lista lateral */
-    .ps-ver{display:flex;gap:6px;flex-wrap:wrap;padding-bottom:6px;border-bottom:1px solid var(--line);margin-bottom:2px}
-    .ps-ver .vchip{flex:1;font-size:12px;padding:7px 6px}
+    .ver-over{display:flex;flex-direction:column;position:absolute;top:8px;left:8px;z-index:8;gap:6px;background:rgba(255,255,255,.92);
+      padding:5px;border-radius:11px;box-shadow:var(--shadow-sm)}
+    .ver-over .vchip{font-size:12px;padding:6px 10px}
     .grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
     .planolayout{display:flex;gap:16px;align-items:flex-start}
     .planocol{flex:1 1 auto;min-width:0}
@@ -332,7 +333,8 @@
       background:#fff;border-radius:14px;box-shadow:var(--shadow);padding:10px}
   }
   .planoside{display:none}
-  @media(min-width:1500px){ .planoside{display:flex} }
+  .ver-over{display:none}   /* rev17: solo en pantalla grande (en PC común/celu está la barra "Cómo ver" arriba del plano) */
+  @media(min-width:1500px){ .planoside{display:flex} .ver-over{display:flex} }
   .ps-tit{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding:2px 4px 4px;display:flex;justify-content:space-between}
   .ps-item{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 10px;text-align:left;font-size:13px;color:var(--ink)}
   .ps-item:hover{border-color:var(--brand2);background:#f8fafc}
@@ -400,7 +402,7 @@ const ONLINE = !!(SUPABASE_URL && SUPABASE_ANON);
 let _sb=null;
 function getSB(){ if(!_sb && ONLINE && window.supabase){ _sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON); } return _sb; }
 
-const APP_REV = "rev16";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
+const APP_REV = "rev17";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
 /* rev9: traduce el error del servidor al guardar a un mensaje claro para el usuario */
 function errorGuardado(e){
   const s=String(e||"");
@@ -2122,7 +2124,7 @@ function App(){
   const [edNom,setEdNom]=useState("");   // editar nombre del local seleccionado
   const [confirmDel,setConfirmDel]=useState(null);
   const [filtro,setFiltro]=useState("");         // buscador en modo Botones
-  const [planoVer,setPlanoVer]=useState("todos");// "todos" | "local" (cómo ver el plano)
+  const [planoVer,setPlanoVer]=useState("local");// "todos" | "local" (cómo ver el plano) — rev17: arranca en "solo número de local"
   const [filtrosOpen,setFiltrosOpen]=useState(false); // panel de filtros por tarea/subtarea
   const [reporteOpen,setReporteOpen]=useState(false); // rev11: reporte de comentarios
   const [booting,setBooting]=useState(ONLINE);   // mientras chequea si ya hay sesión iniciada
@@ -2373,7 +2375,13 @@ function App(){
             <button className={"vchip"+(planoVer==="local"?" on":"")} onClick={()=>setPlanoVer("local")}>Solo número de local</button>
           </div>}
           <div className="planolayout"><div className="planocol">
-          <div className="planowrap"><div className="inner">
+          <div className="planowrap">
+            {/* rev17: en pantalla grande, "Cómo ver" flota arriba a la izquierda del plano */}
+            {!calib && <div className="ver-over">
+              <button className={"vchip"+(planoVer==="local"?" on":"")} onClick={()=>setPlanoVer("local")}>Solo N° de local</button>
+              <button className={"vchip"+(planoVer==="todos"?" on":"")} onClick={()=>setPlanoVer("todos")}>Ver todos los tabiques</button>
+            </div>}
+            <div className="inner">
             <img ref={imgRef} src={area.plano_url} alt="Plano" onClick={planoClick}
                  style={{cursor:calib&&calibSel?"crosshair":"default"}}/>
             {localesArea.map(l=> (l.plano_x!=null&&l.plano_y!=null) &&
@@ -2399,10 +2407,6 @@ function App(){
           </div>
           {/* rev16: lista lateral de locales (solo se ve en pantalla grande / TV) */}
           <div className="planoside">
-            {!calib && <div className="ps-ver">
-              <button className={"vchip"+(planoVer==="todos"?" on":"")} onClick={()=>setPlanoVer("todos")}>Ver tabiques</button>
-              <button className={"vchip"+(planoVer==="local"?" on":"")} onClick={()=>setPlanoVer("local")}>Solo N° de local</button>
-            </div>}
             <div className="ps-tit">Locales del sector <span>{localesArea.length}</span></div>
             {[...localesArea].sort((a,b)=>(a.numero||"").localeCompare(b.numero||"",'es',{numeric:true})).map(l=>{const p=avancePct(l);
               return <button key={l.local_id} className="ps-item" onClick={()=>{ if(!calib){ setSelParte(null); setSel(l); } }}>
