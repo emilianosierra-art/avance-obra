@@ -305,6 +305,42 @@
   .uerrtxt{color:#b91c1c;font-size:11.5px;font-weight:700;margin-top:3px;white-space:normal}
   .uyo{color:var(--muted);font-weight:600;font-size:11px}
   .umuted{color:var(--muted);font-size:12px}
+  /* rev16: pantalla grande / TV touch — se agranda todo (zoom) y se usa todo el ancho.
+     El zoom depende del ancho: 1080p ≈ 1.3x, 2K ≈ 1.7x, 4K sin escalar ≈ 2.4x.
+     Las alturas con vh se dividen por el zoom para que los modales y el plano entren en la pantalla. */
+  @media(min-width:1500px){
+    :root{--z:1.3}
+    .app{zoom:var(--z);max-width:none;padding:0 18px 40px}
+    header.top{margin:0 -18px 14px}
+    .modal{max-height:calc(92vh / var(--z))}
+    .modal.local{max-width:1100px}
+    .reptxt{min-height:calc(55vh / var(--z))}
+    .fotobig img{max-height:calc(88vh / var(--z))}
+    /* el plano se achica para entrar entero en la altura de la pantalla, centrado */
+    .planowrap{text-align:center}
+    .planowrap .inner{display:inline-block;width:auto;max-width:100%;vertical-align:top}
+    .planowrap img{width:auto;max-width:100%;max-height:calc(100vh / var(--z) - 245px)}
+    header.top{padding:8px 18px}
+    .globalbar{margin-top:2px}
+    .verbar{display:none}            /* en TV, "Cómo ver" va arriba de la lista lateral */
+    .ps-ver{display:flex;gap:6px;flex-wrap:wrap;padding-bottom:6px;border-bottom:1px solid var(--line);margin-bottom:2px}
+    .ps-ver .vchip{flex:1;font-size:12px;padding:7px 6px}
+    .grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+    .planolayout{display:flex;gap:16px;align-items:flex-start}
+    .planocol{flex:1 1 auto;min-width:0}
+    .planoside{display:flex;flex-direction:column;gap:6px;flex:0 0 300px;max-height:calc(100vh / var(--z) - 250px);overflow:auto;
+      background:#fff;border-radius:14px;box-shadow:var(--shadow);padding:10px}
+  }
+  .planoside{display:none}
+  @media(min-width:1500px){ .planoside{display:flex} }
+  .ps-tit{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding:2px 4px 4px;display:flex;justify-content:space-between}
+  .ps-item{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 10px;text-align:left;font-size:13px;color:var(--ink)}
+  .ps-item:hover{border-color:var(--brand2);background:#f8fafc}
+  .ps-dot{width:12px;height:12px;border-radius:50%;flex:0 0 12px}
+  .ps-num{font-weight:800;color:var(--brand);min-width:38px}
+  .ps-nom{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  @media(min-width:2200px){ :root{--z:1.7} }
+  @media(min-width:3000px){ :root{--z:2.4} }
   /* rev10: celular — la ficha del local (la que abre el QR) ocupa toda la pantalla y se lee cómoda */
   @media(max-width:640px){
     .overlay.ov-local{align-items:stretch}
@@ -364,7 +400,7 @@ const ONLINE = !!(SUPABASE_URL && SUPABASE_ANON);
 let _sb=null;
 function getSB(){ if(!_sb && ONLINE && window.supabase){ _sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON); } return _sb; }
 
-const APP_REV = "rev15";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
+const APP_REV = "rev16";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
 /* rev9: traduce el error del servidor al guardar a un mensaje claro para el usuario */
 function errorGuardado(e){
   const s=String(e||"");
@@ -2336,6 +2372,7 @@ function App(){
             <button className={"vchip"+(planoVer==="todos"?" on":"")} onClick={()=>setPlanoVer("todos")}>Ver todos los tabiques</button>
             <button className={"vchip"+(planoVer==="local"?" on":"")} onClick={()=>setPlanoVer("local")}>Solo número de local</button>
           </div>}
+          <div className="planolayout"><div className="planocol">
           <div className="planowrap"><div className="inner">
             <img ref={imgRef} src={area.plano_url} alt="Plano" onClick={planoClick}
                  style={{cursor:calib&&calibSel?"crosshair":"default"}}/>
@@ -2358,6 +2395,23 @@ function App(){
               {sinUbicar.length} local(es) sin ubicar{(user.rol==="admin"||user.rol==="editor")?" — usá “⚙ Calibrar”":""}.</span>}
             {localesArea.length===0 && <span style={{marginLeft:"auto",color:"#64748b"}}>
               Este sector todavía no tiene locales cargados.</span>}
+          </div>
+          </div>
+          {/* rev16: lista lateral de locales (solo se ve en pantalla grande / TV) */}
+          <div className="planoside">
+            {!calib && <div className="ps-ver">
+              <button className={"vchip"+(planoVer==="todos"?" on":"")} onClick={()=>setPlanoVer("todos")}>Ver tabiques</button>
+              <button className={"vchip"+(planoVer==="local"?" on":"")} onClick={()=>setPlanoVer("local")}>Solo N° de local</button>
+            </div>}
+            <div className="ps-tit">Locales del sector <span>{localesArea.length}</span></div>
+            {[...localesArea].sort((a,b)=>(a.numero||"").localeCompare(b.numero||"",'es',{numeric:true})).map(l=>{const p=avancePct(l);
+              return <button key={l.local_id} className="ps-item" onClick={()=>{ if(!calib){ setSelParte(null); setSel(l); } }}>
+                <span className="ps-dot" style={{background:colorLocal(l)}}></span>
+                <span className="ps-num">{l.numero}</span>
+                <span className="ps-nom">{l.nombre}</span>
+                <b style={{color:colorPct(p)}}>{p}%</b>
+              </button>;})}
+          </div>
           </div>
         </div>
       ) : (
