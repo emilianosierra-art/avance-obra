@@ -407,7 +407,7 @@ const ONLINE = !!(SUPABASE_URL && SUPABASE_ANON);
 let _sb=null;
 function getSB(){ if(!_sb && ONLINE && window.supabase){ _sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON); } return _sb; }
 
-const APP_REV = "rev18";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
+const APP_REV = "rev19";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
 /* rev9: traduce el error del servidor al guardar a un mensaje claro para el usuario */
 function errorGuardado(e){
   const s=String(e||"");
@@ -696,8 +696,33 @@ function colorItems(items){
   if(rel.some(e=>e==="Terminado"||e==="Iniciado")) return "#f59e0b"; // algo de avance → naranja
   return "#dc2626";                                     // sin iniciar → rojo
 }
-function colorLocal(local){ const it=[]; (local.partes||[]).forEach(p=>partItems(p).forEach(e=>it.push(e))); return colorItems(it); }
-function colorParte(p){ return colorItems(partItems(p)); }
+/* rev19: criterio de colores por elemento (tabique / solado / cielorraso)
+   - ROJO:    nada iniciado
+   - NARANJA: algo iniciado o terminado
+   - VERDE:   todas las etapas de la matriz (Primeros pasos, Emplacado…) al 100%
+   - GRIS:    además, la etapa per-local (Revestimiento en tabiques / Terminaciones en cielorraso) al 100%
+     (los solados no tienen etapa per-local: como máximo quedan en verde)
+   Un local toma el color "más atrasado" de sus elementos (gris solo si TODOS están en gris). */
+const COL_EST={rojo:"#dc2626",naranja:"#f59e0b",verde:"#16a34a",gris:"#64748b"};
+const RANGO_EST={rojo:0,naranja:1,verde:2,gris:3};
+function hojasDe(fases){ const out=[]; (fases||[]).forEach(f=>(f.grupos||[]).forEach(g=>(g.tareas||[]).forEach(t=>{
+  if(t.subtareas&&t.subtareas.length) t.subtareas.forEach(s=>out.push(s.estado)); else out.push(t.estado); }))); return out; }
+function completas(hojas){ return hojas.length>0 && hojas.every(e=>e==="Terminado"||e==="No aplica"); }
+function estadoParte(p){
+  if(!p.fases){ const c=colorItems(partItems(p)); return c==="#16a34a"?"verde":c==="#f59e0b"?"naranja":"rojo"; }
+  const esPL=f=>!!f.perLocal || PERLOCAL_NOMBRES.indexOf(f.nombre)>=0;
+  const base=hojasDe(p.fases.filter(f=>!esPL(f))), rev=hojasDe(p.fases.filter(esPL));
+  if(completas(base)) return (rev.length>0 && rev.some(e=>e!=="No aplica") && completas(rev)) ? "gris" : "verde";
+  return [...base,...rev].some(e=>e==="Terminado"||e==="Iniciado") ? "naranja" : "rojo";
+}
+function estadoLocal(local){
+  const ps=(local.partes||[]); if(!ps.length) return "rojo";
+  const est=ps.map(estadoParte); const min=est.reduce((m,e)=>RANGO_EST[e]<RANGO_EST[m]?e:m,"gris");
+  if(min==="rojo" && est.some(e=>e!=="rojo")) return "naranja";   // algo avanzó en el local
+  return min;
+}
+function colorLocal(local){ return COL_EST[estadoLocal(local)]; }
+function colorParte(p){ return COL_EST[estadoParte(p)]; }
 function puedeEditar(user,local_id){
   if(!user) return false;
   if(user.puede_editar==="*") return true;
@@ -788,7 +813,7 @@ function partAbrev(pt){
   return "?";
 }
 /* rev10: mini-plano del local (zoom del plano del sector centrado en el local, con sus partes calibradas) */
-function LocalPlan({local,draft,area,dims,zoom,setZoom,onParte}){
+function LocalPlan({local,draft,area,dims,zoom,setZoom,onParte,centro}){
   if(!area||!area.plano_url) return null;
   if(local.plano_x==null||local.plano_y==null){
     return <div className="localplan"><div className="lp-head"><b>📍 Ubicación en el plano</b></div>
@@ -798,7 +823,7 @@ function LocalPlan({local,draft,area,dims,zoom,setZoom,onParte}){
   if(!dims) return <div className="localplan"><div className="lp-head"><b>📍 Ubicación en el plano</b></div><div className="lp-note">Cargando plano…</div></div>;
   const W=dims.w, H=dims.h;
   const cropW=Math.min(W,W*zoom), cropH=Math.min(H,cropW*0.62);
-  const cx=local.plano_x/100*W, cy=local.plano_y/100*H;
+  const cx=(centro?centro.x:local.plano_x)/100*W, cy=(centro?centro.y:local.plano_y)/100*H;   // rev19: centrado en las partes
   const x0=Math.max(0,Math.min(cx-cropW/2,W-cropW)), y0=Math.max(0,Math.min(cy-cropH/2,H-cropH));
   const ubic=draft.partes.filter(p=>p.plano_x!=null&&p.plano_y!=null);
   const sinUbic=draft.partes.filter(p=>p.plano_x==null||p.plano_y==null);
@@ -1260,17 +1285,23 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco}){
   // rev10: mini-plano (tamaño real de la imagen del plano para recortar bien)
   const area=(data.areas||[]).find(a=>a.modulo===local.modulo&&a.nivel===local.nivel);
   const [lpZoom,setLpZoom]=useState(0.40);
-  // rev14: al cargar el plano, zoom inicial más alejado (≈3 clics del anterior) y, si hace falta,
-  // más todavía para que entren TODAS las partes ubicadas del local
-  useEffect(()=>{ if(!dims||local.plano_x==null||local.plano_y==null) return;
-    const cx=local.plano_x/100*dims.w, cy=local.plano_y/100*dims.h;
-    let necW=0;
-    (local.partes||[]).forEach(p=>{ if(p.plano_x==null||p.plano_y==null) return;
-      const dx=Math.abs(p.plano_x/100*dims.w-cx), dy=Math.abs(p.plano_y/100*dims.h-cy);
-      necW=Math.max(necW, 2*dx*1.3, 2*dy*1.3/0.62); });   // 0.62 = alto/ancho del recorte
-    setLpZoom(Math.min(1, Math.max(0.40, +(necW/dims.w).toFixed(2))));
-  },[dims]);
+  const [lpCentro,setLpCentro]=useState(null);   // rev19: centro del recorte (% del plano)
   const [dims,setDims]=useState(null);
+  // rev19: al cargar el plano, el recorte se ajusta JUSTO a las partes ubicadas del local (tabiques,
+  // solado, cielorraso) y se centra en ellas. Sin partes ubicadas: zoom 0.40 centrado en el local.
+  // (en rev14 este cálculo no corría porque `dims` se declaraba después del useEffect)
+  useEffect(()=>{ if(!dims||local.plano_x==null||local.plano_y==null) return;
+    const pts=(local.partes||[]).filter(p=>p.plano_x!=null&&p.plano_y!=null)
+      .map(p=>({x:p.plano_x/100*dims.w, y:p.plano_y/100*dims.h}));
+    if(!pts.length){ setLpCentro(null); setLpZoom(0.40); return; }
+    const xs=pts.map(p=>p.x), ys=pts.map(p=>p.y);
+    const x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys), y1=Math.max(...ys);
+    const minW=dims.w*0.10;                               // no acercar más que 10% del ancho del plano
+    let necW=Math.max((x1-x0)*1.35, (y1-y0)*1.35/0.62, minW); // 0.62 = alto/ancho del recorte
+    necW+=necW*0.08;                                      // margen para que los círculos no queden cortados
+    setLpCentro({x:(x0+x1)/2/dims.w*100, y:(y0+y1)/2/dims.h*100});
+    setLpZoom(Math.min(1, +(necW/dims.w).toFixed(3)));
+  },[dims]);
   useEffect(()=>{ if(!area||!area.plano_url) return; const im=new Image();
     im.onload=()=>setDims({w:im.naturalWidth||1000,h:im.naturalHeight||1000}); im.src=area.plano_url; },[area&&area.plano_url]);
   function abrirParte(pid){ setOpenP(o=>({...o,[pid]:true}));
@@ -1417,7 +1448,7 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco}){
               <span className="hint">Acá solo se agregan o quitan (🗑) elementos. Las etapas/tareas/subtareas se definen en <b>Configuración matriz</b>.</span>
             </div>
           )}
-          <LocalPlan local={local} draft={draft} area={area} dims={dims} zoom={lpZoom} setZoom={setLpZoom} onParte={abrirParte}/>
+          <LocalPlan local={local} draft={draft} area={area} dims={dims} zoom={lpZoom} setZoom={setLpZoom} onParte={abrirParte} centro={lpCentro}/>
           {partes.map(pt=>{
             const tareas=pt.tareas||[];
             const open=!!openP[pt.parte_id];
@@ -2403,9 +2434,10 @@ function App(){
                    onClick={()=>{ if(!calib){ setSelParte(p.parte_id); setSel(l); } }}>{partAbrev(p)}</div>)))}
           </div></div>
           <div className="legend">
-            <span className="k"><span className="dot" style={{background:"#16a34a"}}></span>Completo</span>
-            <span className="k"><span className="dot" style={{background:"#f59e0b"}}></span>En proceso</span>
-            <span className="k"><span className="dot" style={{background:"#dc2626"}}></span>Sin iniciar</span>
+            <span className="k"><span className="dot" style={{background:COL_EST.gris}}></span>Revestimiento terminado</span>
+            <span className="k"><span className="dot" style={{background:COL_EST.verde}}></span>Primeros pasos + Emplacado terminados</span>
+            <span className="k"><span className="dot" style={{background:COL_EST.naranja}}></span>En proceso</span>
+            <span className="k"><span className="dot" style={{background:COL_EST.rojo}}></span>Sin iniciar</span>
             {localesArea.length>0 && sinUbicar.length>0 && <span style={{marginLeft:"auto",color:"#b45309"}}>
               {sinUbicar.length} local(es) sin ubicar{(user.rol==="admin"||user.rol==="editor")?" — usá “⚙ Calibrar”":""}.</span>}
             {localesArea.length===0 && <span style={{marginLeft:"auto",color:"#64748b"}}>
