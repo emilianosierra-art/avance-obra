@@ -55,15 +55,36 @@
   .planowrap .inner{position:relative;width:100%}
   .planowrap img{display:block;width:100%;height:auto;user-select:none}
   .noplano{padding:40px 20px;text-align:center;color:var(--muted)}
-  .marker{position:absolute;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:50%;
+  /* rev20: cambiar estados desde Filtros */
+  .fmasivo{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#eef4fb;border:1px solid #cfe0f5;border-radius:10px;padding:8px 12px;margin:0 0 8px;font-size:13px}
+  .fmasivo .fhint{font-size:11.5px;color:var(--muted)}
+  .fok{background:#dcfce7;color:#166534;border-radius:9px;padding:9px 12px;font-size:12.5px;font-weight:600;margin-bottom:8px}
+  .ftr .estado-sel{flex:0 0 auto}
+  /* rev20: botones Anterior / Sig. local en la ficha */
+  .navloc{display:inline-flex;gap:6px}
+  .navloc button{border:0;background:rgba(255,255,255,.18);color:#fff;border-radius:8px;padding:4px 9px;display:flex;flex-direction:column;align-items:center;line-height:1.1;min-width:44px}
+  .navloc button b{font-size:15px}
+  .navloc button small{font-size:9.5px;font-weight:700;opacity:.9;white-space:nowrap}
+  .navloc button:disabled{opacity:.3;cursor:default}
+  @media(max-width:640px){ .navloc button small{display:none} .navloc button{padding:7px 10px} }
+  /* rev20: zoom del plano + círculos que se adaptan (--mk = diámetro según el ancho de la pantalla) */
+  .planobox{position:relative}
+  .zoombox{position:absolute;top:8px;right:8px;z-index:9;display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.92);
+    padding:4px 6px;border-radius:10px;box-shadow:var(--shadow-sm);font-size:12px;font-weight:700;color:var(--muted)}
+  .zoombox .btn{border:1px solid var(--line);min-width:32px;font-size:16px;line-height:1;padding:4px 8px}
+  .planowrap.zoomed{overflow:auto;max-height:calc(100vh - 140px);-webkit-overflow-scrolling:touch}
+  .planowrap.zoomed .inner{display:block}
+  .planowrap.zoomed img{width:100%!important;max-width:none!important;max-height:none!important}
+  .marker{position:absolute;transform:translate(-50%,-50%);width:var(--mk,34px);height:var(--mk,34px);border-radius:50%;
     border:2.5px solid #fff;box-shadow:0 0 0 2.5px #0f172a, 0 2px 8px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;
     font-size:11px;font-weight:800;color:#fff;cursor:pointer;transition:transform .1s;
     white-space:nowrap;overflow:hidden;line-height:1;letter-spacing:-.3px;text-align:center;padding:0}
   .marker:hover{transform:translate(-50%,-50%) scale(1.15);z-index:5}
   .marker.dim{opacity:.35}
-  .pmarker{position:absolute;transform:translate(-50%,-50%);min-width:22px;height:22px;padding:0 5px;border-radius:11px;
+  .pmarker{position:absolute;transform:translate(-50%,-50%);min-width:calc(var(--mk,34px) * .65);height:calc(var(--mk,34px) * .65);
+    padding:0 calc(var(--mk,34px) * .14);border-radius:99px;
     border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;
-    font-size:10px;font-weight:800;color:#fff;z-index:4}
+    font-size:calc(var(--mk,34px) * .29);font-weight:800;color:#fff;z-index:4}
   .pmarker.sel{outline:3px solid #2c5282;outline-offset:1px}
   .pmarker.dim{opacity:.3}
   .pmarker{cursor:pointer;transition:transform .1s}
@@ -339,7 +360,8 @@
   .planoside{display:none}
   .ver-over{display:none}   /* rev17: solo en pantalla grande (en PC común/celu está la barra "Cómo ver" arriba del plano) */
   @media(min-width:1500px){ .planoside{display:flex} .ver-over{display:flex}
-    .planowrap.vert img{max-height:calc(100vh / var(--z) - 245px)} }
+    .planowrap.vert img{max-height:calc(100vh / var(--z) - 245px)}
+    .planowrap.zoomed{max-height:calc(100vh / var(--z) - 245px)} }
   .ps-tit{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding:2px 4px 4px;display:flex;justify-content:space-between}
   .ps-item{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 10px;text-align:left;font-size:13px;color:var(--ink)}
   .ps-item:hover{border-color:var(--brand2);background:#f8fafc}
@@ -407,7 +429,7 @@ const ONLINE = !!(SUPABASE_URL && SUPABASE_ANON);
 let _sb=null;
 function getSB(){ if(!_sb && ONLINE && window.supabase){ _sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON); } return _sb; }
 
-const APP_REV = "rev19";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
+const APP_REV = "rev20";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
 /* rev9: traduce el error del servidor al guardar a un mensaje claro para el usuario */
 function errorGuardado(e){
   const s=String(e||"");
@@ -427,9 +449,10 @@ const RUBROS_REVEST = {
   "Mármol":["Tipo perchas","Terminaciones"],
   "Estuco":["Estructura 35","Placa","Tratamiento (ruteado, buñas, etc.)","Terminaciones"],
   "Pintura":["Preparación de superficie (enduido y lijado)","Terminaciones"],
-  "Cuero":["Terminaciones"]
+  "Cuero":["Terminaciones"],
+  "Porcelanato":["Colocación membrana Mapelastic Aquadefense","Colocación de porcelanato"]   // rev20
 };
-const RUBROS_LISTA = ["Madera","Mármol","Cobre","Estuco","Pintura","Cuero"];
+const RUBROS_LISTA = ["Madera","Mármol","Cobre","Estuco","Pintura","Cuero","Porcelanato"];
 function esRubroValido(n){ return Object.prototype.hasOwnProperty.call(RUBROS_REVEST, n); }
 const COLOR = {Terminado:"#16a34a",Iniciado:"#f59e0b","Sin realizar":"#dc2626","No aplica":"#94a3b8"};
 const PESO = {Terminado:1,Iniciado:0.5,"Sin realizar":0,"No aplica":null};
@@ -701,19 +724,30 @@ function colorItems(items){
    - NARANJA: algo iniciado o terminado
    - VERDE:   todas las etapas de la matriz (Primeros pasos, Emplacado…) al 100%
    - GRIS:    además, la etapa per-local (Revestimiento en tabiques / Terminaciones en cielorraso) al 100%
-     (los solados no tienen etapa per-local: como máximo quedan en verde)
+     (rev20: en solados, verde = "Verificación" terminada; gris = además "Terminaciones" terminada)
    Un local toma el color "más atrasado" de sus elementos (gris solo si TODOS están en gris). */
 const COL_EST={rojo:"#dc2626",naranja:"#f59e0b",verde:"#16a34a",gris:"#64748b"};
 const RANGO_EST={rojo:0,naranja:1,verde:2,gris:3};
 function hojasDe(fases){ const out=[]; (fases||[]).forEach(f=>(f.grupos||[]).forEach(g=>(g.tareas||[]).forEach(t=>{
   if(t.subtareas&&t.subtareas.length) t.subtareas.forEach(s=>out.push(s.estado)); else out.push(t.estado); }))); return out; }
 function completas(hojas){ return hojas.length>0 && hojas.every(e=>e==="Terminado"||e==="No aplica"); }
+/* rev20: SOLADO con el mismo criterio: VERDE con "Verificación" (y las etapas anteriores) terminada,
+   GRIS cuando además "Terminaciones" está terminada. */
+function normNom(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").trim(); }
 function estadoParte(p){
   if(!p.fases){ const c=colorItems(partItems(p)); return c==="#16a34a"?"verde":c==="#f59e0b"?"naranja":"rojo"; }
-  const esPL=f=>!!f.perLocal || PERLOCAL_NOMBRES.indexOf(f.nombre)>=0;
-  const base=hojasDe(p.fases.filter(f=>!esPL(f))), rev=hojasDe(p.fases.filter(esPL));
+  let esBase, esFinal;
+  if(p.tipo==="SOLADO"){
+    const iVer=p.fases.findIndex(f=>normNom(f.nombre).startsWith("verificacion"));
+    esFinal=f=>normNom(f.nombre).startsWith("terminacion");   // en la base se llama "TERMINACION"
+    esBase=(f,i)=>!esFinal(f) && (iVer<0 || i<=iVer);   // sin "Verificación": todas menos Terminaciones
+  } else {
+    esFinal=f=>!!f.perLocal || PERLOCAL_NOMBRES.indexOf(f.nombre)>=0;
+    esBase=f=>!esFinal(f);
+  }
+  const base=hojasDe(p.fases.filter((f,i)=>esBase(f,i))), rev=hojasDe(p.fases.filter(f=>esFinal(f)));
   if(completas(base)) return (rev.length>0 && rev.some(e=>e!=="No aplica") && completas(rev)) ? "gris" : "verde";
-  return [...base,...rev].some(e=>e==="Terminado"||e==="Iniciado") ? "naranja" : "rojo";
+  return hojasDe(p.fases).some(e=>e==="Terminado"||e==="Iniciado") ? "naranja" : "rojo";
 }
 function estadoLocal(local){
   const ps=(local.partes||[]); if(!ps.length) return "rojo";
@@ -786,7 +820,7 @@ function Marker({local,onClick,dim}){
   const n=String(local.numero||"").length;
   const fs = n<=2?11 : n===3?10.5 : n===4?9.5 : n===5?8 : 6.5;
   return (
-    <div className={"marker"+(dim?" dim":"")} style={{left:local.plano_x+"%",top:local.plano_y+"%",background:colorLocal(local),fontSize:fs}}
+    <div className={"marker"+(dim?" dim":"")} style={{left:local.plano_x+"%",top:local.plano_y+"%",background:colorLocal(local),fontSize:"calc(var(--mk,34px) * "+(fs/34).toFixed(3)+")"}}
          title={local.numero+" · "+local.nombre+" ("+p+"%)"} onClick={onClick}>
       {local.numero}
     </div>
@@ -1261,7 +1295,7 @@ function PhasedTasks({pt,editable,editMode,patch,foco,localId}){
     </div>
   );
 }
-function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco}){
+function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco,vecinos,onIr}){
   const editable = puedeEditar(user,local.local_id);
   const isAdmin = user.rol==="admin";
   const [draft,setDraft]=useState(()=>initDraft(local,data));
@@ -1306,9 +1340,13 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco}){
     im.onload=()=>setDims({w:im.naturalWidth||1000,h:im.naturalHeight||1000}); im.src=area.plano_url; },[area&&area.plano_url]);
   function abrirParte(pid){ setOpenP(o=>({...o,[pid]:true}));
     setTimeout(()=>{const el=document.getElementById("pt-"+pid); if(el) el.scrollIntoView({behavior:"smooth",block:"start"});},50); }
-  function tryClose(){ if(dirty && !saving){ setAskClose(true); } else { onClose(); } }
+  // rev20: la misma pregunta "¿Guardar cambios?" sirve para cerrar o para pasar a otro local
+  const accionRef=useRef(onClose);
+  const [accionTxt,setAccionTxt]=useState("");   // "" = cerrar · "anterior"/"siguiente" = navegar
+  function tryClose(accion,txt){ const a=accion||onClose;
+    if(dirty && !saving){ accionRef.current=a; setAccionTxt(txt?txt+" local":""); setAskClose(true); } else { a(); } }
   // rev9: si falla, el cartel queda abierto mostrando el error (antes se cerraba sin avisar)
-  async function guardarYcerrar(){ const res=await guardar(); if(res&&res.ok){ onClose(); } }
+  async function guardarYcerrar(){ const res=await guardar(); if(res&&res.ok){ accionRef.current(); } }
 
   const rubrosById = useMemo(()=>Object.fromEntries((data.rubros||[]).map(r=>[r.id,r])),[data]);
   const nombreDe = (rid)=> customR[rid] || (rubrosById[rid]||{}).nombre || rid;
@@ -1418,8 +1456,8 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco}){
                 <div style={{fontSize:12,opacity:.85}}>Tenés cambios sin guardar en este local.</div></div></div>
               <div className="mbody" style={{display:"flex",flexDirection:"column",gap:8}}>
                 {msg.startsWith("Error") && <div className="err" style={{margin:0,fontWeight:600}}>⚠️ {msg.slice(7)}</div>}
-                <button className="btn primary" disabled={saving} onClick={guardarYcerrar}>{saving?"Guardando…":"💾 Guardar y cerrar"}</button>
-                <button className="btn danger" disabled={saving} onClick={()=>{setAskClose(false);onClose();}}>Cerrar sin guardar</button>
+                <button className="btn primary" disabled={saving} onClick={guardarYcerrar}>{saving?"Guardando…":(accionTxt?"💾 Guardar e ir al "+accionTxt:"💾 Guardar y cerrar")}</button>
+                <button className="btn danger" disabled={saving} onClick={()=>{setAskClose(false);accionRef.current();}}>{accionTxt?"Ir al "+accionTxt+" sin guardar":"Cerrar sin guardar"}</button>
                 <button className="btn" disabled={saving} onClick={()=>setAskClose(false)}>Seguir editando</button>
               </div>
             </div>
@@ -1432,8 +1470,15 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco}){
           </div>
           {editable && <button className={"btn sm"+(edit?" primary":"")} style={{marginLeft:"auto"}}
                        onClick={()=>setEdit(v=>!v)}>{edit?"✔ Listo":"✏️ Editar"}</button>}
-          {!editable && <span className="rochip">Solo lectura</span>}
-          <button className="x" onClick={tryClose}>×</button>
+          {!editable && <span className="rochip" style={{marginLeft:"auto"}}>Solo lectura</span>}
+          {/* rev20: pasar al local anterior / siguiente del sector (pregunta si hay cambios sin guardar) */}
+          <span className="navloc">
+            <button disabled={!vecinos||!vecinos.ant} title={vecinos&&vecinos.ant?("Anterior: "+vecinos.ant.numero+" · "+vecinos.ant.nombre):"Es el primero del sector"}
+              onClick={()=>tryClose(()=>onIr(vecinos.ant),"anterior")}><b>◀</b><small>Anterior</small></button>
+            <button disabled={!vecinos||!vecinos.sig} title={vecinos&&vecinos.sig?("Siguiente: "+vecinos.sig.numero+" · "+vecinos.sig.nombre):"Es el último del sector"}
+              onClick={()=>tryClose(()=>onIr(vecinos.sig),"siguiente")}><b>▶</b><small>Sig. local</small></button>
+          </span>
+          <button className="x" onClick={()=>tryClose()}>×</button>
         </div>
         <div className="mbody">
           {edit && (
@@ -1928,11 +1973,13 @@ function qrDataURL(texto){
   catch(e){ return null; }
 }
 function QRPanel({data,modulo,nivel,onClose}){
-  const [scope,setScope]=useState("sector");   // "sector" | "todos"
+  const [scope,setScope]=useState("sector");   // "sector" | "todos" | "uno" (rev20)
+  const [uno,setUno]=useState("");             // rev20: local_id elegido para imprimir un solo QR
   const baseURL = (window.location.origin+window.location.pathname).replace(/[?#].*$/,"");
-  const locs = (scope==="sector")
-    ? data.locales.filter(l=>l.modulo===modulo&&l.nivel===nivel)
-    : [...data.locales].sort((a,b)=> ordArea(a,b) || (a.numero||"").localeCompare(b.numero||"",'es',{numeric:true}));
+  const todosOrd=[...data.locales].sort((a,b)=> ordArea(a,b) || (a.numero||"").localeCompare(b.numero||"",'es',{numeric:true}));
+  const locs = scope==="sector" ? data.locales.filter(l=>l.modulo===modulo&&l.nivel===nivel)
+    : scope==="uno" ? todosOrd.filter(l=>l.local_id===uno)
+    : todosOrd;
   const hayLib = !!window.qrcode;
   return (
     <div className="overlay" onClick={e=>{if(e.target.className==="overlay")onClose()}}>
@@ -1947,7 +1994,12 @@ function QRPanel({data,modulo,nivel,onClose}){
             <b>Mostrar:</b>
             <button className={"btn sm"+(scope==="sector"?" primary":"")} onClick={()=>setScope("sector")}>Este sector ({mNom(modulo)} · {nNom(nivel)})</button>
             <button className={"btn sm"+(scope==="todos"?" primary":"")} onClick={()=>setScope("todos")}>Toda la obra</button>
-            <button className="btn sm" style={{marginLeft:"auto"}} onClick={()=>window.print()}>🖨️ Imprimir</button>
+            <button className={"btn sm"+(scope==="uno"?" primary":"")} onClick={()=>setScope("uno")}>Un local</button>
+            {scope==="uno" && <select className="fsel" value={uno} onChange={e=>setUno(e.target.value)}>
+              <option value="">— elegir local —</option>
+              {todosOrd.map(l=><option key={l.local_id} value={l.local_id}>{mLbl(l.modulo)} · {nNom(l.nivel)} · {l.numero} {l.nombre}</option>)}
+            </select>}
+            <button className="btn sm" style={{marginLeft:"auto"}} disabled={!locs.length} onClick={()=>window.print()}>🖨️ Imprimir</button>
           </div>
           {!hayLib && <div className="noplano" style={{margin:"10px 0"}}><p>No se pudo cargar el generador de QR (revisá la conexión). Volvé a abrir este panel.</p></div>}
           {hayLib && (locs.length? (
@@ -1962,14 +2014,17 @@ function QRPanel({data,modulo,nivel,onClose}){
                 </div>);
               })}
             </div>
-          ) : <div className="noplano"><p>No hay locales en esta selección.</p></div>)}
+          ) : <div className="noplano"><p>{scope==="uno"?"Elegí un local de la lista para ver e imprimir su QR.":"No hay locales en esta selección."}</p></div>)}
         </div>
       </div>
     </div>
   );
 }
 /* ================== Filtros por tarea/subtarea (vista transversal) ================== */
-function FiltrosPanel({data,modulo:m0,nivel:n0,onClose,onAbrirLocal}){
+function FiltrosPanel({data,user,modulo:m0,nivel:n0,onClose,onAbrirLocal,onGuardado}){
+  const [guardando,setGuardando]=useState({});   // rev20: parte_id -> true mientras se guarda
+  const [masivo,setMasivo]=useState("");         // rev20: estado elegido para "cambiar todos"
+  const [fmsg,setFmsg]=useState("");
   const [m,setM]=useState(m0);
   const [n,setN]=useState(n0);
   const [loc,setLoc]=useState("*");
@@ -2000,6 +2055,45 @@ function FiltrosPanel({data,modulo:m0,nivel:n0,onClose,onAbrirLocal}){
   const resumen={}; filas.forEach(f=>{resumen[f.e]=(resumen[f.e]||0)+1;});
   const ordTipo={SOLADO:0,TABIQUE:1,CIELORRASO:2};
   filas.sort((a,b)=> (a.l.numero||"").localeCompare(b.l.numero||"",'es',{numeric:true}) || (ordTipo[a.p.tipo]-ordTipo[b.p.tipo]) || ((a.p.indice||0)-(b.p.indice||0)));
+  /* rev20: cambiar el estado de la tarea/subtarea filtrada directamente desde acá (se guarda al toque,
+     local por local, igual que "Guardar cambios" en la ficha, con auditoría). Si se elige la tarea entera
+     y tiene subtareas, el estado se aplica a TODAS sus subtareas (igual que en la ficha). */
+  const editables=filas.filter(f=>puedeEditar(user,f.l.local_id));
+  function aplicarEnParte(pt,nuevo){
+    let found=null;
+    (pt.fases||[]).forEach(f=>(f.grupos||[]).forEach(g=>(g.tareas||[]).forEach(t=>{ if(t.nombre===tarea) found=t; })));
+    if(!found) return false;
+    if(sub){ const s=(found.subtareas||[]).find(x=>((x.grupo||"")+"\u0000"+x.nombre)===sub); if(!s) return false; s.estado=nuevo; }
+    else if(found.subtareas&&found.subtareas.length) found.subtareas.forEach(s=>s.estado=nuevo);
+    else found.estado=nuevo;
+    return true;
+  }
+  async function cambiar(sel,nuevo){
+    const porLocal={}; sel.forEach(f=>{ (porLocal[f.l.local_id]=porLocal[f.l.local_id]||[]).push(f.p.parte_id); });
+    setGuardando(g=>{const x={...g}; sel.forEach(f=>x[f.p.parte_id]=true); return x;}); setFmsg("");
+    let ok=0, err=[];
+    for(const lid of Object.keys(porLocal)){
+      const l=data.locales.find(x=>x.local_id===lid); if(!l) continue;
+      const partes=[], cambios=[], nuevas={};
+      porLocal[lid].forEach(pid=>{ const orig=l.partes.find(p=>p.parte_id===pid); if(!orig||!orig.fases) return;
+        const pt=JSON.parse(JSON.stringify(orig)); if(!aplicarEnParte(pt,nuevo)) return;
+        const dc=diffFases(orig.fases,pt.fases,pid); if(!dc.length) return;   // ya estaba en ese estado: no se guarda
+        dc.forEach(c=>cambios.push(c));
+        partes.push({parte_id:pt.parte_id,tipo:pt.tipo,indice:pt.indice,etiqueta:pt.etiqueta,tipologia:pt.tipologia||"",
+          plano_x:pt.plano_x,plano_y:pt.plano_y,comentarios:pt.comentarios||"",fases:pt.fases});
+        nuevas[pid]=pt.fases; });
+      if(!partes.length) continue;
+      const res=await apiPost({action:"guardar",email:user.email,local_id:lid,partes,borrar:[],cambios});
+      if(res.ok){ ok+=partes.length; onGuardado(lid,nuevas); } else err.push(l.numero+": "+errorGuardado(res.error));
+    }
+    setGuardando(g=>{const x={...g}; sel.forEach(f=>delete x[f.p.parte_id]); return x;});
+    setFmsg(err.length ? "Error: "+err.join(" · ") : (ok ? "✓ Guardado: "+ok+" elemento(s) en "+nuevo : "✓ Ya estaban en "+nuevo+": no hubo cambios"));
+  }
+  function cambiarTodos(){
+    if(!masivo||!editables.length) return;
+    if(!confirm("¿Pasar "+tarea+(sub?" › "+(subsDisp.find(([k])=>k===sub)||[,""])[1]:"")+" a \""+masivo+"\" en los "+editables.length+" elemento(s) mostrados?\nSe guarda en cada local.")) return;
+    cambiar(editables,masivo); setMasivo("");
+  }
   return (
     <div className="overlay" onClick={e=>{if(e.target.className==="overlay")onClose()}}>
       <div className="modal" style={{maxWidth:820}}>
@@ -2039,15 +2133,31 @@ function FiltrosPanel({data,modulo:m0,nivel:n0,onClose,onAbrirLocal}){
                   <span key={k} className="fchip-r" style={{background:COLOR[k]||"#94a3b8"}}>{k}: {resumen[k]}</span>)}
                 <span style={{marginLeft:"auto",fontSize:12,color:"var(--muted)",fontWeight:700}}>{filas.length} elemento(s)</span>
               </div>
+              {editables.length>0 && <div className="fmasivo">
+                <span>Cambiar los <b>{editables.length}</b> mostrados a:</span>
+                <select className="fsel" style={{minWidth:140}} value={masivo} onChange={e=>setMasivo(e.target.value)}>
+                  <option value="">— estado —</option>
+                  {ESTADOS.map(o=><option key={o} value={o}>{o}</option>)}
+                </select>
+                <button className="btn sm primary" disabled={!masivo||Object.keys(guardando).length>0} onClick={cambiarTodos}>Aplicar</button>
+                <span className="fhint">o cambiá cada fila con su botón de estado</span>
+              </div>}
+              {fmsg && <div className={fmsg.startsWith("Error")?"err":"fok"}>{fmsg.startsWith("Error")?"⚠️ "+fmsg.slice(7):fmsg}</div>}
               <div className="ftable">
-                {filas.map(({l,p,e},i)=>(
+                {filas.map(({l,p,e},i)=>{ const ed=puedeEditar(user,l.local_id); const gu=!!guardando[p.parte_id];
+                  return (
                   <div className="ftr" key={i} onClick={()=>{onAbrirLocal(l.local_id,p.parte_id,tarea);onClose();}}>
                     <span className="ftloc">{l.numero}</span>
                     <span className="ftnom">{l.nombre}</span>
                     <span className="ftel">{normEtq(p.etiqueta)}</span>
-                    <span className="estado-sel ro" data-e={e} style={{marginLeft:"auto"}}>{e}</span>
-                  </div>
-                ))}
+                    {ed
+                      ? <select className="estado-sel" data-e={e} value={e} disabled={gu} style={{marginLeft:"auto"}}
+                          title={sub?"Cambia esta subtarea":"Cambia la tarea (y todas sus subtareas)"}
+                          onClick={ev=>ev.stopPropagation()} onChange={ev=>{ev.stopPropagation(); cambiar([{l,p}],ev.target.value);}}>
+                          {ESTADOS.map(o=><option key={o} value={o}>{gu?"Guardando…":o}</option>)}
+                        </select>
+                      : <span className="estado-sel ro" data-e={e} style={{marginLeft:"auto"}}>{e}</span>}
+                  </div>);})}
                 {filas.length===0 && <div className="noplano"><p>Ningún elemento del alcance tiene esa tarea.</p></div>}
               </div>
             </React.Fragment>
@@ -2163,6 +2273,23 @@ function App(){
   const [planoVer,setPlanoVer]=useState("local");// "todos" | "local" (cómo ver el plano) — rev17: arranca en "solo número de local"
   const [filtrosOpen,setFiltrosOpen]=useState(false); // panel de filtros por tarea/subtarea
   const [planoVert,setPlanoVert]=useState(false);     // rev18: plano parado → se limita a la altura de la pantalla
+  // rev20: zoom del plano principal + tamaño de los círculos según el ancho disponible
+  const ZOOMS=[1,1.5,2,3,4];
+  const [planoZoom,setPlanoZoom]=useState(1);
+  const [mkPx,setMkPx]=useState(34);
+  const planoWrapRef=useRef(null);
+  useEffect(()=>{ const el=planoWrapRef.current; if(!el||!window.ResizeObserver) return;
+    const ro=new ResizeObserver(()=>{ const w=el.clientWidth||800; setMkPx(Math.round(Math.max(24,Math.min(34,w*0.03)))); });
+    ro.observe(el); return ()=>ro.disconnect(); });
+  function cambiarZoom(d){
+    const el=planoWrapRef.current; const i=ZOOMS.indexOf(planoZoom); const nz=ZOOMS[Math.max(0,Math.min(ZOOMS.length-1,i+d))];
+    if(nz===planoZoom) return;
+    // mantener centrado lo que se está mirando
+    const cx=el?(el.scrollLeft+el.clientWidth/2)/el.scrollWidth:0.5, cy=el?(el.scrollTop+el.clientHeight/2)/el.scrollHeight:0.5;
+    setPlanoZoom(nz);
+    setTimeout(()=>{ if(!el) return; el.scrollLeft=cx*el.scrollWidth-el.clientWidth/2; el.scrollTop=cy*el.scrollHeight-el.clientHeight/2; },30);
+  }
+  useEffect(()=>{ setPlanoZoom(1); },[modulo,nivel]);
   const [reporteOpen,setReporteOpen]=useState(false); // rev11: reporte de comentarios
   const [booting,setBooting]=useState(ONLINE);   // mientras chequea si ya hay sesión iniciada
   const pendingLocalRef=useRef(null);            // local_id a abrir por deep-link (QR)
@@ -2412,13 +2539,20 @@ function App(){
             <button className={"vchip"+(planoVer==="local"?" on":"")} onClick={()=>setPlanoVer("local")}>Solo número de local</button>
           </div>}
           <div className="planolayout"><div className="planocol">
-          <div className={"planowrap"+(planoVert?" vert":"")}>
-            {/* rev17: en pantalla grande, "Cómo ver" flota arriba a la izquierda del plano */}
-            {!calib && <div className="ver-over">
-              <button className={"vchip"+(planoVer==="local"?" on":"")} onClick={()=>setPlanoVer("local")}>Solo N° de local</button>
-              <button className={"vchip"+(planoVer==="todos"?" on":"")} onClick={()=>setPlanoVer("todos")}>Ver todos los tabiques</button>
-            </div>}
-            <div className="inner">
+          <div className="planobox">
+          {/* rev17: en pantalla grande, "Cómo ver" flota arriba a la izquierda del plano */}
+          {!calib && <div className="ver-over">
+            <button className={"vchip"+(planoVer==="local"?" on":"")} onClick={()=>setPlanoVer("local")}>Solo N° de local</button>
+            <button className={"vchip"+(planoVer==="todos"?" on":"")} onClick={()=>setPlanoVer("todos")}>Ver todos los tabiques</button>
+          </div>}
+          {/* rev20: zoom del plano (los círculos mantienen su tamaño → al acercar se separan) */}
+          <div className="zoombox">
+            <button className="btn sm" title="Alejar" disabled={planoZoom<=1} onClick={()=>cambiarZoom(-1)}>−</button>
+            <span>{Math.round(planoZoom*100)}%</span>
+            <button className="btn sm" title="Acercar" disabled={planoZoom>=ZOOMS[ZOOMS.length-1]} onClick={()=>cambiarZoom(1)}>+</button>
+          </div>
+          <div ref={planoWrapRef} className={"planowrap"+(planoVert&&planoZoom===1?" vert":"")+(planoZoom>1?" zoomed":"")}>
+            <div className="inner" style={{"--mk":mkPx+"px", ...(planoZoom>1?{width:(planoZoom*100)+"%"}:{})}}>
             <img ref={imgRef} src={area.plano_url} alt="Plano" onClick={planoClick}
                  onLoad={e=>setPlanoVert(e.target.naturalHeight>e.target.naturalWidth)}
                  style={{cursor:calib&&calibSel?"crosshair":"default"}}/>
@@ -2432,7 +2566,7 @@ function App(){
                            pointerEvents:calib?"none":"auto"}}
                    title={l.numero+" · "+normEtq(p.etiqueta)}
                    onClick={()=>{ if(!calib){ setSelParte(p.parte_id); setSel(l); } }}>{partAbrev(p)}</div>)))}
-          </div></div>
+          </div></div></div>
           <div className="legend">
             <span className="k"><span className="dot" style={{background:COL_EST.gris}}></span>Revestimiento terminado</span>
             <span className="k"><span className="dot" style={{background:COL_EST.verde}}></span>Primeros pasos + Emplacado terminados</span>
@@ -2502,15 +2636,24 @@ function App(){
       )
     )}
 
-    {sel && <LocalDetail local={data.locales.find(l=>l.local_id===sel.local_id)} data={data} user={user}
+    {sel && (()=>{ const loc=data.locales.find(l=>l.local_id===sel.local_id); if(!loc) return null;
+      // rev20: vecinos = locales del mismo módulo y planta, ordenados por número
+      const lista=data.locales.filter(l=>l.modulo===loc.modulo&&l.nivel===loc.nivel)
+        .sort((a,b)=>(a.numero||"").localeCompare(b.numero||"",'es',{numeric:true}));
+      const i=lista.findIndex(l=>l.local_id===loc.local_id);
+      return <LocalDetail key={loc.local_id} local={loc} data={data} user={user}
                          initialParte={selParte} foco={selFoco}
-                         onClose={()=>{setSel(null);setSelParte(null);setSelFoco(null);}} onSaved={onSaved}/>}
+                         vecinos={{ant:i>0?lista[i-1]:null, sig:i<lista.length-1?lista[i+1]:null}}
+                         onIr={l=>{setSelParte(null);setSelFoco(null);setModulo(l.modulo);setNivel(l.nivel);setSel(l);}}
+                         onClose={()=>{setSel(null);setSelParte(null);setSelFoco(null);}} onSaved={onSaved}/>; })()}
     {pwOpen && <CambiarPwd onClose={()=>setPwOpen(false)}/>}
     {usersOpen && <UsuariosPanel user={user} onClose={()=>setUsersOpen(false)}/>}
     {matrizOpen && <MatrizPanel data={data} onClose={()=>setMatrizOpen(false)} onApplied={onMatriz}/>}
     {qrOpen && <QRPanel data={data} modulo={modulo} nivel={nivel} onClose={()=>setQrOpen(false)}/>}
     {reporteOpen && <ReportePanel data={data} modulo={modulo} nivel={nivel} onClose={()=>setReporteOpen(false)}/>}
-    {filtrosOpen && <FiltrosPanel data={data} modulo={modulo} nivel={nivel} onClose={()=>setFiltrosOpen(false)}
+    {filtrosOpen && <FiltrosPanel data={data} user={user} modulo={modulo} nivel={nivel} onClose={()=>setFiltrosOpen(false)}
+       onGuardado={(lid,nuevas)=>setData(d=>({...d,locales:d.locales.map(l=>l.local_id!==lid?l:
+         {...l,partes:l.partes.map(p=>nuevas[p.parte_id]?{...p,fases:nuevas[p.parte_id]}:p)})}))}
        onAbrirLocal={(lid,pid,tarea)=>{const l=data.locales.find(x=>x.local_id===lid); if(l){setModulo(l.modulo);setNivel(l.nivel);setSelParte(pid||null);setSelFoco(tarea||null);setSel(l);}}}/>}
     {confirmDel && (
       <div className="overlay" onClick={e=>{if(e.target.className==="overlay")setConfirmDel(null)}}>
