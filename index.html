@@ -60,6 +60,8 @@
   .fmasivo .fhint{font-size:11.5px;color:var(--muted)}
   .fok{background:#dcfce7;color:#166534;border-radius:9px;padding:9px 12px;font-size:12.5px;font-weight:600;margin-bottom:8px}
   .ftr .estado-sel{flex:0 0 auto}
+  .ftr.fpend{background:#fffbeb;border-color:#fcd34d}
+  .fantes{font-size:11px;color:#b45309;font-weight:600}
   /* rev20: botones Anterior / Sig. local en la ficha */
   .navloc{display:inline-flex;gap:6px}
   .navloc button{border:0;background:rgba(255,255,255,.18);color:#fff;border-radius:8px;padding:4px 9px;display:flex;flex-direction:column;align-items:center;line-height:1.1;min-width:44px}
@@ -429,7 +431,7 @@ const ONLINE = !!(SUPABASE_URL && SUPABASE_ANON);
 let _sb=null;
 function getSB(){ if(!_sb && ONLINE && window.supabase){ _sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON); } return _sb; }
 
-const APP_REV = "rev20";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
+const APP_REV = "rev21";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
 /* rev9: traduce el error del servidor al guardar a un mensaje claro para el usuario */
 function errorGuardado(e){
   const s=String(e||"");
@@ -2022,9 +2024,16 @@ function QRPanel({data,modulo,nivel,onClose}){
 }
 /* ================== Filtros por tarea/subtarea (vista transversal) ================== */
 function FiltrosPanel({data,user,modulo:m0,nivel:n0,onClose,onAbrirLocal,onGuardado}){
-  const [guardando,setGuardando]=useState({});   // rev20: parte_id -> true mientras se guarda
-  const [masivo,setMasivo]=useState("");         // rev20: estado elegido para "cambiar todos"
+  const [guardando,setGuardando]=useState(false); // rev21: guardando los cambios pendientes
+  const [pend,setPend]=useState({});              // rev21: parte_id -> estado nuevo (sin guardar todavía)
+  const [masivo,setMasivo]=useState("");          // rev20: estado elegido para "cambiar todos"
   const [fmsg,setFmsg]=useState("");
+  const nPend=Object.keys(pend).length;
+  // rev21: antes de cambiar el filtro, cerrar o abrir un local, avisar si hay cambios sin guardar
+  function sinPendientes(fn){
+    if(nPend && !confirm("Hay "+nPend+" cambio(s) sin guardar en Filtros.\n¿Descartarlos y seguir?")) return;
+    setPend({}); fn();
+  }
   const [m,setM]=useState(m0);
   const [n,setN]=useState(n0);
   const [loc,setLoc]=useState("*");
@@ -2055,9 +2064,9 @@ function FiltrosPanel({data,user,modulo:m0,nivel:n0,onClose,onAbrirLocal,onGuard
   const resumen={}; filas.forEach(f=>{resumen[f.e]=(resumen[f.e]||0)+1;});
   const ordTipo={SOLADO:0,TABIQUE:1,CIELORRASO:2};
   filas.sort((a,b)=> (a.l.numero||"").localeCompare(b.l.numero||"",'es',{numeric:true}) || (ordTipo[a.p.tipo]-ordTipo[b.p.tipo]) || ((a.p.indice||0)-(b.p.indice||0)));
-  /* rev20: cambiar el estado de la tarea/subtarea filtrada directamente desde acá (se guarda al toque,
-     local por local, igual que "Guardar cambios" en la ficha, con auditoría). Si se elige la tarea entera
-     y tiene subtareas, el estado se aplica a TODAS sus subtareas (igual que en la ficha). */
+  /* rev20/rev21: cambiar el estado de la tarea/subtarea filtrada desde acá. rev21: los cambios quedan
+     PENDIENTES (fila en amarillo) hasta tocar "Guardar cambios"; se guardan local por local, igual que en
+     la ficha, con auditoría. Si se elige la tarea entera y tiene subtareas, el estado se aplica a TODAS. */
   const editables=filas.filter(f=>puedeEditar(user,f.l.local_id));
   function aplicarEnParte(pt,nuevo){
     let found=null;
@@ -2068,59 +2077,63 @@ function FiltrosPanel({data,user,modulo:m0,nivel:n0,onClose,onAbrirLocal,onGuard
     else found.estado=nuevo;
     return true;
   }
-  async function cambiar(sel,nuevo){
+  function marcar(f,nuevo){ setFmsg(""); setPend(x=>{ const y={...x}; if(nuevo===f.e) delete y[f.p.parte_id]; else y[f.p.parte_id]=nuevo; return y; }); }
+  async function guardarPend(){
+    const sel=filas.filter(f=>pend[f.p.parte_id]!=null);
     const porLocal={}; sel.forEach(f=>{ (porLocal[f.l.local_id]=porLocal[f.l.local_id]||[]).push(f.p.parte_id); });
-    setGuardando(g=>{const x={...g}; sel.forEach(f=>x[f.p.parte_id]=true); return x;}); setFmsg("");
-    let ok=0, err=[];
+    setGuardando(true); setFmsg("");
+    let ok=0, err=[]; const guardados=[];
     for(const lid of Object.keys(porLocal)){
       const l=data.locales.find(x=>x.local_id===lid); if(!l) continue;
       const partes=[], cambios=[], nuevas={};
       porLocal[lid].forEach(pid=>{ const orig=l.partes.find(p=>p.parte_id===pid); if(!orig||!orig.fases) return;
-        const pt=JSON.parse(JSON.stringify(orig)); if(!aplicarEnParte(pt,nuevo)) return;
+        const pt=JSON.parse(JSON.stringify(orig)); if(!aplicarEnParte(pt,pend[pid])) return;
         const dc=diffFases(orig.fases,pt.fases,pid); if(!dc.length) return;   // ya estaba en ese estado: no se guarda
         dc.forEach(c=>cambios.push(c));
         partes.push({parte_id:pt.parte_id,tipo:pt.tipo,indice:pt.indice,etiqueta:pt.etiqueta,tipologia:pt.tipologia||"",
           plano_x:pt.plano_x,plano_y:pt.plano_y,comentarios:pt.comentarios||"",fases:pt.fases});
         nuevas[pid]=pt.fases; });
-      if(!partes.length) continue;
+      if(!partes.length){ porLocal[lid].forEach(pid=>guardados.push(pid)); continue; }
       const res=await apiPost({action:"guardar",email:user.email,local_id:lid,partes,borrar:[],cambios});
-      if(res.ok){ ok+=partes.length; onGuardado(lid,nuevas); } else err.push(l.numero+": "+errorGuardado(res.error));
+      if(res.ok){ ok+=partes.length; onGuardado(lid,nuevas); porLocal[lid].forEach(pid=>guardados.push(pid)); }
+      else err.push(l.numero+": "+errorGuardado(res.error));
     }
-    setGuardando(g=>{const x={...g}; sel.forEach(f=>delete x[f.p.parte_id]); return x;});
-    setFmsg(err.length ? "Error: "+err.join(" · ") : (ok ? "✓ Guardado: "+ok+" elemento(s) en "+nuevo : "✓ Ya estaban en "+nuevo+": no hubo cambios"));
+    // los que se guardaron salen de pendientes; los que fallaron quedan en amarillo para reintentar
+    setPend(x=>{ const y={...x}; guardados.forEach(pid=>delete y[pid]); return y; });
+    setGuardando(false);
+    setFmsg(err.length ? "Error: "+err.join(" · ") : "✓ Guardado: "+ok+" elemento(s)");
   }
   function cambiarTodos(){
     if(!masivo||!editables.length) return;
-    if(!confirm("¿Pasar "+tarea+(sub?" › "+(subsDisp.find(([k])=>k===sub)||[,""])[1]:"")+" a \""+masivo+"\" en los "+editables.length+" elemento(s) mostrados?\nSe guarda en cada local.")) return;
-    cambiar(editables,masivo); setMasivo("");
+    editables.forEach(f=>marcar(f,masivo)); setMasivo("");
   }
   return (
-    <div className="overlay" onClick={e=>{if(e.target.className==="overlay")onClose()}}>
+    <div className="overlay" onClick={e=>{if(e.target.className==="overlay")sinPendientes(onClose)}}>
       <div className="modal" style={{maxWidth:820}}>
         <div className="mhead">
           <div><h2 style={{fontSize:18}}>🔎 Filtros</h2>
             <div style={{fontSize:12,opacity:.85}}>Elegí módulo, piso, local y una tarea/subtarea para ver su estado en todos los elementos.</div></div>
-          <button className="x" onClick={onClose}>×</button>
+          <button className="x" onClick={()=>sinPendientes(onClose)}>×</button>
         </div>
         <div className="mbody">
           <div className="fgrid">
             <div className="frow"><span className="lbl">Módulo</span>
-              {MODS.map(x=><button key={x} className={"vchip"+(m===x?" on":"")} onClick={()=>setM(x)}>{mLbl(x)}</button>)}</div>
+              {MODS.map(x=><button key={x} className={"vchip"+(m===x?" on":"")} onClick={()=>x!==m&&sinPendientes(()=>setM(x))}>{mLbl(x)}</button>)}</div>
             <div className="frow"><span className="lbl">Piso</span>
               {[["PB","Planta Baja"],["PA","Planta Alta"],["EP","Entrepiso"]].map(([c,nm])=>
-                <button key={c} className={"vchip"+(n===c?" on":"")} onClick={()=>setN(c)}>{nm}</button>)}</div>
+                <button key={c} className={"vchip"+(n===c?" on":"")} onClick={()=>c!==n&&sinPendientes(()=>setN(c))}>{nm}</button>)}</div>
             <div className="frow"><span className="lbl">Local</span>
-              <select value={loc} onChange={e=>setLoc(e.target.value)} className="fsel">
+              <select value={loc} onChange={e=>{const v=e.target.value; sinPendientes(()=>setLoc(v));}} className="fsel">
                 <option value="*">Todos ({locs.length})</option>
                 {locs.map(l=><option key={l.local_id} value={l.local_id}>{l.numero} · {l.nombre}</option>)}
               </select></div>
             <div className="frow"><span className="lbl">Rubro / Tarea</span>
-              <select value={tarea} onChange={e=>setTarea(e.target.value)} className="fsel">
+              <select value={tarea} onChange={e=>{const v=e.target.value; sinPendientes(()=>setTarea(v));}} className="fsel">
                 <option value="">— elegir —</option>
                 {tareas.map(t=><option key={t} value={t}>{t}</option>)}
               </select></div>
             {tarea && subsDisp.length>0 && <div className="frow"><span className="lbl">Subtarea</span>
-              <select value={sub} onChange={e=>setSub(e.target.value)} className="fsel">
+              <select value={sub} onChange={e=>{const v=e.target.value; sinPendientes(()=>setSub(v));}} className="fsel">
                 <option value="">(toda la tarea)</option>
                 {subsDisp.map(([k,label])=><option key={k} value={k}>{label}</option>)}
               </select></div>}
@@ -2139,22 +2152,22 @@ function FiltrosPanel({data,user,modulo:m0,nivel:n0,onClose,onAbrirLocal,onGuard
                   <option value="">— estado —</option>
                   {ESTADOS.map(o=><option key={o} value={o}>{o}</option>)}
                 </select>
-                <button className="btn sm primary" disabled={!masivo||Object.keys(guardando).length>0} onClick={cambiarTodos}>Aplicar</button>
-                <span className="fhint">o cambiá cada fila con su botón de estado</span>
+                <button className="btn sm primary" disabled={!masivo||guardando} onClick={cambiarTodos}>Aplicar</button>
+                <span className="fhint">o cambiá cada fila con su botón de estado · después tocá <b>Guardar cambios</b></span>
               </div>}
               {fmsg && <div className={fmsg.startsWith("Error")?"err":"fok"}>{fmsg.startsWith("Error")?"⚠️ "+fmsg.slice(7):fmsg}</div>}
               <div className="ftable">
-                {filas.map(({l,p,e},i)=>{ const ed=puedeEditar(user,l.local_id); const gu=!!guardando[p.parte_id];
+                {filas.map((fila,i)=>{ const {l,p,e}=fila; const ed=puedeEditar(user,l.local_id); const pv=pend[p.parte_id]; const val=pv||e;
                   return (
-                  <div className="ftr" key={i} onClick={()=>{onAbrirLocal(l.local_id,p.parte_id,tarea);onClose();}}>
+                  <div className={"ftr"+(pv?" fpend":"")} key={i} onClick={()=>sinPendientes(()=>{onAbrirLocal(l.local_id,p.parte_id,tarea);onClose();})}>
                     <span className="ftloc">{l.numero}</span>
                     <span className="ftnom">{l.nombre}</span>
-                    <span className="ftel">{normEtq(p.etiqueta)}</span>
+                    <span className="ftel">{normEtq(p.etiqueta)}{pv && <span className="fantes"> · antes: {e}</span>}</span>
                     {ed
-                      ? <select className="estado-sel" data-e={e} value={e} disabled={gu} style={{marginLeft:"auto"}}
+                      ? <select className="estado-sel" data-e={val} value={val} disabled={guardando} style={{marginLeft:"auto"}}
                           title={sub?"Cambia esta subtarea":"Cambia la tarea (y todas sus subtareas)"}
-                          onClick={ev=>ev.stopPropagation()} onChange={ev=>{ev.stopPropagation(); cambiar([{l,p}],ev.target.value);}}>
-                          {ESTADOS.map(o=><option key={o} value={o}>{gu?"Guardando…":o}</option>)}
+                          onClick={ev=>ev.stopPropagation()} onChange={ev=>{ev.stopPropagation(); marcar(fila,ev.target.value);}}>
+                          {ESTADOS.map(o=><option key={o} value={o}>{o}</option>)}
                         </select>
                       : <span className="estado-sel ro" data-e={e} style={{marginLeft:"auto"}}>{e}</span>}
                   </div>);})}
@@ -2163,6 +2176,12 @@ function FiltrosPanel({data,user,modulo:m0,nivel:n0,onClose,onAbrirLocal,onGuard
             </React.Fragment>
           )}
         </div>
+        {/* rev21: barra para guardar o descartar los cambios hechos en Filtros */}
+        {nPend>0 && <div className="savebar">
+          <button className="btn primary" disabled={guardando} onClick={guardarPend}>{guardando?"Guardando…":"💾 Guardar cambios ("+nPend+")"}</button>
+          <button className="btn" disabled={guardando} onClick={()=>{setPend({});setFmsg("");}}>Descartar</button>
+          <span className="msg">{nPend} elemento(s) con cambios sin guardar</span>
+        </div>}
       </div>
     </div>
   );
