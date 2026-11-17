@@ -183,44 +183,6 @@
   .sub{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:3px 0}
   .sub-n{flex:1;font-size:11.5px;color:#334155}
   .sub-n em{color:var(--muted);font-style:normal;font-weight:700}
-  /* rev22: filtro general (Rubro / Etapa / Elemento) + % del sector */
-  .fbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-4px 0 12px}
-  .fbar .lbl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
-  .mf{position:relative}
-  .mf-btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:9px;padding:6px 11px;font-size:12.5px;font-weight:700;display:inline-flex;align-items:center;gap:5px}
-  .mf-btn.on{background:#e0ecff;border-color:var(--brand2);color:var(--brand)}
-  .mf-n{background:var(--brand);color:#fff;border-radius:99px;font-size:10.5px;padding:0 6px;line-height:16px}
-  .mf-car{font-size:10px;opacity:.7}
-  .mf-pop{position:absolute;top:calc(100% + 4px);left:0;z-index:40;background:#fff;border:1px solid var(--line);border-radius:10px;
-    box-shadow:0 8px 24px rgba(15,23,42,.18);padding:6px;min-width:220px;max-width:min(320px,calc(100vw - 32px));max-height:320px;overflow:auto}
-  .mf-op{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;font-size:13px;cursor:pointer;color:var(--ink)}
-  .mf-op:hover{background:#f1f5f9}
-  .mf-op input{width:16px;height:16px;flex:0 0 16px}
-  .mf-vacio{font-size:12px;color:var(--muted);padding:8px}
-  .mf-clr{display:block;margin:4px 8px 2px}
-  .fclear{border:0;background:transparent;color:#b91c1c;font-size:12px;font-weight:700;padding:4px 6px}
-  .fresumen{font-size:12px;color:var(--brand);font-weight:600;flex-basis:100%}
-  .sectorpct{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);font-weight:700}
-  .sectorpct .track{width:110px;display:inline-block}
-  .sectorpct b{font-size:14px}
-  .mkcom{position:absolute;transform:translate(calc(var(--mk,34px) * .12), calc(var(--mk,34px) * -1.02));z-index:6;pointer-events:none;
-    font-size:calc(var(--mk,34px) * .36);line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}
-  .marker.fuera{opacity:.45;box-shadow:0 0 0 2px #94a3b8}
-  .pscom{font-size:11px;color:#b45309;font-weight:800}
-  .card.fuera{opacity:.45}
-  .ccom{font-size:11.5px;font-weight:800;color:#b45309;background:#fef3c7;border-radius:99px;padding:1px 7px;margin-left:6px}
-  .lfiltro{display:flex;align-items:center;gap:10px;background:#e0ecff;border:1px solid #bfd4f6;border-radius:10px;padding:7px 10px;margin-bottom:10px;font-size:12.5px;color:var(--brand)}
-  .lfiltro.off{background:#f1f5f9;border-color:var(--line);color:var(--muted)}
-  .lfiltro .lf-txt{flex:1}
-  @media(max-width:640px){ .fbar{position:relative} .mf{position:static} .mf-pop{left:0;right:0;max-width:none} .sectorpct{margin-left:0;flex-basis:100%} }
-  /* rev22: subrubros plegables */
-  .subg{margin:2px 0}
-  .subg-h{display:flex;align-items:center;gap:8px;padding:4px 0;cursor:pointer;min-height:34px}
-  .subg-h:hover{background:#f8fafc}
-  .subg-h .twist{font-size:11px;color:var(--brand);width:14px;text-align:center}
-  .subg-n{flex:1;font-size:11.5px;font-weight:800;color:#334155;text-transform:uppercase;letter-spacing:.2px}
-  .subg-n .subc{text-transform:none;font-weight:600;letter-spacing:0;color:var(--muted);font-size:11px}
-  .subg-items{margin-left:14px;border-left:2px dashed #e2e8f0;padding-left:8px}
   .addtarea{display:flex;gap:8px;margin:6px 2px 2px}
   .addtarea input{flex:1;border:1px solid var(--line);border-radius:7px;padding:6px 8px;font-size:12px;font-family:inherit}
   .hito{display:flex;align-items:center;gap:8px;padding:9px 12px;background:#fbfcfe;border-top:1px solid var(--line);font-size:12.5px;font-weight:700}
@@ -331,7 +293,6 @@
   .cbox{background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:6px 0 8px;display:flex;flex-direction:column;gap:8px}
   .croot{background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 10px}
   .croot.cerrado{opacity:.6;background:#f1f5f9}
-  .croot.cerrado > .cmsg .ctexto{text-decoration:line-through;color:#64748b}   /* rev22: superado = tachado */
   .cmsg{display:flex;flex-direction:column;gap:3px}
   .chead{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:12px}
   .chead b{color:var(--brand)}
@@ -470,7 +431,7 @@ const ONLINE = !!(SUPABASE_URL && SUPABASE_ANON);
 let _sb=null;
 function getSB(){ if(!_sb && ONLINE && window.supabase){ _sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON); } return _sb; }
 
-const APP_REV = "rev22";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
+const APP_REV = "rev21";   // número de revisión, se muestra chiquito en el pie (actualizar en cada rev)
 /* rev9: traduce el error del servidor al guardar a un mensaje claro para el usuario */
 function errorGuardado(e){
   const s=String(e||"");
@@ -798,95 +759,6 @@ function estadoLocal(local){
 }
 function colorLocal(local){ return COL_EST[estadoLocal(local)]; }
 function colorParte(p){ return COL_EST[estadoParte(p)]; }
-/* rev22: filtro general (Rubro / Etapa / Elemento, varias opciones a la vez).
-   Solo cambia lo que se MUESTRA: nunca modifica datos. Sin filtro activo se usan las
-   funciones de siempre (avancePct, colorLocal, colorParte), así que todo se ve igual que antes. */
-const FILTRO_VACIO={rubros:[],etapas:[],elementos:[]};
-const ELEM_NOM={TABIQUE:"Tabiques",SOLADO:"Solados",CIELORRASO:"Cielorrasos"};
-const COL_FUERA="#cbd5e1";   // rev22: local/elemento que no entra en el filtro
-function filtroActivo(fg){ return !!fg && (fg.rubros.length>0||fg.etapas.length>0||fg.elementos.length>0); }
-function soloElem(fg){ return !fg.rubros.length && !fg.etapas.length; }
-function parteEnFiltro(p,fg){ return !fg.elementos.length || fg.elementos.indexOf(p.tipo)>=0; }
-function faseEnFiltro(f,fg){ return !fg.etapas.length || fg.etapas.indexOf(f.nombre)>=0; }
-function tareaEnFiltro(t,fg){ return !fg.rubros.length || fg.rubros.indexOf(t.nombre)>=0; }
-// hojas (estados) de la parte que entran en el filtro; null = la parte no tiene nada filtrado
-function hojasFiltradas(p,fg){
-  if(!parteEnFiltro(p,fg)) return null;
-  if(soloElem(fg)) return partItems(p);
-  if(!p.fases) return null;   // modelo viejo: no tiene etapas/rubros por nombre
-  const out=[]; let hay=false;
-  p.fases.forEach(f=>{ if(!faseEnFiltro(f,fg)) return;
-    (f.grupos||[]).forEach(g=>(g.tareas||[]).forEach(t=>{ if(!tareaEnFiltro(t,fg)) return; hay=true;
-      if(t.subtareas&&t.subtareas.length) t.subtareas.forEach(s=>out.push(s.estado)); else out.push(t.estado); })); });
-  return hay?out:null;
-}
-function estadoHojasF(h){
-  const rel=h.filter(e=>PESO[e]!==null);
-  if(!rel.length) return "na";
-  if(rel.every(e=>e==="Terminado")) return "verde";
-  return rel.some(e=>e==="Terminado"||e==="Iniciado") ? "naranja" : "rojo";
-}
-// estado de una parte con filtro: "fuera" si no entra; con solo Elemento, el criterio de colores de siempre
-function estadoParteF(p,fg){
-  const h=hojasFiltradas(p,fg); if(h===null) return "fuera";
-  return soloElem(fg) ? estadoParte(p) : estadoHojasF(h);
-}
-function estadoLocalF(local,fg){
-  const est=(local.partes||[]).map(p=>estadoParteF(p,fg)).filter(e=>e!=="fuera");
-  if(!est.length) return "fuera";
-  const val=est.filter(e=>e!=="na"); if(!val.length) return "na";
-  const min=val.reduce((m,e)=>RANGO_EST[e]<RANGO_EST[m]?e:m,"gris");
-  if(min==="rojo" && val.some(e=>e!=="rojo")) return "naranja";
-  return min;
-}
-function colorEstF(e){ return e==="fuera"?COL_FUERA : e==="na"?"#94a3b8" : COL_EST[e]; }
-function pctLocalF(local,fg){
-  const h=[]; (local.partes||[]).forEach(p=>{ const x=hojasFiltradas(p,fg); if(x) x.forEach(e=>h.push(e)); });
-  return estadoLeaves(h);
-}
-function textoFiltro(fg){
-  return [fg.elementos.map(e=>ELEM_NOM[e]||e).join(" + "), fg.etapas.join(" + "), fg.rubros.join(" + ")].filter(x=>x).join(" · ");
-}
-function localEnFiltro(local,fg){ return (local.partes||[]).some(p=>hojasFiltradas(p,fg)!==null); }
-// % de un conjunto de locales (mismo cálculo que el avance global: promedio de todos los ítems hoja)
-function pctLocales(locales,fg){
-  const h=[]; const act=filtroActivo(fg);
-  locales.forEach(l=>(l.partes||[]).forEach(p=>{ const x=act?hojasFiltradas(p,fg):partItems(p); if(x) x.forEach(e=>h.push(e)); }));
-  return estadoLeaves(h);
-}
-// comentario abierto (original, no superado) que entra en el filtro; ref = "Etapa › Rubro[ › …]"
-function comEnFiltro(c,partesById,fg){
-  if(!filtroActivo(fg)) return true;
-  const p=c.parte_id?partesById[c.parte_id]:null;
-  if(c.parte_id && p && !parteEnFiltro(p,fg)) return false;
-  if(!c.parent_id && c.ref){ const r=String(c.ref).split(" › ");
-    if(fg.etapas.length && fg.etapas.indexOf(r[0])<0) return false;
-    if(fg.rubros.length && r.length>1 && fg.rubros.indexOf(r[1])<0) return false; }
-  return true;
-}
-/* rev22: desplegable con casillas (varias opciones a la vez) */
-function MultiFiltro({label,opciones,valor,onChange}){
-  const [open,setOpen]=useState(false);
-  const ref=useRef(null);
-  useEffect(()=>{ if(!open) return; const h=e=>{ if(ref.current&&!ref.current.contains(e.target)) setOpen(false); };
-    document.addEventListener("mousedown",h); document.addEventListener("touchstart",h);
-    return ()=>{ document.removeEventListener("mousedown",h); document.removeEventListener("touchstart",h); }; },[open]);
-  const toggle=v=>onChange(valor.indexOf(v)>=0 ? valor.filter(x=>x!==v) : [...valor,v]);
-  // opciones que quedaron elegidas pero ya no aparecen (por otro filtro) se siguen mostrando para poder quitarlas
-  const lista=[...opciones, ...valor.filter(v=>!opciones.some(o=>o[0]===v)).map(v=>[v,v])];
-  return (
-    <div className="mf" ref={ref}>
-      <button className={"mf-btn"+(valor.length?" on":"")} onClick={()=>setOpen(o=>!o)}>
-        {label}{valor.length?<span className="mf-n">{valor.length}</span>:null} <span className="mf-car">▾</span></button>
-      {open && <div className="mf-pop">
-        {lista.length===0 && <div className="mf-vacio">No hay opciones con los otros filtros.</div>}
-        {lista.map(([v,txt])=><label key={v} className="mf-op">
-          <input type="checkbox" checked={valor.indexOf(v)>=0} onChange={()=>toggle(v)}/> <span>{txt}</span></label>)}
-        {valor.length>0 && <button className="clink mf-clr" onClick={()=>onChange([])}>Quitar este filtro</button>}
-      </div>}
-    </div>
-  );
-}
 function puedeEditar(user,local_id){
   if(!user) return false;
   if(user.puede_editar==="*") return true;
@@ -944,17 +816,14 @@ function Login({onLogin,error,loading}){
 }
 
 /* ================== Marcador del plano ================== */
-function Marker({local,onClick,dim,fg}){
-  // rev22: con filtro activo, color y % salen solo de lo filtrado (sin filtro: igual que siempre)
-  const act=filtroActivo(fg);
-  const estF=act?estadoLocalF(local,fg):null;
-  const p=act?pctLocalF(local,fg):avancePct(local);
+function Marker({local,onClick,dim}){
+  const p=avancePct(local);
   // rev10: achicar la letra según la cantidad de caracteres para que el número quede dentro del círculo
   const n=String(local.numero||"").length;
   const fs = n<=2?11 : n===3?10.5 : n===4?9.5 : n===5?8 : 6.5;
   return (
-    <div className={"marker"+(dim?" dim":"")+(estF==="fuera"?" fuera":"")} style={{left:local.plano_x+"%",top:local.plano_y+"%",background:act?colorEstF(estF):colorLocal(local),fontSize:"calc(var(--mk,34px) * "+(fs/34).toFixed(3)+")"}}
-         title={local.numero+" · "+local.nombre+(estF==="fuera"?" (no entra en el filtro)":" ("+p+"%"+(act?" de lo filtrado":"")+")")} onClick={onClick}>
+    <div className={"marker"+(dim?" dim":"")} style={{left:local.plano_x+"%",top:local.plano_y+"%",background:colorLocal(local),fontSize:"calc(var(--mk,34px) * "+(fs/34).toFixed(3)+")"}}
+         title={local.numero+" · "+local.nombre+" ("+p+"%)"} onClick={onClick}>
       {local.numero}
     </div>
   );
@@ -1214,6 +1083,7 @@ function CMsg({c}){
 }
 function ComentariosBox({localId,parteId,refC}){
   const ctx=React.useContext(ComCtx);
+  const [verCerrados,setVerCerrados]=useState(false);
   const [resp,setResp]=useState({});   // id comentario -> mostrar caja de respuesta
   if(!ctx) return null;
   const todos=comsDe(ctx.coms,localId,parteId,refC);
@@ -1238,9 +1108,8 @@ function ComentariosBox({localId,parteId,refC}){
         <CMsg c={c}/>
         <div className="cacts">
           <button className="clink" onClick={()=>setResp(x=>({...x,[c.id]:!x[c.id]}))}>↩ Responder</button>
-          {/* rev22: "Cerrar" pasa a llamarse "Superado" (usa el mismo dato "cerrado" de siempre) */}
-          {ctx.puedeCerrar(c) && <button className="clink" onClick={()=>cerrar(c,!c.cerrado)}>{c.cerrado?"↺ Reabrir":"✔ Superado"}</button>}
-          {c.cerrado && <span className="ccerr">Superado{c.cerrado_por?" · "+c.cerrado_por:""}{c.cerrado_en?" · "+fmtFecha(c.cerrado_en):""}</span>}
+          {ctx.puedeCerrar(c) && <button className="clink" onClick={()=>cerrar(c,!c.cerrado)}>{c.cerrado?"↺ Reabrir":"✔ Cerrar"}</button>}
+          {c.cerrado && <span className="ccerr">Cerrado{c.cerrado_por?" · "+c.cerrado_por:""}{c.cerrado_en?" · "+fmtFecha(c.cerrado_en):""}</span>}
         </div>
         {(rs.length>0 || resp[c.id]) && <div className="creplies">
           {rs.map(r=><CMsg key={r.id} c={r}/>)}
@@ -1253,26 +1122,20 @@ function ComentariosBox({localId,parteId,refC}){
     <div className="cbox">
       {abiertos.map(renderRoot)}
       {roots.length===0 && <div className="cvacio">Todavía no hay comentarios acá.</div>}
-      {/* rev22: los superados se ven siempre, tachados, debajo de los abiertos */}
-      {cerrados.map(renderRoot)}
+      {cerrados.length>0 && <button className="clink" onClick={()=>setVerCerrados(v=>!v)}>
+        {verCerrados?"Ocultar":"Ver"} comentarios cerrados ({cerrados.length})</button>}
+      {verCerrados && cerrados.map(renderRoot)}
       <Composer placeholder="Escribí un comentario…" onEnviar={(t,f)=>comentar(t,f,null)}/>
     </div>
   );
 }
-function PhasedTasks({pt,editable,editMode,patch,foco,localId,fg}){
+function PhasedTasks({pt,editable,editMode,patch,foco,localId}){
   const comCtx=React.useContext(ComCtx);
   const nAb=ref=>comCtx?abiertosDe(comCtx.coms,localId,pt.parte_id,ref):0;
-  // rev22: filtro general (fg = null → se muestra todo, como siempre)
-  const fgEt = fg && !soloElem(fg) ? fg : null;
-  const faseVis=f=>!fgEt || (faseEnFiltro(f,fgEt) && (f.grupos||[]).some(g=>(g.tareas||[]).some(t=>tareaEnFiltro(t,fgEt))));
-  const tareaVis=t=>!fgEt || tareaEnFiltro(t,fgEt);
   // rev10: si viene de Filtros (foco = nombre de tarea), abrir la etapa y desplegar esa tarea
   const focoIds=useMemo(()=>{ const f={},t={}; if(foco){ (pt.fases||[]).forEach(fa=>(fa.grupos||[]).forEach(g=>(g.tareas||[]).forEach(x=>{
-    if(x.nombre===foco){ f[fa.id]=true; t[x.id]=true; } }))); }
-    else if(fgEt){ (pt.fases||[]).forEach(fa=>{ if(faseVis(fa)) f[fa.id]=true; }); }   // rev22: con filtro de etapa/rubro, abrir lo filtrado
-    return {f,t}; },[]);
+    if(x.nombre===foco){ f[fa.id]=true; t[x.id]=true; } }))); } return {f,t}; },[]);
   const [openF,setOpenF]=useState(focoIds.f);
-  const [openG,setOpenG]=useState({});   // rev22: subrubros abiertos ("tareaId|grupo" -> bool)
   const [exp,setExp]=useState(focoIds.t);
   useEffect(()=>{ const id=Object.keys(focoIds.t)[0]; if(!id) return;
     setTimeout(()=>{const el=document.getElementById("tk-"+id); if(el) el.scrollIntoView({behavior:"smooth",block:"start"});},80); },[]);
@@ -1312,9 +1175,8 @@ function PhasedTasks({pt,editable,editMode,patch,foco,localId,fg}){
   return (
     <div className="fases">
       {pt.fases.map(f=>{
-        if(!faseVis(f)) return null;   // rev22: etapa fuera del filtro
-        const items=[]; f.grupos.forEach(g=>g.tareas.forEach(t=>{ if(!tareaVis(t)) return;
-          (t.subtareas&&t.subtareas.length)?t.subtareas.forEach(s=>items.push(s.estado)):items.push(t.estado); }));
+        const items=[]; f.grupos.forEach(g=>g.tareas.forEach(t=>
+          (t.subtareas&&t.subtareas.length)?t.subtareas.forEach(s=>items.push(s.estado)):items.push(t.estado)));
         const fpct=estadoLeaves(items);
         const fopen=!!openF[f.id];
         const esPP = f.nombre===PP_NOMBRE;
@@ -1330,11 +1192,10 @@ function PhasedTasks({pt,editable,editMode,patch,foco,localId,fg}){
               patch(p=>{p.fases=p.fases.filter(x=>x.id!==f.id);});}}>✕</button>}
           </div>
           {fopen && <React.Fragment>
-          {f.grupos.map((g,gi)=>(!fgEt||g.tareas.some(tareaVis)) && (
+          {f.grupos.map((g,gi)=>(
             <div className="grupo" key={gi}>
               {g.nombre && <div className="grupo-n">{g.nombre}</div>}
               {g.tareas.map(t=>{
-                if(!tareaVis(t)) return null;   // rev22: rubro fuera del filtro
                 const has=!!(t.subtareas&&t.subtareas.length);
                 const canExp=has||editMode;
                 const abierto=!!exp[t.id];
@@ -1361,13 +1222,9 @@ function PhasedTasks({pt,editable,editMode,patch,foco,localId,fg}){
                   {oc[t.id] && <ComentariosBox localId={localId} parteId={pt.parte_id} refC={refTarea(f,t)}/>}
                   {abierto && canExp && (
                     <div className="subtareas">
-                      {(()=>{
-                        // rev22: subrubros (campo "grupo" de las subtareas) plegables, con un estado que se aplica a todos sus ítems.
-                        // Si ninguna subtarea tiene grupo, se ve exactamente igual que antes.
-                        const subs=t.subtareas||[];
-                        const renderSub=(s,enGrupo)=>(
+                      {t.subtareas.map(s=>(
                         <div className="sub" key={s.id}>
-                          <span className="sub-n">{(s.grupo&&!enGrupo)?<em>{s.grupo} · </em>:null}{s.nombre}</span>
+                          <span className="sub-n">{s.grupo?<em>{s.grupo} · </em>:null}{s.nombre}</span>
                           {(()=>{const n=nAb(refSub(f,t,s)); return <button className={"notebtn"+(n?" has":"")} title="Comentarios"
                             onClick={()=>setOc(o=>({...o,[s.id]:!o[s.id]}))}>💬{n?<span className="ncnt">{n}</span>:null}</button>;})()}
                           {editMode && <button className="rmtask" title="Quitar subtarea"
@@ -1377,30 +1234,8 @@ function PhasedTasks({pt,editable,editMode,patch,foco,localId,fg}){
                             {ESTADOS.map(o=><option key={o} value={o}>{o}</option>)}
                           </select>
                           {oc[s.id] && <div style={{flexBasis:"100%"}}><ComentariosBox localId={localId} parteId={pt.parte_id} refC={refSub(f,t,s)}/></div>}
-                        </div>);
-                        if(!subs.some(s=>s.grupo)) return subs.map(s=>renderSub(s,false));
-                        const bloques=[], idx={};   // agrupa por subrubro respetando el orden de aparición
-                        subs.forEach(s=>{ const k=s.grupo||""; if(!(k in idx)){ idx[k]=bloques.length; bloques.push({k,subs:[]}); } bloques[idx[k]].subs.push(s); });
-                        return bloques.map(b=>{
-                          if(!b.k) return b.subs.map(s=>renderSub(s,false));
-                          const gk=t.id+"|"+b.k, gab=!!openG[gk], ids=b.subs.map(s=>s.id);
-                          const gEst=rollupEstado(b.subs);
-                          const gn=b.subs.reduce((n,s)=>n+nAb(refSub(f,t,s)),0);
-                          return (
-                          <div className="subg" key={"g|"+b.k}>
-                            <div className="subg-h" onClick={()=>setOpenG(o=>({...o,[gk]:!gab}))}>
-                              <span className="twist">{gab?"▾":"▸"}</span>
-                              <span className="subg-n">{b.k}<span className="subc"> · {b.subs.length} ítems</span>{gn?<span className="pcoms" style={{marginLeft:6}}>💬 {gn}</span>:null}</span>
-                              <select className="estado-sel sm" data-e={gEst} value={gEst} disabled={!editable} onClick={stop}
-                                title="Al elegir un estado, se aplica a TODOS los ítems de este subrubro"
-                                onChange={e=>{const v=e.target.value; patch(p=>{const {t:tt}=findTareaIn(p,f.id,t.id); if(tt&&tt.subtareas) tt.subtareas.forEach(s=>{ if(ids.indexOf(s.id)>=0) s.estado=v; });});}}>
-                                {ESTADOS.map(o=><option key={o} value={o}>{o}</option>)}
-                              </select>
-                            </div>
-                            {gab && <div className="subg-items">{b.subs.map(s=>renderSub(s,true))}</div>}
-                          </div>);
-                        });
-                      })()}
+                        </div>
+                      ))}
                       {editMode && (
                         <div className="addtarea sub">
                           <input placeholder="Nueva subtarea…" value={nst[t.id]||""}
@@ -1462,7 +1297,7 @@ function PhasedTasks({pt,editable,editMode,patch,foco,localId,fg}){
     </div>
   );
 }
-function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco,vecinos,onIr,filtro}){
+function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco,vecinos,onIr}){
   const editable = puedeEditar(user,local.local_id);
   const isAdmin = user.rol==="admin";
   const [draft,setDraft]=useState(()=>initDraft(local,data));
@@ -1475,11 +1310,6 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco,vecinos,
   const [openCom,setOpenCom]=useState({});            // "parte|rid" -> bool (nota abierta)
   const [openP,setOpenP]=useState(()=>initialParte?{[initialParte]:true}:{}); // parte_id -> abierto (acordeón elementos)
   const [edit,setEdit]=useState(false);               // modo editar (admin)
-  // rev22: el filtro general también se aplica acá; "Ver todo" lo saca solo dentro de este local.
-  // (si se entra desde 🔎 Filtros o a un elemento que no entra en el filtro, arranca viendo todo)
-  const [verTodo,setVerTodo]=useState(()=>!!foco || (filtroActivo(filtro) && !localEnFiltro(local,filtro)) || !!(initialParte && filtroActivo(filtro) &&
-    (local.partes||[]).some(p=>p.parte_id===initialParte && hojasFiltradas(p,filtro)===null)));
-  const fgL = (filtroActivo(filtro) && !verTodo && !edit) ? filtro : null;
   const [nuevoTipo,setNuevoTipo]=useState("TABIQUE");
   const [dirty,setDirty]=useState(false);
   const [saving,setSaving]=useState(false);
@@ -1638,7 +1468,7 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco,vecinos,
         <div className="mhead">
           <div>
             <h2><span style={{opacity:.85,fontWeight:600}}>{local.numero}</span> · {local.nombre}</h2>
-            <div style={{fontSize:12,opacity:.85}}>{mNom(local.modulo)} · {nNom(local.nivel)} — {avancePct(draft)}% completado{fgL?" · "+pctLocalF(draft,fgL)+"% de lo filtrado":""}</div>
+            <div style={{fontSize:12,opacity:.85}}>{mNom(local.modulo)} · {nNom(local.nivel)} — {avancePct(draft)}% completado</div>
           </div>
           {editable && <button className={"btn sm"+(edit?" primary":"")} style={{marginLeft:"auto"}}
                        onClick={()=>setEdit(v=>!v)}>{edit?"✔ Listo":"✏️ Editar"}</button>}
@@ -1665,15 +1495,8 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco,vecinos,
               <span className="hint">Acá solo se agregan o quitan (🗑) elementos. Las etapas/tareas/subtareas se definen en <b>Configuración matriz</b>.</span>
             </div>
           )}
-          {filtroActivo(filtro) && !edit && (
-            <div className={"lfiltro"+(verTodo?" off":"")}>
-              <span className="lf-txt">{verTodo?"Viendo todo el local (sin filtro)":<React.Fragment>🎚 Mostrando solo: <b>{textoFiltro(filtro)}</b></React.Fragment>}</span>
-              <button className="btn sm" onClick={()=>setVerTodo(v=>!v)}>{verTodo?"Aplicar filtro":"Ver todo"}</button>
-            </div>)}
           <LocalPlan local={local} draft={draft} area={area} dims={dims} zoom={lpZoom} setZoom={setLpZoom} onParte={abrirParte} centro={lpCentro}/>
-          {fgL && !partes.some(pt=>hojasFiltradas(pt,fgL)!==null) && <div className="cvacio" style={{padding:"10px 4px"}}>Este local no tiene nada que coincida con el filtro. Tocá <b>Ver todo</b> para ver el local completo.</div>}
           {partes.map(pt=>{
-            if(fgL && hojasFiltradas(pt,fgL)===null) return null;   // rev22: elemento fuera del filtro
             const tareas=pt.tareas||[];
             const open=!!openP[pt.parte_id];
             const catDisp=(data.rubros||[]).filter(r=>!tareas.includes(r.id));
@@ -1692,7 +1515,7 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco,vecinos,
               </div>
               {open && (pt.fases
                 ? <PhasedTasks pt={pt} editable={editable} editMode={false} patch={fn=>patchParte(pt.parte_id,fn)}
-                    foco={pt.parte_id===initialParte?foco:null} localId={local.local_id} fg={fgL}/>
+                    foco={pt.parte_id===initialParte?foco:null} localId={local.local_id}/>
                 : <React.Fragment>
               <div className="rubros">
                 {tareas.map(rid=>{
@@ -2421,7 +2244,7 @@ function ReportePanel({data,modulo,nivel,onClose}){
       <div className="modal" style={{maxWidth:860}}>
         <div className="mhead">
           <div><h2 style={{fontSize:18}}>📝 Reporte de comentarios</h2>
-            <div style={{fontSize:12,opacity:.85}}>Solo comentarios originales abiertos (sin respuestas ni superados).</div></div>
+            <div style={{fontSize:12,opacity:.85}}>Solo comentarios originales abiertos (sin respuestas ni cerrados).</div></div>
           <button className="x" onClick={onClose}>×</button>
         </div>
         <div className="mbody">
@@ -2468,7 +2291,6 @@ function App(){
   const [filtro,setFiltro]=useState("");         // buscador en modo Botones
   const [planoVer,setPlanoVer]=useState("local");// "todos" | "local" (cómo ver el plano) — rev17: arranca en "solo número de local"
   const [filtrosOpen,setFiltrosOpen]=useState(false); // panel de filtros por tarea/subtarea
-  const [filtroG,setFiltroG]=useState(FILTRO_VACIO);  // rev22: filtro general Rubro / Etapa / Elemento (solo vista)
   const [planoVert,setPlanoVert]=useState(false);     // rev18: plano parado → se limita a la altura de la pantalla
   // rev20: zoom del plano principal + tamaño de los círculos según el ancho disponible
   const ZOOMS=[1,1.5,2,3,4];
@@ -2532,33 +2354,6 @@ function App(){
       if(PESO[e]===null)return; t++; d+=(PESO[e]||0);})));
     return t?Math.round(100*d/t):0;
   },[data]);
-
-  // rev22: opciones del filtro general, sacadas de los datos cargados (cada lista se acota con los otros filtros)
-  const opcFiltro = useMemo(()=>{
-    const el=new Set(), et=[], ru=[], etS=new Set(), ruS=new Set();
-    if(data) data.locales.forEach(l=>(l.partes||[]).forEach(p=>{
-      el.add(p.tipo);
-      if(!parteEnFiltro(p,filtroG)) return;
-      (p.fases||[]).forEach(f=>{
-        if(!etS.has(f.nombre)){ etS.add(f.nombre); et.push(f.nombre); }
-        if(!faseEnFiltro(f,filtroG)) return;
-        (f.grupos||[]).forEach(g=>(g.tareas||[]).forEach(t=>{ if(!ruS.has(t.nombre)){ ruS.add(t.nombre); ru.push(t.nombre); } }));
-      });
-    }));
-    return {
-      elementos:["SOLADO","TABIQUE","CIELORRASO"].filter(t=>el.has(t)).map(t=>[t,ELEM_NOM[t]]),
-      etapas:et.map(x=>[x,x]),
-      rubros:ru.sort((a,b)=>a.localeCompare(b,'es')).map(x=>[x,x])
-    };
-  },[data,filtroG]);
-  const fAct = filtroActivo(filtroG);
-  // rev22: comentarios abiertos (originales, no superados) por local, para el 💬 del plano y la lista
-  const comsPorLocal = useMemo(()=>{
-    const m={}; if(!data) return m;
-    const pById={}; data.locales.forEach(l=>(l.partes||[]).forEach(p=>{ pById[p.parte_id]=p; }));
-    (data.comentarios||[]).forEach(c=>{ if(c.parent_id||c.cerrado) return; if(!comEnFiltro(c,pById,filtroG)) return; m[c.local_id]=(m[c.local_id]||0)+1; });
-    return m;
-  },[data,filtroG]);
 
   function cambiarArea(m,n){ setModulo(m); setNivel(n); setCalib(false); setCalibSel(null); setCalibMsg("");
     const a=areas.find(x=>x.modulo===m&&x.nivel===n); setMode((a&&a.plano_url)?"plano":"botones"); }
@@ -2699,7 +2494,7 @@ function App(){
 
     <div className="tabs">
       <button className={mode==="plano"?"active":""} onClick={()=>setMode("plano")}>🗺️ Plano</button>
-      <button className={mode==="botones"?"active":""} onClick={()=>setMode("botones")}>🔢 Locales</button>
+      <button className={mode==="botones"?"active":""} onClick={()=>setMode("botones")}>🔢 Botones</button>
       <button onClick={()=>setFiltrosOpen(true)}>🔎 Filtros</button>
       <button onClick={()=>setReporteOpen(true)}>📝 Reporte</button>
       {user.rol==="admin" &&
@@ -2710,22 +2505,6 @@ function App(){
         <button className={calib?"active":""} onClick={()=>{setCalib(c=>!c);setCalibMsg("")}}
           style={{marginLeft:user.rol==="admin"?"8px":"auto"}}>
           {calib?"✔ Terminar calibración":"⚙ Calibrar"}</button>}
-    </div>
-
-    {/* rev22: filtro general (afecta plano, Locales, % del sector y la ficha del local) + % del sector */}
-    <div className="fbar">
-      <span className="lbl">Filtrar</span>
-      <MultiFiltro label="Elemento" opciones={opcFiltro.elementos} valor={filtroG.elementos} onChange={v=>setFiltroG(f=>({...f,elementos:v}))}/>
-      <MultiFiltro label="Etapa" opciones={opcFiltro.etapas} valor={filtroG.etapas} onChange={v=>setFiltroG(f=>({...f,etapas:v}))}/>
-      <MultiFiltro label="Rubro" opciones={opcFiltro.rubros} valor={filtroG.rubros} onChange={v=>setFiltroG(f=>({...f,rubros:v}))}/>
-      {fAct && <button className="fclear" onClick={()=>setFiltroG(FILTRO_VACIO)}>✕ Quitar filtros</button>}
-      {(()=>{ const sp=pctLocales(localesArea,filtroG); return (
-        <span className="sectorpct" title={fAct?"Avance del sector contando solo lo filtrado":"Avance del sector (todos los ítems)"}>
-          {fAct?"Sector (filtrado)":"Avance del sector"}
-          <span className="track"><span className="fill" style={{display:"block",width:sp+"%",background:colorPct(sp)}}></span></span>
-          <b style={{color:colorPct(sp)}}>{sp}%</b>
-        </span>); })()}
-      {fAct && <span className="fresumen">🎚 {textoFiltro(filtroG)}</span>}
     </div>
 
     {calib && (
@@ -2797,32 +2576,21 @@ function App(){
                  onLoad={e=>setPlanoVert(e.target.naturalHeight>e.target.naturalWidth)}
                  style={{cursor:calib&&calibSel?"crosshair":"default"}}/>
             {localesArea.map(l=> (l.plano_x!=null&&l.plano_y!=null) &&
-              <Marker key={l.local_id} local={l} dim={calib&&calibSel&&calibSel!==l.local_id} fg={calib?null:filtroG}
+              <Marker key={l.local_id} local={l} dim={calib&&calibSel&&calibSel!==l.local_id}
                       onClick={()=>{ if(!calib){ setSelParte(null); setSel(l); } }}/> )}
-            {/* rev22: 💬 sobre los locales con comentarios abiertos */}
-            {!calib && localesArea.map(l=> (l.plano_x!=null&&l.plano_y!=null&&comsPorLocal[l.local_id]) ?
-              <span key={"c::"+l.local_id} className="mkcom" style={{left:l.plano_x+"%",top:l.plano_y+"%"}}>💬</span> : null)}
-            {(calib || planoVer==="todos") && localesArea.flatMap(l=>l.partes.filter(p=>p.plano_x!=null&&p.plano_y!=null)
-              .filter(p=>calib||!fAct||hojasFiltradas(p,filtroG)!==null)   // rev22: con filtro, solo los elementos filtrados
-              .map(p=>(
+            {(calib || planoVer==="todos") && localesArea.flatMap(l=>l.partes.filter(p=>p.plano_x!=null&&p.plano_y!=null).map(p=>(
               <div key={l.local_id+"::"+p.parte_id}
                    className={"pmarker"+(calib&&calibTarget===p.parte_id?" sel":"")+(calib&&calibSel&&calibSel!==l.local_id?" dim":"")}
-                   style={{left:p.plano_x+"%",top:p.plano_y+"%",background:(!calib&&fAct)?colorEstF(estadoParteF(p,filtroG)):colorParte(p),
+                   style={{left:p.plano_x+"%",top:p.plano_y+"%",background:colorParte(p),
                            pointerEvents:calib?"none":"auto"}}
                    title={l.numero+" · "+normEtq(p.etiqueta)}
                    onClick={()=>{ if(!calib){ setSelParte(p.parte_id); setSel(l); } }}>{partAbrev(p)}</div>)))}
           </div></div></div>
           <div className="legend">
-            {fAct && !soloElem(filtroG) ? <React.Fragment>
-              <span className="k"><span className="dot" style={{background:COL_EST.verde}}></span>Lo filtrado, terminado</span>
-            </React.Fragment> : <React.Fragment>
             <span className="k"><span className="dot" style={{background:COL_EST.gris}}></span>Revestimiento terminado</span>
             <span className="k"><span className="dot" style={{background:COL_EST.verde}}></span>Primeros pasos + Emplacado terminados</span>
-            </React.Fragment>}
             <span className="k"><span className="dot" style={{background:COL_EST.naranja}}></span>En proceso</span>
             <span className="k"><span className="dot" style={{background:COL_EST.rojo}}></span>Sin iniciar</span>
-            {fAct && <span className="k"><span className="dot" style={{background:COL_FUERA}}></span>No entra en el filtro</span>}
-            <span className="k">💬 Comentarios abiertos</span>
             {localesArea.length>0 && sinUbicar.length>0 && <span style={{marginLeft:"auto",color:"#b45309"}}>
               {sinUbicar.length} local(es) sin ubicar{(user.rol==="admin"||user.rol==="editor")?" — usá “⚙ Calibrar”":""}.</span>}
             {localesArea.length===0 && <span style={{marginLeft:"auto",color:"#64748b"}}>
@@ -2832,13 +2600,11 @@ function App(){
           {/* rev16: lista lateral de locales (solo se ve en pantalla grande / TV) */}
           <div className="planoside">
             <div className="ps-tit">Locales del sector <span>{localesArea.length}</span></div>
-            {[...localesArea].sort((a,b)=>(a.numero||"").localeCompare(b.numero||"",'es',{numeric:true}))
-              .filter(l=>!fAct||localEnFiltro(l,filtroG)).map(l=>{const p=fAct?pctLocalF(l,filtroG):avancePct(l);   // rev22
+            {[...localesArea].sort((a,b)=>(a.numero||"").localeCompare(b.numero||"",'es',{numeric:true})).map(l=>{const p=avancePct(l);
               return <button key={l.local_id} className="ps-item" onClick={()=>{ if(!calib){ setSelParte(null); setSel(l); } }}>
-                <span className="ps-dot" style={{background:fAct?colorEstF(estadoLocalF(l,filtroG)):colorLocal(l)}}></span>
+                <span className="ps-dot" style={{background:colorLocal(l)}}></span>
                 <span className="ps-num">{l.numero}</span>
                 <span className="ps-nom">{l.nombre}</span>
-                {comsPorLocal[l.local_id] ? <span className="pscom">💬{comsPorLocal[l.local_id]}</span> : null}
                 <b style={{color:colorPct(p)}}>{p}%</b>
               </button>;})}
           </div>
@@ -2848,7 +2614,7 @@ function App(){
         <div className="planowrap"><div className="noplano">
           <p style={{fontSize:15,fontWeight:600,color:"#334155"}}>Todavía no hay plano para {mNom(modulo)} · {nNom(nivel)}.</p>
           <p>Poné la imagen en la subcarpeta <b>planos</b> y cargá su nombre en la hoja <b>AREAS</b> (columna <code>plano_url</code>).<br/>
-          Mientras tanto podés usar la vista <b>Locales</b>.</p>
+          Mientras tanto podés usar la vista <b>Botones</b>.</p>
         </div></div>
       )
     )}
@@ -2856,8 +2622,7 @@ function App(){
     {mode==="botones" && (
       localesArea.length? (()=>{
         const q=filtro.trim().toLowerCase();
-        const base=fAct? localesArea.filter(l=>localEnFiltro(l,filtroG)) : localesArea;   // rev22: sigue al filtro general
-        const lista=q? base.filter(l=>((l.numero||"")+" "+(l.nombre||"")).toLowerCase().includes(q)) : base;
+        const lista=q? localesArea.filter(l=>((l.numero||"")+" "+(l.nombre||"")).toLowerCase().includes(q)) : localesArea;
         return (
         <div>
           <div className="buscador">
@@ -2868,11 +2633,11 @@ function App(){
           </div>
           {lista.length? (
           <div className="grid">
-          {lista.map(l=>{const p=fAct?pctLocalF(l,filtroG):avancePct(l);
+          {lista.map(l=>{const p=avancePct(l);
             const habil=l.partes.length && l.partes.every(x=>x.habilitado_final==="SI");
             return (
             <div className="card" key={l.local_id} onClick={()=>setSel(l)}>
-              <div className="name-lg">{l.nombre}{comsPorLocal[l.local_id]?<span className="ccom" title="Comentarios abiertos">💬 {comsPorLocal[l.local_id]}</span>:null}</div>
+              <div className="name-lg">{l.nombre}</div>
               <div className="num-sm">Local {l.numero}</div>
               <div className="track"><div className="fill" style={{width:p+"%",background:colorPct(p)}}></div></div>
               <div className="pctlbl"><span>{l.partes.length} partes</span><b style={{color:colorPct(p)}}>{p}%</b></div>
@@ -2880,7 +2645,7 @@ function App(){
             </div>
           )})}
           </div>
-          ) : <div className="planowrap"><div className="noplano"><p>{filtro?<React.Fragment>No hay locales que coincidan con “{filtro}”.</React.Fragment>:"No hay locales en este sector que coincidan con el filtro."}</p></div></div>}
+          ) : <div className="planowrap"><div className="noplano"><p>No hay locales que coincidan con “{filtro}”.</p></div></div>}
         </div>);
       })() : (
         <div className="planowrap"><div className="noplano">
@@ -2896,7 +2661,7 @@ function App(){
         .sort((a,b)=>(a.numero||"").localeCompare(b.numero||"",'es',{numeric:true}));
       const i=lista.findIndex(l=>l.local_id===loc.local_id);
       return <LocalDetail key={loc.local_id} local={loc} data={data} user={user}
-                         initialParte={selParte} foco={selFoco} filtro={filtroG}
+                         initialParte={selParte} foco={selFoco}
                          vecinos={{ant:i>0?lista[i-1]:null, sig:i<lista.length-1?lista[i+1]:null}}
                          onIr={l=>{setSelParte(null);setSelFoco(null);setModulo(l.modulo);setNivel(l.nivel);setSel(l);}}
                          onClose={()=>{setSel(null);setSelParte(null);setSelFoco(null);}} onSaved={onSaved}/>; })()}
