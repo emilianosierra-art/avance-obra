@@ -75,7 +75,7 @@
     padding:4px 6px;border-radius:10px;box-shadow:var(--shadow-sm);font-size:12px;font-weight:700;color:var(--muted)}
   .zoombox .btn{border:1px solid var(--line);min-width:32px;font-size:16px;line-height:1;padding:4px 8px}
   .planowrap.zoomed{overflow:auto;max-height:calc(100vh - 140px);-webkit-overflow-scrolling:touch}
-  .planowrap.zoomed .inner{display:block}
+  .planowrap.zoomed .inner{display:block;max-width:none!important}   /* con zoom el plano crece (en pantallas grandes y en 3 columnas tenía tope) */
   .planowrap.zoomed img{width:100%!important;max-width:none!important;max-height:none!important}
   .marker{position:absolute;transform:translate(-50%,-50%);width:var(--mk,34px);height:var(--mk,34px);border-radius:50%;
     border:2.5px solid #fff;box-shadow:0 0 0 2.5px #0f172a, 0 2px 8px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;
@@ -485,6 +485,12 @@
 .fv2 .v2vista button{border:1px solid var(--line);background:#fff;color:var(--muted);font-weight:700;font-size:12.5px;padding:6px 11px;cursor:pointer}
 .fv2 .v2vista button:first-of-type{border-radius:8px 0 0 8px}.fv2 .v2vista button:last-of-type{border-radius:0 8px 8px 0;margin-left:-5px}
 .fv2 .v2vista button.on{background:#1e3a5f;border-color:#1e3a5f;color:#fff}
+.fv2 .v2vista{width:max-content}
+.fv2 .v2vista button{padding:4px 9px;font-size:12px}
+.fv2 .v2fila1{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.fv2 .v2fila1>.v2vista{margin:0;flex:0 0 auto}
+.fv2 .v2fila1>.etabs{flex:1;min-width:0;margin-bottom:0}
+@media(max-width:640px){.fv2 .v2fila1{flex-wrap:wrap}}
 .fv2 .cacc{display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap}
 .fv2 .cbtn{border:1px solid #94a3b8;background:#fff;color:#334155;font-weight:700;font-size:12px;border-radius:7px;padding:4px 10px;cursor:pointer}
 .fv2 .cbtn.cerrar{border-color:#1e3a5f;color:#1e3a5f}
@@ -518,6 +524,7 @@
 .v2t .tgrp{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap}
 .v2t .tgrp.fg{background:#e2e8f0;border-radius:11px;padding:3px}
 .v2t .tgrp.fg .mf-btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 12px;font-size:13px;font-weight:700}
+.fv2 .etab.fuera{opacity:.55;border-style:dashed}
 .v2t .tgrp.fg .mf-btn.on{border-color:#f59e0b;box-shadow:inset 0 0 0 1px #f59e0b}
 .v2t .tadm{margin-left:auto}
 .um{position:relative}
@@ -573,6 +580,111 @@
 .modal.local.embed{max-width:none;width:100%;height:calc(100vh / var(--z,1) - var(--hdrh,0px) - 22px);max-height:none;border-radius:14px;box-shadow:var(--shadow);resize:none}
 .planolayout.s3>.planocol,.planolayout.s3>.lv-embed,.planolayout.s3>.planoside{position:sticky;top:calc(var(--hdrh,0px) + 10px)}
 .planolayout.s3>.planoside{max-height:calc(100vh / var(--z,1) - var(--hdrh,0px) - 22px)}
+.planocol.verlocales>.planobox,.planocol.verlocales>.legend{display:none}
+/* ===== v2: PC / TV apaisada — pantalla compacta ===== */
+.etbtns{display:inline-flex;align-items:center;gap:4px}
+.etbtns .etl{font-size:12.5px;font-weight:700;margin-right:2px}
+.v2t .etbtns .etl{color:var(--muted)}
+.etbtns button{border:1px solid var(--line);background:#fff;color:var(--ink);width:34px;height:34px;border-radius:9px;font-size:14px;font-weight:800;cursor:pointer;padding:0}
+.etbtns button.on{background:#f59e0b;border-color:#f59e0b;color:#1c1917}
+.wtop .etbtns button{width:30px;height:30px}
+.wtop .wrow.wfil{display:grid;grid-template-columns:minmax(max-content,1fr) auto 1fr;column-gap:14px}
+.wtop .wfl{display:flex;align-items:center;gap:10px}
+.wtop .wftxt{font-size:17px;font-weight:800;color:#fbbf24;white-space:nowrap;letter-spacing:.2px;text-align:center}
+.mvista{display:inline-flex;align-items:center;gap:0;font-size:11.5px;font-weight:700;margin-top:4px}
+.mvista button{border:1px solid rgba(255,255,255,.4);background:transparent;color:#fff;font-size:11.5px;font-weight:700;padding:3px 9px;cursor:pointer;margin-left:-1px}
+.mvista button:first-of-type{border-radius:7px 0 0 7px;margin-left:6px}.mvista button:last-of-type{border-radius:0 7px 7px 0}
+.mvista button.on{background:#fff;color:#1e3a5f;border-color:#fff}
+.app.wide header.wtop{padding:6px 14px;margin-bottom:8px}
+.wtop .wrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wtop .wrow+.wrow{margin-top:6px}
+.wtop .wtit{font-size:16px;white-space:nowrap;margin-right:4px}
+.wtop .wgrp{display:inline-flex;gap:4px}
+.wtop .wchip{border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;border-radius:8px;padding:4px 10px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.wtop .wchip.on{background:#fff;color:#1e3a5f;border-color:#fff}
+.wtop .wchip .cbadge{font-size:10.5px;padding:0 5px}
+.wtop .wglob{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;white-space:nowrap;margin-left:auto}
+.wtop .wfil .wglob{margin-left:0}
+.wtop .wglob .track{width:110px;height:7px;border-radius:5px;background:rgba(255,255,255,.25);overflow:hidden;display:inline-block}
+.wtop .wglob .fill{display:block;height:100%;background:#22c55e}
+.wtop .wglob b{font-size:13px}
+.wtop .wfil .wglob b{color:#fff!important}
+.wtop .mf-btn{padding:5px 10px;font-size:12.5px}
+.wtop .mf-btn.on{background:#f59e0b;border-color:#f59e0b;color:#1c1917}
+.wtop .wquitar{border:0;background:#fff;color:#1e3a5f;border-radius:8px;width:34px;height:30px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.wtop .wquitar:disabled{background:rgba(255,255,255,.18);color:rgba(255,255,255,.5);cursor:default}
+.wtop .winf{display:inline-flex;gap:4px;margin-left:auto}
+.wtop .winf button,.ps-inf button{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:8px;padding:5px 9px;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap}
+.app.wide .planoside{display:flex}
+.ps-inf{display:flex;gap:4px;flex-wrap:wrap;padding-bottom:6px;border-bottom:1px solid var(--line);margin-bottom:2px}
+.ps-inf button{flex:1}
+.ps-q{border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:13px;width:100%;box-sizing:border-box}
+.app.wide .ps-item{flex-wrap:wrap;row-gap:4px;padding:7px 10px}
+.ps-bar{flex-basis:100%;height:4px;border-radius:3px;background:#e2e8f0;overflow:hidden;display:block}
+.ps-bar>span{display:block;height:100%}
+.ps-hab{font-size:10.5px;font-weight:800;color:#166534;background:#dcfce7;border-radius:5px;padding:1px 6px}
+.app.wide .ver-over.w1{display:flex}
+.app.wide .modal.local .msub-loc{display:none}
+.app.wide .modal.local .mhead{padding:8px 12px;gap:6px;flex-wrap:nowrap}
+.app.wide .modal.local .mhead>div:first-child{display:flex;align-items:center;gap:4px 10px;flex-wrap:wrap;min-width:0}
+.app.wide .modal.local .mhead h2{font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.app.wide .modal.local .v2nav small,.app.wide .modal.local .navloc small{display:none}
+.app.wide .modal.local .v2nav button,.app.wide .modal.local .navloc button{padding:4px 8px;min-width:0}
+.app.wide .lfchip{margin-top:0;background:none;padding:0}
+.app.wide .modal.local .mhead .btn{white-space:nowrap}
+/* ===== v2: celular — encabezado compacto ===== */
+.app.movil header.mtop{padding:6px 10px 7px;margin:0 -14px 8px}
+.mtop .mrow{display:flex;align-items:center;gap:6px}
+.mtop .mrow+.mrow{margin-top:6px}
+.mtop .mgrp{display:inline-flex;gap:4px}
+.mtop .mrow:first-child .mgrp{flex:1;min-width:0;overflow-x:auto}
+.mtop .wchip{border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;border-radius:8px;padding:5px 9px;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap}
+.mtop .wchip.on{background:#fff;color:#1e3a5f;border-color:#fff}
+.mtop .etbtns{margin-left:auto}
+.mtop .etbtns .etl{color:#fff;font-size:12px}
+.mtop .etbtns button{width:30px;height:30px}
+.mtop .mfil{border:0;background:#fff;color:#1e3a5f;border-radius:8px;width:32px;height:30px;font-size:16px;font-weight:800;cursor:pointer}
+.mtop .mfil.on{background:#f59e0b;color:#1c1917}
+.mtop .wquitar{border:0;background:#fff;color:#1e3a5f;border-radius:8px;width:32px;height:30px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.mtop .wquitar:disabled{background:rgba(255,255,255,.18);color:rgba(255,255,255,.5);cursor:default}
+.mtop .mftxt{margin-top:6px;text-align:center;font-size:15px;font-weight:800;color:#fbbf24;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.app.movil .ver-over.w1{display:flex}
+.app.wide .planobox,.app.movil .planobox{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.app.wide .planobox>.ver-over.w1,.app.movil .planobox>.ver-over.w1,.app.wide .planobox>.zoombox,.app.movil .planobox>.zoombox{position:static;box-shadow:none;background:transparent;padding:0;flex-direction:row}
+.app.wide .planobox>.zoombox,.app.movil .planobox>.zoombox{margin-left:auto}
+.app.wide .planobox>.planowrap,.app.movil .planobox>.planowrap{flex:1 1 100%;min-width:0}
+.app.wide .planobox>.ver-over.w1 .vchip,.app.movil .planobox>.ver-over.w1 .vchip{background:#fff;border:1px solid var(--line)}
+.app.wide .planobox>.zoombox .btn,.app.movil .planobox>.zoombox .btn{background:#fff}
+.app.movil .modal.local .msub-loc{display:none}
+.app.movil .modal.local .v2nav small{display:none}
+.app.movil .modal.local .mhead{flex-wrap:wrap;row-gap:6px;padding:8px 10px}
+.app.movil .modal.local .mhead>div:first-child{flex:1 1 100%;display:flex;align-items:center;gap:4px 10px;flex-wrap:wrap}
+.app.movil .modal.local .mhead h2{font-size:17px}
+.lv-plan.celoff{display:none}
+.lv-plan.celfijo{position:sticky;top:var(--mhh,64px);z-index:3;background:#f1f5f9;padding-bottom:6px}
+.lv-plan.celfijo .localplan{margin-bottom:0;position:relative}
+.app.movil .modal.local .localplan{position:relative}
+.app.movil .modal.local .localplan .lp-head{position:absolute;top:6px;right:6px;z-index:2;background:transparent;border:0;padding:0}
+.app.movil .modal.local .localplan .lp-head>b{display:none}
+.app.movil .modal.local .localplan .lp-zoom .btn{background:rgba(255,255,255,.92);box-shadow:0 1px 3px rgba(15,23,42,.2)}
+.mfchip{font-size:14px;font-weight:800;color:#fbbf24;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.savebar .btn.on{background:#1e3a5f;color:#fff;border-color:#1e3a5f}
+.mvista button{white-space:nowrap}
+body.wfija{overflow:hidden}
+body.wfija .app{padding-bottom:0}
+body.wfija .planolayout>.planocol,body.wfija .planolayout>.planoside{max-height:calc(100vh / var(--z,1) - var(--hdrh,0px) - 22px);overflow:auto}
+body.wfija .planolayout:not(.s3)>.planocol{position:sticky;top:calc(var(--hdrh,0px) + 10px)}
+body.wfija .planolayout:not(.s3)>.planoside{position:sticky;top:calc(var(--hdrh,0px) + 10px)}
+.app.wide .lfchip .lft{display:none}
+.app.wide .fv2 .etabs,.app.wide .fv2 .esel{display:none}
+.fv2 .v2fila1{flex-wrap:wrap}
+.fv2 .v2fila1>.pchips{flex-basis:100%;margin-bottom:0}
+.app.wide .fv2 .v2fila1{flex-wrap:nowrap}
+.app.wide .fv2 .v2fila1>.pchips{flex:1;min-width:0;flex-basis:auto}
+.swipemsg{position:sticky;left:0;top:0;z-index:30;width:max-content;margin:0 auto -34px;padding:6px 14px;border-radius:20px;background:rgba(30,58,95,.92);color:#fff;font-weight:800;font-size:14px;pointer-events:none}
+.planolayout.s3>.planocol.verlocales{max-height:calc(100vh / var(--z,1) - var(--hdrh,0px) - 22px);overflow:auto}
+.planocol.verlocales .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.card.on{outline:3px solid var(--brand2)}
 .planolayout.s3 .planowrap img{max-height:calc(100vh / var(--z,1) - var(--hdrh,0px) - 130px)}
 .modal.local.embed .mhead{flex-wrap:wrap;row-gap:8px}
 .modal.local.embed .mhead>div:first-child{flex:1 1 200px;min-width:0}
@@ -641,7 +753,9 @@
 .hfiltro span{flex:1;min-width:0}
 .hfiltro button,.lfiltro.v2 .btn{border:0;background:#fff;color:#92400e;font-weight:800;font-size:12.5px;border-radius:8px;padding:6px 10px;cursor:pointer}
 .planobox.filtrado .planowrap{box-shadow:0 0 0 3px #f59e0b;border-radius:6px}
-.modal.local .mhead:has(.lfiltro.v2){flex-wrap:wrap}
+.lfchip{display:inline-flex;align-items:center;gap:6px;margin-top:4px;background:#f59e0b;color:#1c1917;font-size:11.5px;font-weight:800;border-radius:7px;padding:2px 3px 2px 8px}
+.lfchip.off{background:#e2e8f0;color:#334155}
+.lfchip button{border:0;background:#fff;color:#92400e;font-weight:800;font-size:11.5px;border-radius:5px;padding:3px 8px;cursor:pointer}
 .lfiltro.v2{flex-basis:100%;margin:2px 0 0;background:#f59e0b;border-color:#f59e0b;color:#1c1917;font-size:13px}
 .lfiltro.v2.off{background:#e2e8f0;border-color:#e2e8f0;color:#334155}
 .v2nav{display:inline-flex;gap:6px;margin-left:auto}
@@ -1799,7 +1913,7 @@ function PerfilPanel({user,onClose}){
 /* celular: un solo botón de filtro que abre una hoja desde abajo con tres pestañas */
 function FiltroHoja({opc,filtro,setFiltro,onClose}){
   const [tab,setTab]=useState("elementos");
-  const tabs=[["elementos","Elemento"],["etapas","Etapa"],["rubros","Rubro"]];
+  const tabs=[["elementos","Elemento"],["rubros","Rubro"]];   // v2: la etapa se elige con los botones 1 2 3 del encabezado
   const val=filtro[tab]; const set=v=>setFiltro(f=>({...f,[tab]:v}));
   const tog=v=>set(val.indexOf(v)>=0?val.filter(x=>x!==v):[...val,v]);
   const lista=[...opc[tab],...val.filter(v=>!opc[tab].some(o=>o[0]===v)).map(v=>[v,v])];
@@ -2297,7 +2411,7 @@ function ReporteEtapaPanel({data,user,modulo,nivel,onClose,onPerfil}){
   const puede=user.rol==="admin"||user.rol==="editor";
   return <div className="overlay" onClick={e=>{ if(e.target===e.currentTarget) onClose(); }}>
     <div className="modal rp" style={{maxWidth:820}}>
-      <div className="mhead"><div><h2>🧾 Informe de etapa (Procore)</h2><div style={{fontSize:12,opacity:.85}}>Un informe por local, elemento y etapa (en tabiques, de los T que elijas), solo con la etapa al 100% · se sube como registro del ítem del Plan de acción</div></div>
+      <div className="mhead"><div><h2>🧾 Inspecciones (Procore)</h2><div style={{fontSize:12,opacity:.85}}>Una inspección por local, elemento y etapa (en tabiques, de los T que elijas), solo con la etapa al 100% · se sube como registro del ítem del Plan de acción</div></div>
         <button className="x" onClick={onClose}>×</button></div>
       <div className="mbody">
         <div className="rp-tabs">{[["generar","Generar"],["generados","Generados ("+reg.length+")"],["pend","Pendientes de Procore ("+pendientes.length+")"]].map(([k,t])=>
@@ -2356,7 +2470,7 @@ function ReporteEtapaPanel({data,user,modulo,nivel,onClose,onPerfil}){
           <div className="rp-pie">
             <label style={{display:"flex",gap:6,alignItems:"center"}}><input type="checkbox" checked={juntar} onChange={e=>setJuntar(e.target.checked)}/> Juntar todo en un solo PDF</label>
             <span style={{flex:1}}>{msg && <span className={msg.startsWith("Error")?"rp-no":"rp-ok"}>{msg}</span>}</span>
-            <button className="btn primary" disabled={!elegidas.length||busy||!puede} onClick={generar}>{busy?"Generando…":"🧾 Generar "+(elegidas.length||"")+" informe"+(elegidas.length===1?"":"s")}</button>
+            <button className="btn primary" disabled={!elegidas.length||busy||!puede} onClick={generar}>{busy?"Generando…":"🧾 Generar "+(elegidas.length||"")+(elegidas.length===1?" inspección":" inspecciones")}</button>
           </div>
         </div>}
         {tab==="generados" && <div className="rp-sec">
@@ -2445,7 +2559,7 @@ async function iaPDF({data,R,titulo,fg,user}){
   sec("Avance por etapa"); R.etapas.forEach(e=>barra(e.nom,e.pct,e.comp+" de "+e.tot+" completas"));
   sec("Avance por rubro"); R.rubros.forEach(g=>{ ensure(30); txt(g.gn.toUpperCase(),M,y-10,{b:true,size:8,c:rgb(0.18,0.36,0.56)}); y-=14; g.items.forEach(r=>barra(r.nom,r.pct,null,10)); y-=4; });
   sec("Locales más atrasados"); R.atrasados.forEach(a=>barra(a.l.modulo+"-"+a.l.nivel+" "+a.l.numero+" · "+(a.l.nombre||""),a.pct));
-  sec("Informes de etapa (Procore)");
+  sec("Inspecciones (Procore)");
   [["Etapas completas, listas para informe",R.informes.listos],["Informes generados",R.informes.gen],["Cargados en Procore",R.informes.carg],["Pendientes de cargar",R.informes.pend]]
     .forEach(([k,v])=>{ ensure(14); txt(k,M,y-10,{size:9}); txt(String(v),M+260,y-10,{b:true,size:9}); y-=14; });
   sec("Comentarios vigentes");
@@ -2494,7 +2608,7 @@ function InformeAvancePanel({data,user,modulo,nivel,filtro,opc,onClose}){
         <h4>Por etapa</h4>{R.etapas.map(e=><Bar key={e.nom} nom={e.nom} pct={e.pct} extra={e.comp+" de "+e.tot+" completas"}/>)}
         <h4>Por rubro</h4>{R.rubros.map(g=><div key={g.gn}><div className="ia-g">{g.gn}</div>{g.items.map(r=><Bar key={r.nom} nom={r.nom} pct={r.pct} sub/>)}</div>)}
         <h4>Locales más atrasados</h4>{R.atrasados.map(a=><Bar key={a.l.local_id} nom={a.l.modulo+"-"+a.l.nivel+" "+a.l.numero+" · "+(a.l.nombre||"")} pct={a.pct}/>)}
-        <h4>Informes de etapa (Procore)</h4>
+        <h4>Inspecciones (Procore)</h4>
         <div className="ia-inf"><span>Listas para informe <b>{R.informes.listos}</b></span><span>Generados <b>{R.informes.gen}</b></span><span>Cargados <b>{R.informes.carg}</b></span><span>Pendientes de cargar <b>{R.informes.pend}</b></span></div>
         <h4>Comentarios vigentes</h4>
         {!R.comsLista.length && <div className="cvacio">No hay comentarios vigentes.</div>}
@@ -2737,7 +2851,8 @@ function aliasNuevo(old,viejoNom,nuevoNom){
   const a=[viejoNom].concat((old&&old.alias)||[]).filter((v,i,arr)=>v && v!==nuevoNom && arr.indexOf(v)===i);
   return a.length?a:null;
 }
-function mergeFasesByName(plantilla,pid,oldFases){
+function mergeFasesByName(plantilla,pid,oldFases,opts){
+  const HECHO=e=>e==="Terminado"||e==="No aplica";
   const fresh=buildFases(plantilla,pid);
   const pf=(plantilla||[]).filter(f=>PERLOCAL_NOMBRES.indexOf(f.nombre)<0);   // mismo orden que fresh
   const clave=(x,nom)=>(x&&x._o)?x._o:nom;
@@ -2759,6 +2874,8 @@ function mergeFasesByName(plantilla,pid,oldFases){
       const ot=oT[tk];
       if(ot){ t.estado=ot.estado||t.estado; t.comentario=ot.comentario||"";
         const ta=aliasNuevo(ot,ot.nombre,t.nombre); if(ta) t.alias=ta; }
+      // v2: si el rubro ya estaba al 100% (todo Terminado / No aplica), los ítems nuevos entran como "No aplica" (no le bajan el avance)
+      const rubroCompleto=!!(opts&&opts.naSiCompleto&&ot&&(ot.subtareas||[]).length&&(ot.subtareas||[]).every(x=>HECHO(x.estado)));
       (t.subtareas||[]).forEach((s,si)=>{
         const pS=(pT.subs||[])[si]||{};
         const sk=pS._o ? pS._o : ((s.grupo||'')+'\u0000'+s.nombre);
@@ -2766,6 +2883,7 @@ function mergeFasesByName(plantilla,pid,oldFases){
         if(os){ s.estado=os.estado||s.estado; s.comentario=os.comentario||"";
           const lab=x=>(x.grupo? x.grupo+" · ":"")+x.nombre;
           const sa=aliasNuevo(os,lab(os),lab(s)); if(sa) s.alias=sa; }
+        else if(rubroCompleto){ s.estado="No aplica"; if(opts.cuenta) opts.cuenta.n++; }
       });
     }));
   });
@@ -3218,14 +3336,16 @@ function v2hojas(fila,et,sub,rub){
     objs:()=>fila.partes.map(p=>{ const t=v2tarea(p,et,sub,rub); return t&&t.subtareas&&t.subtareas[i]; }).filter(Boolean)}));
 }
 
-function FichaV2({draft,mutar,editable,user,local,filtro,adj,adjOps,orden,onInforme}){
+function FichaV2({draft,mutar,editable,user,local,filtro,adj,adjOps,orden,onInforme,vista}){
   const ref=useRef(null);
   const comCtx=React.useContext(ComCtx);
-  const ui=useRef({vista:(()=>{ try{ return localStorage.getItem("v2vistaTab2")||"porT"; }catch(e){ return "porT"; } })(),excep:new Set(),modo:"normal",panel:null,verTodo:false,etTab:null,pasoSel:null,resumen:null,resTag:"",undo:null,imgPend:null});
+  const ui=useRef({vista:vista||"porT",excep:new Set(),modo:"normal",panel:null,verTodo:false,etTab:null,pasoSel:null,resumen:null,resTag:"",undo:null,imgPend:null});
   const props={draft,mutar,editable,user,local,filtro,adj,adjOps,comCtx,onInforme};
   const pRef=useRef(props); pRef.current=props;
   const [tick,setTick]=useState(0);
   const redraw=()=>setTick(t=>t+1);
+  // v2: Combinada / Por tabique se elige en el título de la ventana del local
+  if(vista && ui.current.vista!==vista){ ui.current.vista=vista; ui.current.panel=null; ui.current.pasoSel=null; }
   // órdenes desde la ventana del local: "cerrar" = todo cerrado; "abrir" = abrir ese elemento y saltar ahí sin deslizar
   useEffect(()=>{ if(!orden) return; const U=ui.current;
     if(orden.tipo==="cerrar"){ U.modo="nada"; U.excep.clear(); U.panel=null; redraw(); return; }
@@ -3298,7 +3418,9 @@ function v2render(root,P,U){
           // rubro donde no aplica ningún ítem: queda cerrado (aunque esté "Abrir todo") y el título dice "No aplica"
           const todoNA=false;   // (en la ficha no se usa: se pidió solo para el informe)
           const rk=(todoNA?"rna¦":"r¦")+el.id+"¦"+rref, rab=isOpen(rk), has=R.items.length>0;
-          const tch=el.ts?`<span class="rtch">${el.ts.map((T,ti)=>{ const on=fila.ts.indexOf(T)>=0, esNa=na.indexOf(T)>=0; const fo=filas.findIndex(x=>x.ts.indexOf(T)>=0);
+          // fila donde todos los ítems quedaron "No aplica" (N/A del rubro): sus T se ven tachados
+          const filaNA=!!(el.ts&&hojas.length&&hojas.every(x=>x.get()==="No aplica"));
+          const tch=el.ts?`<span class="rtch${filaNA?" na":""}">${el.ts.map((T,ti)=>{ const on=fila.ts.indexOf(T)>=0, esNa=na.indexOf(T)>=0; const fo=filas.findIndex(x=>x.ts.indexOf(T)>=0);
               const arriba=!on&&!esNa&&fo>=0&&fo<fi;
               const tit=on?"En esta fila. Tocá: está atrasado (pasa a la fila siguiente)":esNa?"No aplica. Tocá: vuelve a esta fila":arriba?"Está en la fila "+v2letra(fo)+" (anterior): se cambia desde ahí":"Está en la fila "+v2letra(fo)+". Tocá: no aplica";
               return `<button class="tbtn xs${on?" on":esNa?" tna":" otra"}" ${(arriba||!P.editable)?"disabled":""} data-tr="${encodeURIComponent(JSON.stringify([el.id,et,S.nombre,R.nombre,fila.fila,T]))}" data-tip="${tit}">${T}${(!on&&!esNa&&fo>=0&&filas.length>1)?`<sup>${v2letra(fo)}</sup>`:""}</button>`; }).join("")}${(filas.length>1&&P.editable)?`<button class="insp-x" data-unir="${encodeURIComponent(JSON.stringify([el.id,et,S.nombre,R.nombre,fila.fila]))}" data-tip="Unir esta fila con la anterior">✕</button>`:""}</span>`:"";
@@ -3341,17 +3463,18 @@ function v2render(root,P,U){
   const pasoIcos=(el,et)=>{ const pid=el.partes[0].parte_id; return `<span class="icos">${ico("com",et,{el:el.id,scope:et+" › ",pid})}${ico("foto",et,{el:el.id,pid})}${ico("doc",et,{el:el.id,rubro:"General",items:[],pid})}</span>`; };
   const etapasFiltro=fg&&fg.etapas&&fg.etapas.length?V2_ETAPAS.filter(e=>fg.etapas.indexOf(e)>=0):[];
   let h="";
-  const elsV=els.filter(elVis);
+  const elsV=els.filter(elVis); let vistaH="";
   if(P.draft.partes.some(p=>p.tipo==="TABIQUE")&&elsV.some(e=>e.tipo==="TABIQUE"))
-    h+=`<div class="v2vista"><span>Tabiques:</span><button class="${U.vista!=="porT"?"on":""}" data-vista="comb">Combinada</button><button class="${U.vista==="porT"?"on":""}" data-vista="porT">Por tabique</button></div>`;
+    vistaH=MATRIZ_V2?"":`<div class="v2vista"><span>Tabiques:</span><button class="${U.vista!=="porT"?"on":""}" data-vista="comb">Combinada</button><button class="${U.vista==="porT"?"on":""}" data-vista="porT">Por tabique</button></div>`;
+  if(!etapasFiltro.length) h+=vistaH;   // sin pestañas de etapa, el selector va solo (y chico)
   if(etapasFiltro.length){ // ---- navegación por pasos (con filtro de Etapa) ----
-    if(!U.etTab||V2_ETAPAS.indexOf(U.etTab)<0) U.etTab=etapasFiltro[0];
-    h+=`<div class="etabs">${V2_ETQ.map((e,i)=>{ const et=V2_ETAPAS[i]; const ks=[]; if(et) elsV.forEach(el=>ks.push(...hojasEtapa(el,et,true)));
-      const comp=et?v2insignia(ks,elsV.reduce((n,el)=>n+v2pendDocs(el,et,adjL).length,0)):""; return `<button class="etab${U.etTab===et?" on":""}" ${et?`data-etab="${et}"`:"disabled"}>${e}<small>${et?pt(v2pct(ks)):"A desarrollar"}${comp}</small></button>`; }).join("")}</div>
-      <select class="esel" data-esel="1">${V2_ETQ.map((e,i)=>`<option value="${V2_ETAPAS[i]||""}" ${U.etTab===V2_ETAPAS[i]?"selected":""} ${i===3?"disabled":""}>${e}</option>`).join("")}</select>`;
+    if(!U.etTab||etapasFiltro.indexOf(U.etTab)<0) U.etTab=etapasFiltro[0];   // con filtro de etapa, solo se navega por las etapas filtradas
+    h+=`<div class="v2fila1">${vistaH}<div class="etabs">${V2_ETQ.map((e,i)=>{ const et=V2_ETAPAS[i]; const ks=[]; if(et) elsV.forEach(el=>ks.push(...hojasEtapa(el,et,true)));
+      const comp=et?v2insignia(ks,elsV.reduce((n,el)=>n+v2pendDocs(el,et,adjL).length,0)):""; const fuera=et&&etapasFiltro.indexOf(et)<0; return `<button class="etab${U.etTab===et?" on":""}${fuera?" fuera":""}" ${!et?"disabled":fuera?`data-etabf="${et}" title="Tocá para filtrar por esta etapa"`:`data-etab="${et}"`}>${e}<small>${et?pt(v2pct(ks)):"A desarrollar"}${comp}</small></button>`; }).join("")}</div>
+      <select class="esel" data-esel="1">${V2_ETQ.map((e,i)=>`<option value="${V2_ETAPAS[i]||""}" ${U.etTab===V2_ETAPAS[i]?"selected":""} ${i===3||etapasFiltro.indexOf(V2_ETAPAS[i])<0?"disabled":""}>${e}</option>`).join("")}</select>`;
     const et=U.etTab; const disp=elsV.filter(el=>v2estructura(el,et));
     if(!U.pasoSel||!disp.find(e=>e.id===U.pasoSel)) U.pasoSel=disp.length?disp[0].id:null;
-    h+=`<div class="pchips">${disp.map(el=>{ const ks=hojasEtapa(el,et,true); return `<button class="pchip${U.pasoSel===el.id?" on":""}" data-paso="${el.id}"><span style="width:9px;height:9px;border-radius:50%;background:${v2color(ks)}"></span>${v2nomEl(el)} <b style="color:${v2color(ks)}">${pt(v2pct(ks))}</b>${v2insignia(ks,v2pendDocs(el,et,adjL).length)}</button>`; }).join("")}${U.pasoSel?`<button class="pchip res" data-resumen="${U.pasoSel}">📋 Resumen del paso</button>`:""}</div>`;
+    h+=`<div class="pchips">${disp.map(el=>{ const ks=hojasEtapa(el,et,true); return `<button class="pchip${U.pasoSel===el.id?" on":""}" data-paso="${el.id}"><span style="width:9px;height:9px;border-radius:50%;background:${v2color(ks)}"></span>${v2nomEl(el)} <b style="color:${v2color(ks)}">${pt(v2pct(ks))}</b>${v2insignia(ks,v2pendDocs(el,et,adjL).length)}</button>`; }).join("")}${U.pasoSel?`<button class="pchip res" data-resumen="${U.pasoSel}">📋 Resumen del paso</button>`:""}</div></div>`;
     if(U.pasoSel){ const el=disp.find(e=>e.id===U.pasoSel); const ks=hojasEtapa(el,et,true);
       h+=`<div class="pasoh"><span class="pn">${V2_ETQ[V2_ETAPAS.indexOf(et)].split(" (")[0]} · ${v2nomEl(el)}</span>${pasoIcos(el,et)}${v2insignia(ks,v2pendDocs(el,et,adjL).length)}${v2btnInf(P,el,et,ks,adjL)}<b style="color:${v2color(ks)}">${pt(v2pct(ks))}</b></div>${panelHtml(et+"¦"+el.id)}`;
       h+=renderEtapa(el,et); }
@@ -3403,9 +3526,9 @@ function v2btnInf(P,el,et,ks,adjL){
     if(!P.onInforme||!P.editable) return "";
     const st=rpEstadoLocal({...P.local,partes:P.draft.partes},et).find(x=>x.el.id==="TAB"); if(!st||!st.ok) return "";
     if(el.tid){ const t=(st.tsEst||[]).find(x=>x.pid===el.tid); if(!t||!t.ok) return ""; }
-    return `<button class="v2inf" data-informe="${encodeURIComponent("TAB¦"+et)}" data-tip="Generar el informe de tabiques de esta etapa (elegís qué T incluir)">🧾 Informe</button>`; }
+    return `<button class="v2inf" data-informe="${encodeURIComponent("TAB¦"+et)}" data-tip="Generar la inspección de tabiques de esta etapa (elegís qué T incluir)">🧾 Inspección</button>`; }
   if(!P.onInforme||!P.editable||v2pct(ks)!==100||v2pendDocs(el,et,adjL).length) return "";
-  return `<button class="v2inf" data-informe="${encodeURIComponent(el.id+"¦"+et)}" data-tip="Generar el informe de esta etapa para Procore">🧾 Informe</button>`; }
+  return `<button class="v2inf" data-informe="${encodeURIComponent(el.id+"¦"+et)}" data-tip="Generar la inspección de esta etapa para Procore">🧾 Inspección</button>`; }
 function v2ajustarQC(root){ root.querySelectorAll(".qc").forEach(q=>{ q.classList.remove("nofit"); const p=q.parentElement, f=p.firstElementChild; if(f&&f!==q&&q.offsetTop>f.offsetTop+3) q.classList.add("nofit"); }); }
 function v2fotos(root){ root.querySelectorAll("img[data-foto]").forEach(im=>{ const path=im.getAttribute("data-foto"); if(im.src) return; apiFotoURL(path).then(u=>{ if(u) im.src=u; }); }); }
 
@@ -3570,16 +3693,20 @@ function v2click(e,P,U,redraw,root){
       U.toast=`<span>Se marcaron ${cambios} ${cambios===1?"ítem":"ítems"} como <b>${eb.dataset.est}</b>${salt?` · ${salt} sin documento quedaron como estaban`:""}</span><button id="v2undo">Deshacer</button>`;
       clearTimeout(U.toastT); U.toastT=setTimeout(()=>{ U.toast=null; U.undo=null; redraw(); },8000); }
     return; }
-  if(U.panel&&!g(".pan,[data-panel]")){ U.panel=null; redraw(); if(!g("[data-tog],[data-tr],[data-paso],[data-etab]")) return; }
+  if(U.panel&&!g(".pan,[data-panel]")){ U.panel=null; redraw(); if(!g("[data-tog],[data-tr],[data-paso],[data-etab],[data-etabf]")) return; }
   const tr=g("[data-tr]"); if(tr){ v2tocarT(P,JSON.parse(decodeURIComponent(tr.dataset.tr))); return; }
   const t1=g("[data-tna1]"); if(t1){ const [elId,et,sub,rub,T]=JSON.parse(decodeURIComponent(t1.dataset.tna1)); P.mutar(partes=>{ const p=partes.find(x=>x.tipo==="TABIQUE"&&"T"+(x.indice||"?")===T); const tt=p&&v2tarea(p,et,sub,rub); if(tt){ tt.fila="A"; } }); return; }
   const un=g("[data-unir]"); if(un){ v2unir(P,JSON.parse(decodeURIComponent(un.dataset.unir))); return; }
   const qr=g("[data-quitarrub]"); if(qr){ const [elId,et,rub]=JSON.parse(decodeURIComponent(qr.dataset.quitarrub)); P.mutar(partes=>partes.forEach(p=>{ if((elId==="TAB"&&p.tipo==="TABIQUE")||p.parte_id===elId||"TAB:"+p.parte_id===elId){ const f=v2fase(p,et); if(f) f.grupos.forEach(gg=>gg.tareas=gg.tareas.filter(x=>x.nombre!==rub)); } })); return; }
   const et=g("[data-etab]"); if(et){ U.etTab=et.dataset.etab; redraw(); return; }
+  const etf=g("[data-etabf]"); if(etf){ U.etTab=etf.dataset.etabf; if(window.__v2FiltrarEtapa) window.__v2FiltrarEtapa(etf.dataset.etabf); return; }
   const pa=g("[data-paso]"); if(pa){ U.pasoSel=pa.dataset.paso; redraw(); return; }
   const rs=g("[data-resumen]"); if(rs){ U.resumen={el:rs.dataset.resumen,et:U.etTab}; U.resTag=""; redraw(); return; }
   const pn=g("[data-panel]"); if(pn){ const cx=JSON.parse(decodeURIComponent(pn.dataset.ctx)); const key=cx.ref+"¦"+cx.el;
-    const same=U.panel&&U.panel.tipo===pn.dataset.panel&&U.panel.key===key&&!cx.pre; U.panel=same?null:{tipo:pn.dataset.panel,key,ctx:cx}; U.imgPend=null; redraw(); return; }
+    const same=U.panel&&U.panel.tipo===pn.dataset.panel&&U.panel.key===key&&!cx.pre; U.panel=same?null:{tipo:pn.dataset.panel,key,ctx:cx}; U.imgPend=null; redraw();
+    // el panel se abre en el rubro: si quedó fuera de la vista (por ej. al tocar "Requiere documento" en un ítem de abajo), se lleva a la vista
+    if(!same) setTimeout(()=>{ const el=document.querySelector(".fv2 .pan")||document.querySelector(".pan"); if(el){ el.style.scrollMarginTop="150px"; el.scrollIntoView({behavior:"smooth",block:"start"}); } },60);
+    return; }
   if(g("[data-cerrarpanel]")){ U.panel=null; redraw(); return; }
   const pb=g("[data-publicar]"); if(pb){ const ta=root.querySelector("[data-ctxt]"); const tx=(ta&&ta.value||"").trim(); if(!tx&&!U.imgPend) return; const cx=U.panel.ctx; pb.disabled=true;
     (async()=>{ try{ let foto=null; if(U.imgPend) foto=await apiSubirFoto(P.local.local_id,U.imgPend);
@@ -3675,6 +3802,12 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco,vecinos,
   const [edit,setEdit]=useState(false);               // modo editar (admin)
   // rev22: el filtro general también se aplica acá; "Ver todo" lo saca solo dentro de este local.
   // (si se entra desde 🔎 Filtros o a un elemento que no entra en el filtro, arranca viendo todo)
+  // v2 celular: el plano del local se muestra con "Ver plano" (abajo, junto a Guardar) y queda fijo arriba de la ficha
+  const esCelL=MATRIZ_V2&&!embebido&&window.matchMedia("(max-width:640px)").matches;
+  const [verPlanCel,setVerPlanCel]=useState(false);
+  useEffect(()=>{ if(!esCelL) return; const h=document.querySelector(".modal.local:not(.embed) .mhead"); const m=h&&h.closest(".modal"); if(m) m.style.setProperty("--mhh",h.offsetHeight+"px"); });
+  const [vistaT,setVistaT]=useState(()=>{ try{ return localStorage.getItem("v2vistaTab2")||"porT"; }catch(e){ return "porT"; } });
+  const elegirVista=v=>{ setVistaT(v); try{ localStorage.setItem("v2vistaTab2",v); }catch(e){} };
   const [verTodo,setVerTodo]=useState(()=>!!foco || (filtroActivo(filtro) && !localEnFiltro(local,filtro)) || !!(initialParte && filtroActivo(filtro) &&
     (local.partes||[]).some(p=>p.parte_id===initialParte && hojasFiltradas(p,filtro)===null)));
   const fgL = (filtroActivo(filtro) && !verTodo && !edit) ? filtro : null;
@@ -3727,16 +3860,16 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco,vecinos,
       const tabs=await v2ElegirTabs(st.tsEst||[],m); if(!tabs) return;
       const el=v2elementos(draft.partes).find(x=>x.id==="TAB");
       const fAhora=await v2PedirFirma(user,1); if(fAhora===undefined) return;
-      setMsg("Generando informe…");
+      setMsg("Generando inspección…");
       try{ const r=await rpGenerarVarios({items:[{l:l0,el,tabs}],et,data,user,cfg:rpCfg(),coms:(comCtx&&comCtx.coms)||[],firmaAhora:fAhora});
-        setMsg("Informe "+r[0].rec.num+" ("+r[0].rec.ts.join(", ")+") generado ✓ · queda en 🧾 Informe de etapa › Generados"); }
+        setMsg("Inspección "+r[0].rec.num+" ("+r[0].rec.ts.join(", ")+") generada ✓ · queda en 🧾 Inspecciones › Generados"); }
       catch(e){ setMsg("Error: "+(e.message||e)); } return; }
-    if(dirty){ setMsg("Guardá los cambios antes de generar el informe."); return; }
+    if(dirty){ setMsg("Guardá los cambios antes de generar la inspección."); return; }
     const l={...local,partes:draft.partes}; const el=v2elementos(draft.partes).find(x=>x.id===elId); if(!el) return;
     const fAhora=await v2PedirFirma(user,1); if(fAhora===undefined) return;   // canceló la firma
-    setMsg("Generando informe…");
+    setMsg("Generando inspección…");
     try{ const r=await rpGenerarVarios({items:[{l,el}],et,data,user,cfg:rpCfg(),coms:(comCtx&&comCtx.coms)||[],firmaAhora:fAhora});
-      setMsg("Informe "+r[0].rec.num+" generado ✓ · queda en 🧾 Informe de etapa › Generados"); }
+      setMsg("Inspección "+r[0].rec.num+" generada ✓ · queda en 🧾 Inspecciones › Generados"); }
     catch(e){ setMsg("Error: "+(e.message||e)); } }
   function irArriba(){ if(modalRef.current) modalRef.current.scrollTop=0; }
   const [todoCerrado,setTodoCerrado]=useState(false);   // v2: el botón alterna Cerrar todo / Abrir todo
@@ -3747,6 +3880,7 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco,vecinos,
   const [accionTxt,setAccionTxt]=useState("");   // "" = cerrar · "anterior"/"siguiente" = navegar
   // pantalla dividida: tocar otro local en el plano o en la lista pasa por acá (pregunta si hay cambios sin guardar)
   if(embebido) window.__lvIr=(l,pid)=>tryClose(()=>onIr(l,pid),"local "+l.numero);
+  if(embebido) window.__lvSalir=fn=>tryClose(fn,"");   // v2: cambiar de módulo deslizando el plano (pregunta si hay cambios sin guardar)
   function tryClose(accion,txt){ const a=accion||onClose;
     if(dirty && !saving){ accionRef.current=a; setAccionTxt(txt?txt+" local":""); setAskClose(true); } else { a(); } }
   // rev9: si falla, el cartel queda abierto mostrando el error (antes se cerraba sin avisar)
@@ -3870,7 +4004,16 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco,vecinos,
         <div className="mhead">
           <div>
             <h2><span style={{opacity:.85,fontWeight:600}}>{local.numero}</span> · {local.nombre}</h2>
-            <div style={{fontSize:12,opacity:.85}}>{mNom(local.modulo)} · {nNom(local.nivel)} — {avancePct(draft)}% completado{fgL?" · "+pctLocalF(draft,fgL)+"% de lo filtrado":""}</div>
+            <div className="msub" style={{fontSize:12,opacity:.85}}><span className="msub-loc">{mNom(local.modulo)} · {nNom(local.nivel)} — </span>{avancePct(draft)}% completado{fgL?" · "+pctLocalF(draft,fgL)+"% de lo filtrado":""}</div>
+            {/* v2: el filtro ya se ve en la barra general → acá solo un chip chico con "Ver todo" */}
+            {esCelL && filtroActivo(filtro) && !edit && !verTodo && <span className="mfchip">🎚 {textoFiltro(filtro)}</span>}
+            {MATRIZ_V2 && filtroActivo(filtro) && !edit && verTodo && <span className="lfchip off">
+              <span className="lft">Este local se abrió sin el filtro</span>
+              <button title="Mostrar solo lo filtrado" onClick={()=>setVerTodo(false)}>🎚 Aplicar filtro</button></span>}
+            {MATRIZ_V2 && !edit && draft.partes.some(p=>p.tipo==="TABIQUE"&&(!fgL||hojasFiltradas(p,fgL)!==null)) &&
+              <span className="mvista">Tabiques
+                <button className={vistaT!=="porT"?"on":""} onClick={()=>elegirVista("comb")}>Combinada</button>
+                <button className={vistaT==="porT"?"on":""} onClick={()=>elegirVista("porT")}>Por tabique</button></span>}
           </div>
           {MATRIZ_V2 && <span className="v2nav">
             <button title="Volver arriba de todo" onClick={irArriba}>⤒<small>Arriba</small></button>
@@ -3890,8 +4033,8 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco,vecinos,
             <button disabled={lz<=LZ[0]} onClick={()=>cambiarLz(-1)}>A−</button><b onClick={()=>cambiarLz(0)}>{Math.round(lz*100)}%</b><button disabled={lz>=LZ[LZ.length-1]} onClick={()=>cambiarLz(1)}>A+</button></span>
           <button className="x" onClick={()=>tryClose()}>×</button>
           {/* v2: el aviso de filtro va en el título, que queda fijo arriba */}
-          {filtroActivo(filtro) && !edit && (
-            <div className={"lfiltro"+(MATRIZ_V2?" v2":"")+(verTodo?" off":"")}>
+          {filtroActivo(filtro) && !edit && !MATRIZ_V2 && (
+            <div className={"lfiltro"+(verTodo?" off":"")}>
               <span className="lf-txt">{verTodo?"Viendo todo el local (sin filtro)":<React.Fragment>🎚 FILTRO ACTIVO · Mostrando solo: <b>{textoFiltro(filtro)}</b></React.Fragment>}</span>
               <button className="btn sm" onClick={()=>setVerTodo(v=>!v)}>{verTodo?"Aplicar filtro":"Ver todo"}</button>
             </div>)}
@@ -3912,8 +4055,8 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco,vecinos,
 
           {/* compu apaisada (ventana ancha): el plano del local va al costado y queda fijo mientras se recorre la ficha */}
           <div className={MATRIZ_V2&&!edit?"lv-split":""}>
-          <div className="lv-plan"><LocalPlan local={local} draft={draft} area={area} dims={dims} zoom={lpZoom} setZoom={setLpZoom} onParte={abrirParte} centro={lpCentro} fg={MATRIZ_V2?fgL:null}/></div>
-          {MATRIZ_V2 && !edit && <div className="lv-ficha"><FichaV2 draft={draft} mutar={mutar} editable={editable} user={user} local={local} filtro={fgL} adj={adjL} adjOps={adjOps} orden={ordenV2} onInforme={generarInforme}/></div>}
+          <div className={"lv-plan"+(esCelL?(verPlanCel?" celfijo":" celoff"):"")}><LocalPlan local={local} draft={draft} area={area} dims={dims} zoom={lpZoom} setZoom={setLpZoom} onParte={abrirParte} centro={lpCentro} fg={MATRIZ_V2?fgL:null}/></div>
+          {MATRIZ_V2 && !edit && <div className="lv-ficha"><FichaV2 draft={draft} mutar={mutar} editable={editable} user={user} local={local} filtro={fgL} adj={adjL} adjOps={adjOps} orden={ordenV2} onInforme={generarInforme} vista={vistaT}/></div>}
           </div>
           {!(MATRIZ_V2 && !edit) && fgL && !partes.some(pt=>hojasFiltradas(pt,fgL)!==null) && <div className="cvacio" style={{padding:"10px 4px"}}>Este local no tiene nada que coincida con el filtro. Tocá <b>Ver todo</b> para ver el local completo.</div>}
           {!(MATRIZ_V2 && !edit) && partes.map(pt=>{
@@ -4002,6 +4145,7 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco,vecinos,
         {editable && (
           <div className="savebar">
             <button className="btn primary" disabled={!dirty||saving} onClick={guardar}>{saving?"Guardando…":"Guardar cambios"}</button>
+            {esCelL && area && area.plano_url && <button className={"btn"+(verPlanCel?" on":"")} onClick={()=>setVerPlanCel(v=>!v)}>{verPlanCel?"✕ Ocultar plano":"🗺️ Ver plano"}</button>}
             {msg.startsWith("Error")
               ? <div className="err" style={{margin:0,flex:1,fontWeight:600}}>⚠️ {msg.slice(7)}</div>
               : <span className="msg">{msg||(dirty?"Hay cambios sin guardar":"")}</span>}
@@ -4220,6 +4364,7 @@ function MatrizPanel({data,onClose,onApplied}){
   const [saving,setSaving]=useState(false);
   const [msg,setMsg]=useState("");
   const [openF,setOpenF]=useState({});
+  const [naCompleto,setNaCompleto]=useState(true);   // v2: ítems nuevos en rubros ya completos → No aplica
   const [ask,setAsk]=useState(false);       // confirmar "aplicar a toda la obra"
   const [askExit,setAskExit]=useState(false); // confirmar "salir sin guardar"
   const [pendingTipo,setPendingTipo]=useState(null); // cambio de tipo con cambios sin aplicar
@@ -4241,10 +4386,10 @@ function MatrizPanel({data,onClose,onApplied}){
   }
   async function aplicar(){
     setSaving(true); setMsg("");
-    const partes=[], b=base();
+    const partes=[], b=base(), cuentaNA={n:0};
     data.locales.forEach(l=>l.partes.forEach(p=>{ if(p.tipo===tipo){
       const old=p.fases||buildFases(b,p.parte_id);
-      const tmp={tipo:p.tipo, parte_id:p.parte_id, fases:mergeFasesByName(pl,p.parte_id,old)};
+      const tmp={tipo:p.tipo, parte_id:p.parte_id, fases:mergeFasesByName(pl,p.parte_id,old,{naSiCompleto:MATRIZ_V2&&naCompleto,cuenta:cuentaNA})};
       normalizeParte(tmp);
       partes.push({parte_id:p.parte_id, fases:tmp.fases});
     }}));
@@ -4260,7 +4405,7 @@ function MatrizPanel({data,onClose,onApplied}){
         setMsg("Error: "+(res.error||"desconocido")+(i>0?(" — se aplicó parcial ("+(i*CH)+"/"+total+"). Tocá “Aplicar” otra vez para completar."):""));
         setAsk(false); return; }
     }
-    setSaving(false); setMsg("Aplicado ✓ a "+total+" elemento(s)"); setDirty(false);
+    setSaving(false); setMsg("Aplicado ✓ a "+total+" elemento(s)"+(cuentaNA.n?" · "+cuentaNA.n+" ítem(s) nuevo(s) en rubros que ya estaban al 100% quedaron en No aplica":"")); setDirty(false);
     const plLimpia=sinOrig(pl);
     onApplied(tipo,plLimpia,partes); setAsk(false);
     setPl(conOrig(plLimpia));   // rev23: lo aplicado pasa a ser el nuevo punto de partida
@@ -4284,6 +4429,9 @@ function MatrizPanel({data,onClose,onApplied}){
               <div className="mhead"><div><h2>Aplicar cambios de la matriz</h2>
                 <div style={{fontSize:12,opacity:.85}}>Se va a reescribir la estructura de <b>{afectados}</b> elemento(s) de tipo <b>{tipo}</b> en toda la obra. El avance ya cargado se conserva, también en lo que renombraste.</div></div></div>
               <div className="mbody" style={{display:"flex",flexDirection:"column",gap:8}}>
+                {MATRIZ_V2 && <label style={{display:"flex",gap:8,alignItems:"flex-start",fontSize:13,lineHeight:1.35}}>
+                  <input type="checkbox" checked={naCompleto} onChange={e=>setNaCompleto(e.target.checked)} style={{marginTop:2}}/>
+                  <span>Si un rubro ya estaba al <b>100%</b> en un elemento, sus ítems nuevos quedan en <b>No aplica</b> (así no le baja el avance). En el resto entran en Sin realizar.</span></label>}
                 <button className="btn primary" disabled={saving} onClick={aplicar}>{saving?"Aplicando…":"Sí, aplicar a toda la obra"}</button>
                 <button className="btn" disabled={saving} onClick={()=>setAsk(false)}>Cancelar</button>
               </div>
@@ -4712,6 +4860,8 @@ function App(){
   // compu / tele apaisada y ancha: al abrir un local la pantalla se divide en 3 (plano · inspección · locales del sector)
   const MQ3="(min-width:1100px) and (orientation:landscape)";
   const [ancho3,setAncho3]=useState(()=>window.matchMedia(MQ3).matches);
+  const wide=MATRIZ_V2&&ancho3;   // v2: PC / TV apaisada → pantalla compacta (2 filas arriba y 3 columnas)
+  const [psQ,setPsQ]=useState("");   // buscador de la lista de locales (pantalla grande)
   // anchos de las columnas (plano en % del ancho, lista en px); se arrastran desde los separadores y se recuerdan en este navegador
   const S3_DEF={plan:34,lista:230};
   const [s3w,setS3w]=useState(()=>{ try{ return Object.assign({},S3_DEF,JSON.parse(store.get("s3anchos")||"{}")); }catch(e){ return S3_DEF; } });
@@ -4728,6 +4878,11 @@ function App(){
     document.body.style.userSelect="none"; document.body.style.cursor="col-resize";
     document.addEventListener("pointermove",mover); document.addEventListener("pointerup",soltar); }
   useEffect(()=>{ const m=window.matchMedia(MQ3); const f=()=>setAncho3(m.matches); m.addEventListener("change",f); return ()=>m.removeEventListener("change",f); },[]);
+  // v2: celular → encabezado compacto (módulo, planta, etapa y filtro; sin títulos ni avances)
+  const MQC="(max-width:640px)";
+  const [esCel,setEsCel]=useState(()=>window.matchMedia(MQC).matches);
+  useEffect(()=>{ const m=window.matchMedia(MQC); const f=()=>setEsCel(m.matches); m.addEventListener("change",f); return ()=>m.removeEventListener("change",f); },[]);
+  const movil=MATRIZ_V2&&esCel&&!ancho3;
   // al abrir un local con la pantalla dividida, la vista baja hasta las 3 columnas (que ocupan toda la altura)
   useEffect(()=>{ if(!sel||!ancho3) return; const t=setTimeout(()=>{ const e=document.querySelector(".planolayout.s3"); if(!e) return;
     const ap=document.querySelector(".app"), z=(ap&&parseFloat(getComputedStyle(ap).zoom))||1, hd=document.querySelector("header.top");
@@ -4756,7 +4911,8 @@ function App(){
   const [filtro,setFiltro]=useState("");         // buscador en modo Botones
   const [planoVer,setPlanoVer]=useState("local");// "todos" | "local" (cómo ver el plano) — rev17: arranca en "solo número de local"
   const [filtrosOpen,setFiltrosOpen]=useState(false); // panel de filtros por tarea/subtarea
-  const [filtroG,setFiltroG]=useState(FILTRO_VACIO);  // rev22: filtro general Rubro / Etapa / Elemento (solo vista)
+  const [filtroG,setFiltroG]=useState(FILTRO_VACIO);
+  window.__v2FiltrarEtapa=e=>setFiltroG(f=>({...f,etapas:[e]}));   // v2: las pestañas de etapa de la ficha cambian el filtro  // rev22: filtro general Rubro / Etapa / Elemento (solo vista)
   const [planoVert,setPlanoVert]=useState(false);     // rev18: plano parado → se limita a la altura de la pantalla
   // rev20: zoom del plano principal + tamaño de los círculos según el ancho disponible
   const ZOOMS=[1,1.5,2,3,4];
@@ -4775,10 +4931,44 @@ function App(){
     setTimeout(()=>{ if(!el) return; el.scrollLeft=cx*el.scrollWidth-el.clientWidth/2; el.scrollTop=cy*el.scrollHeight-el.clientHeight/2; },30);
   }
   useEffect(()=>{ setPlanoZoom(1); },[modulo,nivel]);
+  // v2: con la pantalla en 3 columnas, al abrir un local el plano de la izquierda se acerca y se centra en ese local (como el mini-plano)
+  const s3Ref=useRef(false);
+  useEffect(()=>{
+    if(!s3Ref.current||!sel){ if(!sel) setPlanoZoom(1); return; }
+    const l=sel; if(l.plano_x==null||l.plano_y==null) return;
+    const pts=[[l.plano_x,l.plano_y]].concat((l.partes||[]).filter(p=>p.plano_x!=null&&p.plano_y!=null).map(p=>[p.plano_x,p.plano_y]));
+    const xs=pts.map(p=>p[0]), ys=pts.map(p=>p[1]);
+    const cx=(Math.min(...xs)+Math.max(...xs))/2, cy=(Math.min(...ys)+Math.max(...ys))/2;
+    const span=Math.max(Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys),8);
+    const objetivo=Math.min(4,Math.max(2,55/span));
+    const nz=ZOOMS.filter(z=>z<=objetivo).pop()||2;
+    setPlanoZoom(nz);
+    const centrar=()=>{ const el=planoWrapRef.current; if(!el) return;
+      el.scrollLeft=cx/100*el.scrollWidth-el.clientWidth/2; el.scrollTop=cy/100*el.scrollHeight-el.clientHeight/2; };
+    setTimeout(centrar,60); setTimeout(centrar,250);
+  },[sel&&sel.local_id]);
   // v2: zoom con pellizco (dos dedos) en el plano, por los mismos pasos que los botones − +
   const pinchRef=useRef(null);
   const distT=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
-  function pinchIni(e){ if(e.touches.length===2) pinchRef.current=distT(e.touches); }
+  function pinchIni(e){ if(e.touches.length===2){ pinchRef.current=distT(e.touches); swipeRef.current=null; }
+    else if(e.touches.length===1) swipeIni(e.touches[0].clientX,e.touches[0].clientY); }
+  function swipeIni(x,y){ const el=planoWrapRef.current; const max=el?el.scrollWidth-el.clientWidth:0;
+    swipeRef.current={x,y,t:Date.now(),ini:el?el.scrollLeft<=1:true,fin:el?el.scrollLeft>=max-1:true}; }
+  // con el mouse (PC / TV): arrastrar el plano de costado hace lo mismo que deslizar con el dedo
+  function swipeMouseIni(e){ if(e.pointerType==="mouse"&&e.button===0) swipeIni(e.clientX,e.clientY); }
+  function swipeMouseFin(e){ if(e.pointerType==="mouse") swipeFin(e); }
+  // v2: deslizar el plano (sin zoom) cambia de módulo: a la derecha el siguiente (A → Conector → B…), a la izquierda el anterior
+  const swipeRef=useRef(null), swipeTRef=useRef(null);
+  const [swipeMsg,setSwipeMsg]=useState("");
+  function swipeFin(e){ const s0=swipeRef.current; swipeRef.current=null; if(!s0||calib) return;
+    if(sel&&!s3Ref.current) return;   // con la ficha flotante abierta no
+    const t=(e.changedTouches&&e.changedTouches[0])||e; if(t.clientX==null) return;
+    const dx=t.clientX-s0.x, dy=t.clientY-s0.y; if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.6||Date.now()-s0.t>900) return;
+    // con zoom, solo cambia de módulo si el plano ya estaba en el borde (si no, el gesto mueve el plano)
+    if(planoZoom>1 && !(dx>0?s0.ini:s0.fin)) return;
+    const i=MODS.indexOf(modulo), j=i+(dx>0?1:-1); if(i<0||j<0||j>=MODS.length) return;
+    const ir=()=>{ setSel(null); setSelParte(null); setSelFoco(null); cambiarArea(MODS[j],nivel); };
+    if(sel&&window.__lvSalir) window.__lvSalir(ir); else ir(); setSwipeMsg(mNom(MODS[j])); clearTimeout(swipeTRef.current); swipeTRef.current=setTimeout(()=>setSwipeMsg(""),1100); }
   function pinchMov(e){ if(e.touches.length!==2||!pinchRef.current) return; const d=distT(e.touches), r=d/pinchRef.current;
     if(r>1.25){ cambiarZoom(1); pinchRef.current=d; } else if(r<0.8){ cambiarZoom(-1); pinchRef.current=d; } }
   const [reporteOpen,setReporteOpen]=useState(false); // rev11: reporte de comentarios
@@ -4817,6 +5007,11 @@ function App(){
 
   const areas = (data&&data.areas)||[];
   const area = areas.find(a=>a.modulo===modulo&&a.nivel===nivel)||{modulo,nivel,plano_url:""};
+  // v2: en PC/TV no hay botón Locales (la lista está siempre a la derecha) → si el sector tiene plano, se ve el plano
+  useEffect(()=>{ if(wide&&area.plano_url&&mode==="botones") setMode("plano"); },[wide,area.plano_url,mode]);
+  // v2: en PC/TV la pantalla general queda fija; solo se desplaza adentro de cada columna (plano, ficha, lista)
+  const fija=wide&&!!area.plano_url&&!calib;
+  useEffect(()=>{ document.body.classList.toggle("wfija",fija); if(fija) window.scrollTo(0,0); return ()=>document.body.classList.remove("wfija"); },[fija]);
   const localesArea = data? data.locales.filter(l=>l.modulo===modulo&&l.nivel===nivel):[];
 
   const global = useMemo(()=>{
@@ -4960,7 +5155,53 @@ function App(){
   const tienePlano=(m,n)=>{const a=areas.find(x=>x.modulo===m&&x.nivel===n);return a&&a.plano_url;};
   const s3=MATRIZ_V2 && ancho3 && !!sel && !!(area&&area.plano_url) && !calib;
   // abrir un local (o un elemento): con la pantalla dividida y otro local abierto, pregunta si hay cambios sin guardar
-  const irLocal=(l,pid)=>{ if(s3&&sel&&window.__lvIr&&l.local_id!==sel.local_id) return window.__lvIr(l,pid||null); setSelParte(pid||null); setSel(l); };
+  s3Ref.current=s3;
+  const irLocal=(l,pid)=>{ if(s3&&sel&&window.__lvIr&&l.local_id!==sel.local_id) return window.__lvIr(l,pid||null);
+    if(pid&&pid===selParte){ setSelParte(null); setTimeout(()=>setSelParte(pid),0); } else setSelParte(pid||null); setSel(l); };
+  // v2: en 3 columnas, el local abierto muestra sus tabiques, solado y cielorraso en el plano aunque se vea "Solo N° de local"
+  const v2L=l=>v2Partes||(s3&&MATRIZ_V2&&sel&&l.local_id===sel.local_id);
+  // vista Locales (tarjetas): sola, o en la columna izquierda de las 3 columnas en lugar del plano
+  const renderBotones=()=>(      localesArea.length? (()=>{
+        const q=filtro.trim().toLowerCase();
+        const base=fAct? localesArea.filter(l=>localEnFiltro(l,filtroG)) : localesArea;   // rev22: sigue al filtro general
+        const lista=q? base.filter(l=>((l.numero||"")+" "+(l.nombre||"")).toLowerCase().includes(q)) : base;
+        return (
+        <div>
+          <div className="buscador">
+            <span className="bicon">🔍</span>
+            <input placeholder="Buscar local por número o nombre…" value={filtro} onChange={e=>setFiltro(e.target.value)}/>
+            {filtro && <button className="bx" onClick={()=>setFiltro("")} title="Limpiar">×</button>}
+            <span className="bcount">{lista.length} de {localesArea.length}</span>
+          </div>
+          {lista.length? (
+          <div className="grid">
+          {lista.map(l=>{const p=fAct?pctLocalF(l,filtroG):avancePct(l);
+            const habil=l.partes.length && l.partes.every(x=>x.habilitado_final==="SI");
+            return (
+            <div className={"card"+(sel&&sel.local_id===l.local_id?" on":"")} key={l.local_id} onClick={()=>irLocal(l,null)}>
+              <div className="name-lg">{l.nombre}{comsPorLocal[l.local_id]?<span className="ccom" title="Comentarios abiertos">💬 {comsPorLocal[l.local_id]}</span>:null}</div>
+              <div className="num-sm">Local {l.numero}</div>
+              <div className="track"><div className="fill" style={{width:p+"%",background:colorPct(p)}}></div></div>
+              <div className="pctlbl"><span>{l.partes.length} partes</span><b style={{color:colorPct(p)}}>{p}%</b></div>
+              <span className={"badge "+(habil?"hab":"nohab")}>{habil?"Habilitado":"En obra"}</span>
+            </div>
+          )})}
+          </div>
+          ) : <div className="planowrap"><div className="noplano"><p>{filtro?<React.Fragment>No hay locales que coincidan con “{filtro}”.</React.Fragment>:"No hay locales en este sector que coincidan con el filtro."}</p></div></div>}
+        </div>);
+      })() : (
+        <div className="planowrap"><div className="noplano">
+          <p style={{fontSize:15,fontWeight:600,color:"#334155"}}>{mNom(modulo)} · {nNom(nivel)} todavía no tiene locales cargados.</p>
+          <p>A medida que sumes sectores, van a aparecer acá como botones.</p>
+        </div></div>
+      )
+    );
+  const etBtns=<span className="etbtns"><span className="etl">Etapa</span>{V2_ETAPAS.map((e,i)=>{ const on=filtroG.etapas.length===1&&filtroG.etapas[0]===e;
+          return <button key={e} className={on?"on":""} title={"Etapa "+(i+1)+" · "+e+(on?" (tocá de nuevo para sacar el filtro)":"")} onClick={()=>setFiltroG(f=>({...f,etapas:on?[]:[e]}))}>{i+1}</button>; })}</span>;
+  const infBtns=<React.Fragment>
+        <button onClick={()=>setReporteOpen(true)} title="Informe de avance">📊 Avance</button>
+        {(user.rol==="admin"||user.rol==="editor") && <button onClick={()=>setRepEtapaOpen(true)} title="Inspecciones (Procore)">🧾 Inspecciones</button>}
+        <button onClick={()=>v2Biblioteca({user})} title="Documentos">📂 Documentos</button></React.Fragment>;
   const renderLocal=emb=>{ if(!sel) return null; const loc=data.locales.find(l=>l.local_id===sel.local_id); if(!loc) return null;
       // rev20: vecinos = locales del mismo módulo y planta, ordenados por número
       const lista=data.locales.filter(l=>l.modulo===loc.modulo&&l.nivel===loc.nivel)
@@ -4974,7 +5215,45 @@ function App(){
 
   return (
   <ComCtx.Provider value={comCtxVal}>
-  <div className="app">
+  <div className={"app"+(wide?" wide":"")+(movil?" movil":"")}>
+    {movil && <header className="top mtop">
+      <div className="mrow">
+        <span className="mgrp">{MODS.map(m=><button key={m} className={"wchip"+(modulo===m?" on":"")} onClick={()=>cambiarArea(m,nivel)}>{mLbl(m)}</button>)}</span>
+        <MenuUsuario user={user} data={data} onPerfil={()=>setPerfilOpen(true)} onPwd={()=>setPwOpen(true)} onUsuarios={()=>setUsersOpen(true)}
+            onQR={()=>setQrOpen(true)} onMatriz={()=>setMatrizOpen(true)} onLogout={logout} onImportar={()=>setImpOpen(true)}/>
+      </div>
+      <div className="mrow">
+        <span className="mgrp">{NIVS.map(([code,nom])=><button key={code} className={"wchip"+(nivel===code?" on":"")} title={nom} onClick={()=>cambiarArea(modulo,code)}>{code}</button>)}</span>
+        {etBtns}
+        <button className={"mfil"+(filtroG.elementos.length||filtroG.rubros.length?" on":"")} title="Filtrar por elemento o rubro" onClick={()=>setHojaOpen(true)}>⚲</button>
+        <button className="wquitar" disabled={!fAct} title={fAct?"Quitar filtro":"No hay nada filtrado"} onClick={()=>setFiltroG(FILTRO_VACIO)}>
+          <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M2.5 3.5h13l-5 6v5.5l-3 1.5v-7z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
+            <path d="M12.6 12.6l5 5M17.6 12.6l-5 5" stroke={fAct?"#dc2626":"currentColor"} strokeWidth="2" strokeLinecap="round"/></svg></button>
+      </div>
+      {fAct && <div className="mftxt">🎚 {textoFiltro(filtroG)}</div>}
+    </header>}
+    {wide && <header className="top wtop">
+      <div className="wrow">
+        <b className="wtit">Avance de Obra</b>
+        <span className="wgrp">{MODS.map(m=><button key={m} className={"wchip"+(modulo===m?" on":"")} onClick={()=>cambiarArea(m,nivel)}>{mLbl(m)}</button>)}</span>
+        <span className="wgrp">{NIVS.map(([code,nom])=>{const c=cnt(modulo,code);
+          return <button key={code} className={"wchip"+(nivel===code?" on":"")} onClick={()=>cambiarArea(modulo,code)}>{nom}{c?<span className="cbadge">{c}</span>:null}</button>;})}</span>
+        <span className="winf">{infBtns}</span>
+        <MenuUsuario user={user} data={data} onPerfil={()=>setPerfilOpen(true)} onPwd={()=>setPwOpen(true)} onUsuarios={()=>setUsersOpen(true)}
+            onQR={()=>setQrOpen(true)} onMatriz={()=>setMatrizOpen(true)} onLogout={logout} onImportar={()=>setImpOpen(true)}/>
+      </div>
+      <div className={"wrow wfil"+(fAct?" act":"")}><span className="wfl">
+        <MultiFiltro label="Elemento" opciones={opcFiltro.elementos} valor={filtroG.elementos} onChange={v=>setFiltroG(f=>({...f,elementos:v}))}/>
+        {etBtns}
+        <MultiFiltro label="Rubro" opciones={opcFiltro.rubros} valor={filtroG.rubros} onChange={v=>setFiltroG(f=>({...f,rubros:v}))} grupos={grupoRubro}/>
+        <button className="wquitar" disabled={!fAct} title={fAct?"Quitar filtro":"No hay nada filtrado"} onClick={()=>setFiltroG(FILTRO_VACIO)}>
+          <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M2.5 3.5h13l-5 6v5.5l-3 1.5v-7z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
+            <path d="M12.6 12.6l5 5M17.6 12.6l-5 5" stroke={fAct?"#dc2626":"currentColor"} strokeWidth="2" strokeLinecap="round"/></svg></button>
+        </span>
+        <span className="wftxt">{fAct?"🎚 "+textoFiltro(filtroG):""}</span><span></span>
+      </div>
+    </header>}
+    {!wide && !movil && <React.Fragment>
     <header className="top">
       <div className="row">
         <div>
@@ -5026,12 +5305,12 @@ function App(){
         <button className={mode==="botones"?"active":""} onClick={()=>setMode("botones")}>🔢 Locales</button></span>
       <span className="tgrp fg">
         <MultiFiltro label="Elemento" opciones={opcFiltro.elementos} valor={filtroG.elementos} onChange={v=>setFiltroG(f=>({...f,elementos:v}))}/>
-        <MultiFiltro label="Etapa" opciones={opcFiltro.etapas} valor={filtroG.etapas} onChange={v=>setFiltroG(f=>({...f,etapas:v}))}/>
+        {etBtns}
         <MultiFiltro label="Rubro" opciones={opcFiltro.rubros} valor={filtroG.rubros} onChange={v=>setFiltroG(f=>({...f,rubros:v}))} grupos={grupoRubro}/>
         </span>{/* v2: se sacó 🔎 Filtros (la lista para cambiar estados en bloque); el panel sigue en el código */}
       <span className="tgrp rep">
         <button onClick={()=>setReporteOpen(true)}>📊 Informe de avance</button>
-        {(user.rol==="admin"||user.rol==="editor") && <button onClick={()=>setRepEtapaOpen(true)}>🧾 Informe de etapa</button>}
+        {(user.rol==="admin"||user.rol==="editor") && <button onClick={()=>setRepEtapaOpen(true)}>🧾 Inspecciones</button>}
         {MATRIZ_V2 && <button onClick={()=>v2Biblioteca({user})}>📂 Documentos</button>}</span>
       <span className="tgrp tadm">
         {user.rol==="admin" && <button onClick={()=>setQrOpen(true)}>🔳 QR</button>}
@@ -5069,6 +5348,7 @@ function App(){
         </span>); })()}
       {fAct && !MATRIZ_V2 && <span className="fresumen">🎚 {textoFiltro(filtroG)}</span>}
     </div>
+    </React.Fragment>}
 
     {calib && (
       <div className="calibbar">
@@ -5115,34 +5395,43 @@ function App(){
     {(mode==="plano"||s3) && (
       area.plano_url ? (
         <div>
-          {!calib && <div className="verbar">
+          {!calib && !wide && !movil && !(s3&&mode==="botones") && <div className="verbar">
             <span className="lbl">Cómo ver:</span>
             <button className={"vchip"+(planoVer==="todos"?" on":"")} onClick={()=>setPlanoVer("todos")}>Ver todos los tabiques</button>
             <button className={"vchip"+(planoVer==="local"?" on":"")} onClick={()=>setPlanoVer("local")}>Solo número de local</button>
           </div>}
-          <div className={"planolayout"+(s3?" s3":"")} style={s3?{"--s3plan":s3w.plan+"%","--s3lista":s3w.lista+"px"}:null}><div className="planocol">
+          <div className={"planolayout"+(s3?" s3":"")} style={s3?{"--s3plan":s3w.plan+"%","--s3lista":s3w.lista+"px"}:null}><div className={"planocol"+(s3&&mode==="botones"?" verlocales":"")}>
+          {s3&&mode==="botones" && renderBotones()}
           <div className={"planobox"+(MATRIZ_V2&&fAct?" filtrado":"")}>
           {/* rev17: en pantalla grande, "Cómo ver" flota arriba a la izquierda del plano */}
-          {!calib && <div className="ver-over">
+          {!calib && !wide && !movil && <div className="ver-over">
             <button className={"vchip"+(planoVer==="local"?" on":"")} onClick={()=>setPlanoVer("local")}>Solo N° de local</button>
             <button className={"vchip"+(planoVer==="todos"?" on":"")} onClick={()=>setPlanoVer("todos")}>Ver todos los tabiques</button>
+          </div>}
+          {!calib && (wide||movil) && <div className="ver-over w1">
+            <button className={"vchip"+(planoVer==="todos"?" on":"")} title="Mostrar u ocultar los tabiques, solados y cielorrasos de todos los locales"
+              onClick={()=>setPlanoVer(v=>v==="todos"?"local":"todos")}>{planoVer==="todos"?"☑":"☐"} Todos los tabiques</button>
           </div>}
           {/* rev20: zoom del plano (los círculos mantienen su tamaño → al acercar se separan) */}
           <div className="zoombox">
             <button className="btn sm" title="Alejar" disabled={planoZoom<=1} onClick={()=>cambiarZoom(-1)}>−</button>
             <span>{Math.round(planoZoom*100)}%</span>
             <button className="btn sm" title="Acercar" disabled={planoZoom>=ZOOMS[ZOOMS.length-1]} onClick={()=>cambiarZoom(1)}>+</button>
+            {(wide||movil) && (user.rol==="admin"||user.rol==="editor") && <button className={"btn sm"+(calib?" primary":"")} title={calib?"Terminar calibración":"Calibrar el plano"}
+              onClick={()=>{setCalib(c=>!c);setCalibMsg("")}}>{calib?"✔":"⚙"}</button>}
           </div>
-          <div ref={planoWrapRef} onTouchStart={MATRIZ_V2?pinchIni:undefined} onTouchMove={MATRIZ_V2?pinchMov:undefined} className={(MATRIZ_V2?"v2pinch ":"")+"planowrap"+(planoVert&&planoZoom===1?" vert":"")+(planoZoom>1?" zoomed":"")}>
+          <div ref={planoWrapRef} onTouchStart={MATRIZ_V2?pinchIni:undefined} onTouchMove={MATRIZ_V2?pinchMov:undefined} onTouchEnd={MATRIZ_V2?swipeFin:undefined}
+               onPointerDown={MATRIZ_V2?swipeMouseIni:undefined} onPointerUp={MATRIZ_V2?swipeMouseFin:undefined} className={(MATRIZ_V2?"v2pinch ":"")+"planowrap"+(planoVert&&planoZoom===1?" vert":"")+(planoZoom>1?" zoomed":"")}>
+            {swipeMsg && <div className="swipemsg">{swipeMsg}</div>}
             <div className="inner" style={{"--mk":mkPx+"px", ...(planoZoom>1?{width:(planoZoom*100)+"%"}:{})}}>
-            <img ref={imgRef} src={area.plano_url} alt="Plano" onClick={planoClick}
+            <img ref={imgRef} src={area.plano_url} alt="Plano" onClick={planoClick} draggable={false}
                  onLoad={e=>setPlanoVert(e.target.naturalHeight>e.target.naturalWidth)}
                  style={{cursor:calib&&calibSel?"crosshair":"default"}}/>
-            {localesArea.map(l=> (l.plano_x!=null&&l.plano_y!=null) && !(v2Partes&&tieneSC(l)) &&
+            {localesArea.map(l=> (l.plano_x!=null&&l.plano_y!=null) && !(v2L(l)&&tieneSC(l)) &&
               <Marker key={l.local_id} local={l} dim={calib&&calibSel&&calibSel!==l.local_id} fg={calib?null:filtroG}
                       onClick={()=>{ if(!calib) irLocal(l,null); }}/> )}
             {/* v2: solado y cielorraso como un cuadrado partido en el centro del local (C arriba, S abajo) */}
-            {v2Partes && localesArea.map(l=>{ if(l.plano_x==null||l.plano_y==null||!tieneSC(l)) return null;
+            {localesArea.map(l=>{ if(!v2L(l)||l.plano_x==null||l.plano_y==null||!tieneSC(l)) return null;
               const C=l.partes.find(p=>p.tipo==="CIELORRASO"), S=l.partes.find(p=>p.tipo==="SOLADO");
               const ok=p=>p&&(!fAct||hojasFiltradas(p,filtroG)!==null);
               const col=p=>fAct?colorEstF(estadoParteF(p,filtroG)):colorParte(p);
@@ -5153,10 +5442,10 @@ function App(){
                   onClick={()=>{ if(ok(p)) irLocal(l,p.parte_id); }}>{ok(p)?t:""}</div>)}</div>; })}
             {/* rev22: 💬 sobre los locales con comentarios abiertos — v2: siempre arriba a la derecha de su local y por encima de todo */}
             {!calib && localesArea.map(l=> (l.plano_x!=null&&l.plano_y!=null&&comsPorLocal[l.local_id]) ?
-              <span key={"c::"+l.local_id} className={"mkcom"+(MATRIZ_V2?(v2Partes&&tieneSC(l)?" v2 sq":" v2"):"")} style={{left:l.plano_x+"%",top:l.plano_y+"%"}}>💬</span> : null)}
-            {(calib || planoVer==="todos") && localesArea.flatMap(l=>l.partes.filter(p=>p.plano_x!=null&&p.plano_y!=null)
+              <span key={"c::"+l.local_id} className={"mkcom"+(MATRIZ_V2?(v2L(l)&&tieneSC(l)?" v2 sq":" v2"):"")} style={{left:l.plano_x+"%",top:l.plano_y+"%"}}>💬</span> : null)}
+            {localesArea.flatMap(l=>!(calib||planoVer==="todos"||v2L(l))?[]:l.partes.filter(p=>p.plano_x!=null&&p.plano_y!=null)
               .filter(p=>calib||!fAct||hojasFiltradas(p,filtroG)!==null)   // rev22: con filtro, solo los elementos filtrados
-              .filter(p=>!(v2Partes&&(p.tipo==="SOLADO"||p.tipo==="CIELORRASO")))   // v2: S y C van en el cuadrado del centro
+              .filter(p=>!(v2L(l)&&(p.tipo==="SOLADO"||p.tipo==="CIELORRASO")))   // v2: S y C van en el cuadrado del centro
               .map(p=>(
               <div key={l.local_id+"::"+p.parte_id}
                    className={"pmarker"+(calib&&calibTarget===p.parte_id?" sel":"")+(calib&&calibSel&&calibSel!==l.local_id?" dim":"")}
@@ -5188,14 +5477,20 @@ function App(){
           {/* rev16: lista lateral de locales (solo se ve en pantalla grande / TV) */}
           <div className="planoside">
             <div className="ps-tit">Locales del sector <span>{localesArea.length}</span></div>
+            {wide && <input className="ps-q" placeholder="🔍 Buscar local…" value={psQ} onChange={e=>setPsQ(e.target.value)}/>}
             {[...localesArea].sort((a,b)=>(a.numero||"").localeCompare(b.numero||"",'es',{numeric:true}))
-              .filter(l=>!fAct||localEnFiltro(l,filtroG)).map(l=>{const p=fAct?pctLocalF(l,filtroG):avancePct(l);   // rev22
+              .filter(l=>!fAct||localEnFiltro(l,filtroG))
+              .filter(l=>!psQ.trim()||((l.numero||"")+" "+(l.nombre||"")).toLowerCase().includes(psQ.trim().toLowerCase()))
+              .map(l=>{const p=fAct?pctLocalF(l,filtroG):avancePct(l);   // rev22
+              const habil=wide&&l.partes.length&&l.partes.every(x=>x.habilitado_final==="SI");
               return <button key={l.local_id} className={"ps-item"+(sel&&sel.local_id===l.local_id?" on":"")} onClick={()=>{ if(!calib) irLocal(l,null); }}>
                 <span className="ps-dot" style={{background:fAct?colorEstF(estadoLocalF(l,filtroG)):colorLocal(l)}}></span>
                 <span className="ps-num">{l.numero}</span>
                 <span className="ps-nom">{l.nombre}</span>
                 {comsPorLocal[l.local_id] ? <span className="pscom">💬{comsPorLocal[l.local_id]}</span> : null}
                 <b style={{color:colorPct(p)}}>{p}%</b>
+                {wide && <span className="ps-bar"><span style={{width:p+"%",background:colorPct(p)}}></span></span>}
+                {habil ? <span className="ps-hab">✓ Habilitado</span> : null}
               </button>;})}
           </div>
           </div>
@@ -5209,42 +5504,7 @@ function App(){
       )
     )}
 
-    {mode==="botones" && !s3 && (
-      localesArea.length? (()=>{
-        const q=filtro.trim().toLowerCase();
-        const base=fAct? localesArea.filter(l=>localEnFiltro(l,filtroG)) : localesArea;   // rev22: sigue al filtro general
-        const lista=q? base.filter(l=>((l.numero||"")+" "+(l.nombre||"")).toLowerCase().includes(q)) : base;
-        return (
-        <div>
-          <div className="buscador">
-            <span className="bicon">🔍</span>
-            <input placeholder="Buscar local por número o nombre…" value={filtro} onChange={e=>setFiltro(e.target.value)}/>
-            {filtro && <button className="bx" onClick={()=>setFiltro("")} title="Limpiar">×</button>}
-            <span className="bcount">{lista.length} de {localesArea.length}</span>
-          </div>
-          {lista.length? (
-          <div className="grid">
-          {lista.map(l=>{const p=fAct?pctLocalF(l,filtroG):avancePct(l);
-            const habil=l.partes.length && l.partes.every(x=>x.habilitado_final==="SI");
-            return (
-            <div className="card" key={l.local_id} onClick={()=>setSel(l)}>
-              <div className="name-lg">{l.nombre}{comsPorLocal[l.local_id]?<span className="ccom" title="Comentarios abiertos">💬 {comsPorLocal[l.local_id]}</span>:null}</div>
-              <div className="num-sm">Local {l.numero}</div>
-              <div className="track"><div className="fill" style={{width:p+"%",background:colorPct(p)}}></div></div>
-              <div className="pctlbl"><span>{l.partes.length} partes</span><b style={{color:colorPct(p)}}>{p}%</b></div>
-              <span className={"badge "+(habil?"hab":"nohab")}>{habil?"Habilitado":"En obra"}</span>
-            </div>
-          )})}
-          </div>
-          ) : <div className="planowrap"><div className="noplano"><p>{filtro?<React.Fragment>No hay locales que coincidan con “{filtro}”.</React.Fragment>:"No hay locales en este sector que coincidan con el filtro."}</p></div></div>}
-        </div>);
-      })() : (
-        <div className="planowrap"><div className="noplano">
-          <p style={{fontSize:15,fontWeight:600,color:"#334155"}}>{mNom(modulo)} · {nNom(nivel)} todavía no tiene locales cargados.</p>
-          <p>A medida que sumes sectores, van a aparecer acá como botones.</p>
-        </div></div>
-      )
-    )}
+    {mode==="botones" && !s3 && renderBotones()}
 
     {sel && !s3 && renderLocal(false)}
     {pwOpen && <CambiarPwd onClose={()=>setPwOpen(false)}/>}
@@ -5252,15 +5512,16 @@ function App(){
     {hojaOpen && <FiltroHoja opc={opcFiltro} filtro={filtroG} setFiltro={setFiltroG} onClose={()=>setHojaOpen(false)}/>}
     {repEtapaOpen && <ReporteEtapaPanel data={data} user={user} modulo={modulo} nivel={nivel} onClose={()=>setRepEtapaOpen(false)} onPerfil={()=>setPerfilOpen(true)}/>}
     {MATRIZ_V2 && <nav className="bnav">
-      <button className={mode==="plano"&&!calib?"on":""} onClick={()=>{ setCalib(false); setMode("plano"); }}><b>🗺️</b>Plano</button>
-      <button className={mode==="botones"?"on":""} onClick={()=>{ setCalib(false); setMode("botones"); }}><b>🔢</b>Locales</button>
+      {mode==="botones"
+        ? <button onClick={()=>{ setCalib(false); setMode("plano"); }} title="Ver el plano"><b>🗺️</b>Ver plano</button>
+        : <button onClick={()=>{ setCalib(false); setMode("botones"); }} title="Ver la lista de locales"><b>🔢</b>Ver locales</button>}
       <button onClick={()=>setRepElegir(true)}><b>📊</b>Informes</button>
-      {(user.rol==="admin"||user.rol==="editor") && area.plano_url && <button className={calib?"on":""} onClick={()=>{ setMode("plano"); setCalib(c=>!c); setCalibMsg(""); }}><b>⚙</b>{calib?"Terminar":"Calibrar"}</button>}
+      {!movil && (user.rol==="admin"||user.rol==="editor") && area.plano_url && <button className={calib?"on":""} onClick={()=>{ setMode("plano"); setCalib(c=>!c); setCalibMsg(""); }}><b>⚙</b>{calib?"Terminar":"Calibrar"}</button>}
     </nav>}
     {repElegir && <div className="overlay fh-ov" onClick={e=>{ if(e.target===e.currentTarget) setRepElegir(false); }}><div className="fh">
       <div className="fh-list" style={{padding:12,display:"flex",flexDirection:"column",gap:8}}>
         <button className="btn" style={{padding:14,fontSize:15}} onClick={()=>{ setRepElegir(false); setReporteOpen(true); }}>📊 Informe de avance</button>
-        {(user.rol==="admin"||user.rol==="editor") && <button className="btn primary" style={{padding:14,fontSize:15}} onClick={()=>{ setRepElegir(false); setRepEtapaOpen(true); }}>🧾 Informe de etapa (Procore)</button>}
+        {(user.rol==="admin"||user.rol==="editor") && <button className="btn primary" style={{padding:14,fontSize:15}} onClick={()=>{ setRepElegir(false); setRepEtapaOpen(true); }}>🧾 Inspecciones (Procore)</button>}
         {MATRIZ_V2 && <button className="btn" style={{padding:14,fontSize:15}} onClick={()=>{ setRepElegir(false); v2Biblioteca({user}); }}>📂 Documentos</button>}
       </div></div></div>}
     {usersOpen && <UsuariosPanel user={user} onClose={()=>setUsersOpen(false)}/>}
@@ -5287,10 +5548,10 @@ function App(){
       </div>
     )}
 
-    <div className="foot">
+    {!wide && !movil && <div className="foot">
       Avance de Obra · beta {ONLINE?"· en línea (Supabase)":"· MODO DEMO (datos de ejemplo)"}
       <span style={{marginLeft:8,fontSize:11.5,fontWeight:700,color:"#475569",background:"#e2e8f0",borderRadius:99,padding:"2px 8px"}}>Rev. {APP_REV.replace(/^rev/,"")}</span>
-    </div>
+    </div>}
   </div>
   </ComCtx.Provider>
   );
