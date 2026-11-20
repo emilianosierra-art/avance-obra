@@ -614,6 +614,7 @@
 .wtop .wquitar{border:0;background:#fff;color:#1e3a5f;border-radius:8px;width:34px;height:30px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
 .wtop .wquitar:disabled{background:rgba(255,255,255,.18);color:rgba(255,255,255,.5);cursor:default}
 .wtop .winf{display:inline-flex;gap:4px;margin-left:auto}
+@media (max-width:1750px){.wtop .winf .ibt{display:none}.wtop .winf button{font-size:16px;padding:4px 9px}}
 .wtop .winf button,.ps-inf button{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:8px;padding:5px 9px;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap}
 .app.wide .planoside{display:flex}
 .ps-inf{display:flex;gap:4px;flex-wrap:wrap;padding-bottom:6px;border-bottom:1px solid var(--line);margin-bottom:2px}
@@ -649,6 +650,34 @@
 .mtop .wquitar:disabled{background:rgba(255,255,255,.18);color:rgba(255,255,255,.5);cursor:default}
 .mtop .mftxt{margin-top:6px;text-align:center;font-size:15px;font-weight:800;color:#fbbf24;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .app.movil .ver-over.w1{display:flex}
+.app.movil .bnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:35;background:#fff;border-top:1px solid var(--line);box-shadow:0 -2px 12px rgba(15,23,42,.12);padding:4px 4px calc(4px + env(safe-area-inset-bottom))}
+.app.movil .bnav button{flex:1;border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;font-size:11px;font-weight:700;color:var(--muted)}
+.app.movil .bnav button b{font-size:19px;line-height:1}
+.app.movil{padding-bottom:76px}
+.app.movil .um-movil{display:block}
+/* 💬 Comentarios de la obra */
+.cobra .mbody{display:flex;flex-direction:column;gap:12px}
+.cobra-f{display:flex;gap:8px;flex-wrap:wrap;align-items:center;position:sticky;top:0;background:#fff;z-index:2;padding:4px 0 8px}
+.cobra-f .seg{display:inline-flex}.cobra-f .seg button{border:1px solid var(--line);background:#fff;padding:6px 11px;font-weight:700;font-size:13px;cursor:pointer;margin-left:-1px}
+.cobra-f .seg button:first-child{border-radius:8px 0 0 8px;margin-left:0}.cobra-f .seg button:last-child{border-radius:0 8px 8px 0}
+.cobra-f .seg button.on{background:#1e3a5f;color:#fff;border-color:#1e3a5f}
+.cobra-f select,.cobra-f input{border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:13px}.cobra-f input{flex:1;min-width:160px}
+.cobra-l{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.cobra-lh{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#f1f5f9;padding:8px 12px;font-size:14px}.cobra-lh span{font-size:12px;color:var(--muted)}
+.cobra-c{padding:9px 12px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:4px}
+.cobra-c.sup{opacity:.65}
+.cobra-ref{font-size:11.5px;color:#475569;font-weight:700;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.cobra-tx{font-size:14px;white-space:pre-wrap}
+.cobra-me{font-size:11.5px;color:var(--muted)}
+.cobra-rs{margin-left:14px;border-left:3px solid #cbd5e1;padding-left:9px;display:flex;flex-direction:column;gap:6px}
+.cobra-r{background:#f8fafc;border-radius:7px;padding:5px 8px}
+.cobra-acc{display:flex;justify-content:flex-end}
+.cobra .cfoto{max-width:220px;border-radius:8px}
+/* aviso de comentarios abiertos antes de la inspección */
+.rci{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer}
+.rci input{margin-top:3px;width:18px;height:18px;flex:0 0 auto}
+.rci>span{display:flex;flex-direction:column;gap:3px}
+.rci-ref{font-size:11.5px;font-weight:700;color:#475569}.rci-tx{font-size:14px}.rci-r{font-size:12.5px;color:#334155;margin-left:8px}.rci-me{font-size:11.5px;color:var(--muted)}
 .app.wide .um-movil{display:block}   /* PC/TV: QR y Configuración matriz van en el menú del avatar (ya no hay barra de pestañas) */
 .app.wide .planobox,.app.movil .planobox{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
 .app.wide .planobox>.ver-over.w1,.app.movil .planobox>.ver-over.w1,.app.wide .planobox>.zoombox,.app.movil .planobox>.zoombox{position:static;box-shadow:none;background:transparent;padding:0;flex-direction:row}
@@ -901,6 +930,10 @@ body.wfija .planolayout:not(.s3)>.planoside{position:sticky;top:calc(var(--hdrh,
 .fv2 .pan-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .fv2 .pan select{border:1px solid #cbd5e1;border-radius:8px;padding:6px 8px;font-size:12.5px;max-width:100%}
 .fv2 .cmt{border:1px solid #e2e8f0;border-radius:9px;padding:7px 9px;display:flex;flex-direction:column;gap:3px}
+.fv2 .cresp{margin-left:14px;border-left:3px solid #cbd5e1;padding-left:9px;display:flex;flex-direction:column;gap:6px;margin-top:2px}
+.fv2 .crr{background:#f8fafc;border-radius:7px;padding:5px 8px}
+.fv2 .crr img{max-width:160px;border-radius:6px;margin-top:4px}
+.fv2 .cresp textarea{width:100%;box-sizing:border-box}
 .fv2 .cmt.sup{opacity:.6;background:#f1f5f9}
 .fv2 .cmt.sup .tx{text-decoration:line-through;color:#64748b}
 .fv2 .cmt .tx{font-size:13px;white-space:pre-wrap}
@@ -1809,6 +1842,41 @@ const v2perfiles={};   // email -> {titulo:"Arq."|"Ing."|"", firma:dataURL}  (en
 /* firmar en el momento al generar informes: ventana con un recuadro para firmar (dedo, lápiz o mouse).
    Devuelve la firma (imagen), null = sin firma, undefined = canceló. Se puede usar la firma guardada en Mi perfil
    o guardar la nueva como propia. */
+/* v2: antes de generar una inspección, mostrar los comentarios abiertos de ese elemento y etapa (van en el PDF)
+   y dar la opción de cerrarlos. Devuelve la lista de comentarios actualizada, o null si se canceló. */
+function v2RevisarComsInsp({coms,ids,et,elNom,puedeCerrar}){ return new Promise(res=>{
+  const ab=(coms||[]).filter(c=>!c.parent_id&&!c.cerrado&&ids.indexOf(c.parte_id)>=0&&c.ref&&(c.ref===et||c.ref.indexOf(et+" › ")===0));
+  if(!ab.length) return res(coms||[]);
+  const raiz=document.querySelector(".app")||document.body;
+  const ov=document.createElement("div"); ov.className="overlay"; ov.style.zIndex=90;
+  const resps=id=>(coms||[]).filter(r=>r.parent_id===id);
+  ov.innerHTML=`<div class="modal" style="max-width:620px;width:94%"><div class="mhead"><div><h2>💬 Hay ${ab.length} comentario${ab.length>1?"s":""} abierto${ab.length>1?"s":""}</h2>
+      <div style="font-size:12px;opacity:.85">${v2esc(elNom)} · ${v2esc(et)} — los comentarios abiertos <b>salen en la inspección</b>. Si alguno ya se resolvió, tildalo para cerrarlo antes de generar.</div></div></div>
+    <div class="mbody" style="display:flex;flex-direction:column;gap:8px">
+      ${ab.map((c,i)=>`<label class="rci"><input type="checkbox" data-i="${i}" ${puedeCerrar(c)?"":"disabled"}>
+        <span><span class="rci-ref">${v2esc(c.ref.split(" › ").slice(1).join(" › ")||"General")}</span><span class="rci-tx">${v2esc(c.texto)}</span>
+        ${resps(c.id).map(r=>`<span class="rci-r">↳ ${v2esc(r.autor_nombre||"")}: ${v2esc(r.texto)}</span>`).join("")}
+        <span class="rci-me">${v2esc(c.autor_nombre||c.autor_email||"")} · ${fmtFecha(c.editado_en||c.creado_en)}${puedeCerrar(c)?"":" · no podés cerrarlo"}</span></span></label>`).join("")}
+      <div class="rci-msg" style="font-size:12.5px;color:#b45309;min-height:16px"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+        <button class="btn" data-a="cancelar">Cancelar</button>
+        <button class="btn primary" data-a="ok">Generar inspección</button></div>
+    </div></div>`;
+  raiz.appendChild(ov);
+  const btn=ov.querySelector('[data-a="ok"]'), msg=ov.querySelector(".rci-msg");
+  const marc=()=>[...ov.querySelectorAll("input[data-i]:checked")].map(x=>ab[+x.dataset.i]);
+  const act=()=>{ const n=marc().length, quedan=ab.length-n;
+    btn.textContent=n?("Cerrar "+n+" y generar"+(quedan?" ("+quedan+" abierto"+(quedan>1?"s":"")+" en la inspección)":"")):("Generar con "+ab.length+" abierto"+(ab.length>1?"s":"")); };
+  ov.addEventListener("change",act); act();
+  const fin=v=>{ ov.remove(); res(v); };
+  ov.querySelector('[data-a="cancelar"]').onclick=()=>fin(null);
+  btn.onclick=async()=>{ const sel=marc(); btn.disabled=true; let lista=(coms||[]).slice();
+    for(const c of sel){ msg.textContent="Cerrando comentarios…"; const r=await apiCerrarComentario(c.id,true);
+      if(!r.ok){ msg.textContent="No se pudo cerrar un comentario: "+r.error; btn.disabled=false; return; }
+      const patch=Object.assign({cerrado:true},r.row||{}); lista=lista.map(x=>x.id===c.id?Object.assign({},x,patch):x);
+      if(window.__comCtx) window.__comCtx.actualizar(c.id,patch); }
+    fin(lista); };
+}); }
 function v2PedirFirma(user,n){ return new Promise(res=>{
   const guardada=v2perfilDe(user).firma; const raiz=document.querySelector(".app")||document.body;
   const ov=document.createElement("div"); ov.className="overlay"; ov.style.zIndex=90;
@@ -2573,10 +2641,7 @@ async function iaPDF({data,R,titulo,fg,user}){
   sec("Inspecciones (Procore)");
   [["Etapas completas, listas para informe",R.informes.listos],["Informes generados",R.informes.gen],["Cargados en Procore",R.informes.carg],["Pendientes de cargar",R.informes.pend]]
     .forEach(([k,v])=>{ ensure(14); txt(k,M,y-10,{size:9}); txt(String(v),M+260,y-10,{b:true,size:9}); y-=14; });
-  sec("Comentarios vigentes");
-  if(!R.comsLista.length){ txt("No hay comentarios vigentes.",M,y-10,{size:9,c:GR}); y-=16; }
-  R.coms.forEach(c=>{ ensure(14); txt(c.nom,M,y-10,{size:9}); txt(String(c.n),M+260,y-10,{b:true,size:9}); y-=14; }); y-=6;
-  R.comsLista.forEach(c=>{ const ws=rpTx(c.texto).split(/\s+/); const ln=[]; let l=""; ws.forEach(w=>{ const t=l?l+" "+w:w; if(fR.widthOfTextAtSize(t,8.5)>pw-150){ ln.push(l); l=w; } else l=t; }); if(l) ln.push(l);
+  if(false) R.comsLista.forEach(c=>{   // v2: los comentarios salieron del informe de avance (ver 💬 Comentarios) const ws=rpTx(c.texto).split(/\s+/); const ln=[]; let l=""; ws.forEach(w=>{ const t=l?l+" "+w:w; if(fR.widthOfTextAtSize(t,8.5)>pw-150){ ln.push(l); l=w; } else l=t; }); if(l) ln.push(l);
     ensure(14+ln.length*10); txt(c.loc+" · "+c.el,M,y-10,{b:true,size:8.5}); { let r=rpTx(c.ref); while(r.length>4&&fR.widthOfTextAtSize(r,7)>140) r=r.slice(0,-2); if(r!==rpTx(c.ref)) r=r.replace(/\s*\S?$/,"")+"…"; txt(r,M,y-20,{size:7,c:GR}); }
     ln.forEach((s,i)=>txt(s,M+150,y-10-i*10,{size:8.5})); txt(c.autor+" · "+(rpFecha(c.fecha)||""),M+150,y-12-ln.length*10,{size:7,c:GR});
     y-=Math.max(26,ln.length*10+14); pg.drawLine({start:{x:M,y:y+3},end:{x:A4[0]-M,y:y+3},thickness:0.4,color:LI}); });
@@ -2613,7 +2678,7 @@ function InformeAvancePanel({data,user,modulo,nivel,filtro,opc,onClose}){
           <div><b style={{color:colorPct(R.general)}}>{R.general}%</b><span>avance {filtroActivo(fg)?"de lo filtrado":"general"}</span></div>
           <div><b>{R.informes.listos}</b><span>etapas completas, listas para informe</span></div>
           <div><b>{R.informes.carg}</b><span>informes cargados en Procore</span></div>
-          <div><b>{R.comsLista.length}</b><span>comentarios vigentes</span></div></div>
+</div>
         <h4>Por sector</h4>{R.sectores.filter(s=>s.hay).map(s=><Bar key={s.nom} nom={s.nom} pct={s.pct} extra={s.n+" locales"}/>)}
         <h4>Por elemento</h4>{R.elementos.map(e=><Bar key={e.nom} {...e}/>)}
         <h4>Por etapa</h4>{R.etapas.map(e=><Bar key={e.nom} nom={e.nom} pct={e.pct} extra={e.comp+" de "+e.tot+" completas"}/>)}
@@ -2621,11 +2686,52 @@ function InformeAvancePanel({data,user,modulo,nivel,filtro,opc,onClose}){
         <h4>Locales más atrasados</h4>{R.atrasados.map(a=><Bar key={a.l.local_id} nom={a.l.modulo+"-"+a.l.nivel+" "+a.l.numero+" · "+(a.l.nombre||"")} pct={a.pct}/>)}
         <h4>Inspecciones (Procore)</h4>
         <div className="ia-inf"><span>Listas para informe <b>{R.informes.listos}</b></span><span>Generados <b>{R.informes.gen}</b></span><span>Cargados <b>{R.informes.carg}</b></span><span>Pendientes de cargar <b>{R.informes.pend}</b></span></div>
-        <h4>Comentarios vigentes</h4>
-        {!R.comsLista.length && <div className="cvacio">No hay comentarios vigentes.</div>}
-        {R.coms.map(c=><div key={c.nom} className="ia-cs">{c.nom}: <b>{c.n}</b></div>)}
-        <div className="ia-cl">{R.comsLista.map((c,i)=><div key={i}><b>{c.loc}</b> · {c.el} <small>{c.ref}</small><div>{c.texto}</div><small>{c.autor} · {rpFecha(c.fecha)}</small></div>)}</div>
       </div></div></div>;
+}
+
+/* v2: 💬 Comentarios — todos los comentarios de la obra ordenados por local, con sus respuestas y fotos */
+function ComentariosObraPanel({data,user,onClose,onIr}){
+  const comCtx=React.useContext(ComCtx);
+  const [ver,setVer]=useState("abiertos"); const [q,setQ]=useState(""); const [sector,setSector]=useState("todos");
+  const coms=comCtx.coms||[];
+  const locById={}; data.locales.forEach(l=>locById[l.local_id]=l);
+  const pById={}; data.locales.forEach(l=>l.partes.forEach(p=>pById[p.parte_id]=p));
+  const ordM=m=>{ const i=MODS.indexOf(m); return i<0?99:i; }, ordN=n=>{ const i=NIVS.findIndex(x=>x[0]===n); return i<0?99:i; };
+  const elNom=pid=>{ const p=pById[pid]; if(!p) return ""; return p.tipo==="TABIQUE"?"Tabique "+(p.numero||p.nombre||""):(p.tipo==="SOLADO"?"Solado":p.tipo==="CIELORRASO"?"Cielorraso":(p.nombre||p.tipo)); };
+  const raiz=coms.filter(c=>!c.parent_id&&locById[c.local_id])
+    .filter(c=>ver==="todos"||(ver==="abiertos"?!c.cerrado:!!c.cerrado))
+    .filter(c=>{ if(sector==="todos") return true; const l=locById[c.local_id]; return (l.modulo+"·"+l.nivel)===sector; })
+    .filter(c=>{ const t=q.trim().toLowerCase(); if(!t) return true; const l=locById[c.local_id]; const rs=coms.filter(r=>r.parent_id===c.id);
+      return [l.numero,l.nombre,c.texto,c.ref,c.autor_nombre,...rs.map(r=>r.texto)].join(" ").toLowerCase().includes(t); });
+  const grupos={}; raiz.forEach(c=>{ (grupos[c.local_id]=grupos[c.local_id]||[]).push(c); });
+  const lids=Object.keys(grupos).sort((a,b)=>{ const A=locById[a],B=locById[b];
+    return ordM(A.modulo)-ordM(B.modulo)||ordN(A.nivel)-ordN(B.nivel)||String(A.numero||"").localeCompare(String(B.numero||""),"es",{numeric:true}); });
+  const sectores=[...new Set(data.locales.map(l=>l.modulo+"·"+l.nivel))].sort((a,b)=>{ const [ma,na]=a.split("·"),[mb,nb]=b.split("·"); return ordM(ma)-ordM(mb)||ordN(na)-ordN(nb); });
+  const nAb=coms.filter(c=>!c.parent_id&&!c.cerrado&&locById[c.local_id]).length;
+  return <div className="overlay" onClick={e=>{ if(e.target===e.currentTarget) onClose(); }}><div className="modal cobra" style={{maxWidth:820}}>
+    <div className="mhead"><div><h2>💬 Comentarios</h2><div style={{fontSize:12,opacity:.85}}>{nAb} abiertos en toda la obra · ordenados por local</div></div><button className="btn sm" onClick={onClose}>✕</button></div>
+    <div className="mbody">
+      <div className="cobra-f">
+        <span className="seg">{[["abiertos","Abiertos"],["cerrados","Superados"],["todos","Todos"]].map(([k,t])=><button key={k} className={ver===k?"on":""} onClick={()=>setVer(k)}>{t}</button>)}</span>
+        <select value={sector} onChange={e=>setSector(e.target.value)}><option value="todos">Todos los sectores</option>{sectores.map(sx=>{ const [m,n]=sx.split("·"); return <option key={sx} value={sx}>{mNom(m)} · {nNom(n)}</option>; })}</select>
+        <input placeholder="🔍 Buscar (local, texto, autor…)" value={q} onChange={e=>setQ(e.target.value)}/>
+      </div>
+      {!lids.length && <div className="cvacio">No hay comentarios {ver==="abiertos"?"abiertos":ver==="cerrados"?"superados":""}{q||sector!=="todos"?" con ese filtro":""}.</div>}
+      {lids.map(lid=>{ const l=locById[lid]; return <div key={lid} className="cobra-l">
+        <div className="cobra-lh"><b>{l.numero} · {l.nombre}</b><span>{mNom(l.modulo)} · {nNom(l.nivel)}</span><span style={{flex:1}}></span>
+          <button className="btn sm" onClick={()=>{ onClose(); onIr(l,null); }}>Abrir local ›</button></div>
+        {grupos[lid].sort((a,b)=>(!!a.cerrado-!!b.cerrado)||String(a.creado_en).localeCompare(String(b.creado_en))).map(c=>{ const rs=coms.filter(r=>r.parent_id===c.id).sort((a,b)=>String(a.creado_en).localeCompare(String(b.creado_en)));
+          return <div key={c.id} className={"cobra-c"+(c.cerrado?" sup":"")}>
+            <div className="cobra-ref">{elNom(c.parte_id)}{c.ref?" · "+c.ref:""}{c.cerrado?<span className="supchip">Superado</span>:null}</div>
+            <div className="cobra-tx">{c.texto}</div>
+            {c.foto_path && <Foto path={c.foto_path}/>}
+            <div className="cobra-me">{c.autor_nombre||c.autor_email||""} · {fmtFecha(c.editado_en||c.creado_en)}</div>
+            {rs.length>0 && <div className="cobra-rs">{rs.map(r=><div key={r.id} className="cobra-r"><div className="cobra-tx">{r.texto}</div>{r.foto_path && <Foto path={r.foto_path}/>}
+              <div className="cobra-me">↳ {r.autor_nombre||r.autor_email||""} · {fmtFecha(r.editado_en||r.creado_en)}</div></div>)}</div>}
+            <div className="cobra-acc"><button className="btn sm" onClick={()=>{ onClose(); onIr(l,c.parte_id); }}>Ver en el local ›</button></div>
+          </div>; })}
+      </div>; })}
+    </div></div></div>;
 }
 
 function MultiFiltro({label,opciones,valor,onChange,grupos}){
@@ -3560,8 +3666,10 @@ function v2panel(key,P,U,coms,adjL){
         ${edit?`<textarea data-cedtxt="1" rows="3">${v2esc(c.texto)}</textarea><div class="pan-row"><span style="flex:1"></span><button class="btn sm" data-cedit="">Cancelar</button><button class="btn sm primary" data-cguardar="${c.id}">Guardar</button></div>`
           :`<div class="tx">${v2esc(c.texto)}</div>`}${c.foto_path?`<img data-foto="${v2esc(c.foto_path)}" alt="">`:""}
         <div class="me">${v2esc(c.autor_nombre||c.autor_email||"")} · ${fmtFecha(c.editado_en||c.creado_en)}${c.editado_en?" · editado":""}</div>
-        ${resp.map(r=>`<div class="me" style="margin-left:10px">↳ ${v2esc(r.autor_nombre||"")}: ${v2esc(r.texto)}</div>`).join("")}
+        ${resp.length?`<div class="cresp">${resp.sort((a,b)=>String(a.creado_en).localeCompare(String(b.creado_en))).map(r=>`<div class="crr"><div class="tx">${v2esc(r.texto)}</div>${r.foto_path?`<img data-foto="${v2esc(r.foto_path)}" alt="">`:""}<div class="me">↳ ${v2esc(r.autor_nombre||r.autor_email||"")} · ${fmtFecha(r.editado_en||r.creado_en)}</div></div>`).join("")}</div>`:""}
+        ${U.respCom===c.id?`<div class="cresp"><textarea data-rtxt="1" rows="2" placeholder="Escribí tu respuesta"></textarea><div class="pan-row"><span style="flex:1"></span><button class="btn sm" data-resp="">Cancelar</button><button class="btn sm primary" data-rpub="${c.id}">Responder</button></div></div>`:""}
         <div class="cacc">${c.cerrado?`<span class="supchip">Superado</span><span class="me">${v2esc(c.cerrado_por||"")} · ${fmtFecha(c.cerrado_en)}</span>`:""}<span style="flex:1"></span>
+          ${!c.cerrado&&U.respCom!==c.id?`<button class="cbtn" data-resp="${c.id}" data-tip="Contestar este comentario (sigue la conversación)">↩ Responder${resp.length?" ("+resp.length+")":""}</button>`:""}
           ${mio&&!edit&&!c.cerrado?`<button class="cbtn" data-cedit="${c.id}">✎ Editar</button>`:""}
           ${(P.comCtx&&P.comCtx.puedeCerrar(c))?`<button class="cbtn${c.cerrado?"":" cerrar"}" data-sup="${c.id}" data-tip="${c.cerrado?"Volver a dejarlo vigente":"Marcar como superado (ya se resolvió)"}">${c.cerrado?"↺ Reabrir":"Cerrar"}</button>`:""}</div></div>`; });
     if(P.editable||true) h+=`<textarea data-ctxt="1" rows="2" placeholder="Escribí un comentario"></textarea>
@@ -3724,6 +3832,11 @@ function v2click(e,P,U,redraw,root){
       const r=await apiComentar({local_id:P.local.local_id,parte_id:cx.pid,ref:cx.ref,texto:tx,foto_path:foto});
       if(r.ok){ const row=Object.assign({},r.row); if(!ONLINE){ row.autor_nombre=(P.user&&P.user.nombre)||row.autor_nombre; row.autor_id=(P.user&&P.user.id)||row.autor_id; } P.comCtx.agregar(row); U.imgPend=null; } else alert("No se pudo publicar: "+r.error);
     }catch(err){ alert(err.message||err); } redraw(); })(); return; }
+  const rsp=g("[data-resp]"); if(rsp){ const v=rsp.dataset.resp; U.respCom=v?(isNaN(+v)?v:+v):null; redraw(); if(v) setTimeout(()=>{ const t=root.querySelector("[data-rtxt]"); if(t) t.focus(); },30); return; }
+  const rp=g("[data-rpub]"); if(rp){ const c=(P.comCtx.coms||[]).find(x=>String(x.id)===rp.dataset.rpub); const ta=root.querySelector("[data-rtxt]"); const tx=(ta&&ta.value||"").trim(); if(!c||!tx) return; rp.disabled=true;
+    (async()=>{ try{ const r=await apiComentar({local_id:c.local_id||P.local.local_id,parte_id:c.parte_id,ref:c.ref,parent_id:c.id,texto:tx,foto_path:null});
+      if(r.ok){ const row=Object.assign({},r.row); if(!ONLINE){ row.autor_nombre=(P.user&&P.user.nombre)||row.autor_nombre; row.autor_id=(P.user&&P.user.id)||row.autor_id; } P.comCtx.agregar(row); U.respCom=null; } else alert("No se pudo responder: "+r.error);
+    }catch(err){ alert(err.message||err); } redraw(); })(); return; }
   const ce=g("[data-cedit]"); if(ce){ U.editCom=ce.dataset.cedit?(isNaN(+ce.dataset.cedit)?ce.dataset.cedit:+ce.dataset.cedit):null; redraw(); return; }
   const cgu=g("[data-cguardar]"); if(cgu){ const c=(P.comCtx.coms||[]).find(x=>String(x.id)===cgu.dataset.cguardar); const ta=root.querySelector("[data-cedtxt]"); const tx=(ta&&ta.value||"").trim(); if(!c||!tx) return;
     cgu.disabled=true; apiEditarComentario(c.id,tx).then(r=>{ if(r.ok){ P.comCtx.actualizar(c.id,{texto:(r.row&&r.row.texto!=null)?r.row.texto:tx,editado_en:(r.row&&r.row.editado_en)||new Date().toISOString()}); U.editCom=null; } else alert("No se pudo editar: "+r.error); redraw(); }); return; }
@@ -3874,16 +3987,18 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco,vecinos,
       const reg=await rpCargarReg(); const m=rpTabsInformados(reg,local.local_id,et);
       const tabs=await v2ElegirTabs(st.tsEst||[],m); if(!tabs) return;
       const el=v2elementos(draft.partes).find(x=>x.id==="TAB");
+      const comsT=await v2RevisarComsInsp({coms:(comCtx&&comCtx.coms)||[],ids:el.partes.map(p=>p.parte_id),et,elNom:"Tabiques "+tabs.join(", "),puedeCerrar:c=>comCtx.puedeCerrar(c)}); if(!comsT) return;
       const fAhora=await v2PedirFirma(user,1); if(fAhora===undefined) return;
       setMsg("Generando inspección…");
-      try{ const r=await rpGenerarVarios({items:[{l:l0,el,tabs}],et,data,user,cfg:rpCfg(),coms:(comCtx&&comCtx.coms)||[],firmaAhora:fAhora});
+      try{ const r=await rpGenerarVarios({items:[{l:l0,el,tabs}],et,data,user,cfg:rpCfg(),coms:comsT,firmaAhora:fAhora});
         setMsg("Inspección "+r[0].rec.num+" ("+r[0].rec.ts.join(", ")+") generada ✓ · queda en 🧾 Inspecciones › Generados"); }
       catch(e){ setMsg("Error: "+(e.message||e)); } return; }
     if(dirty){ setMsg("Guardá los cambios antes de generar la inspección."); return; }
     const l={...local,partes:draft.partes}; const el=v2elementos(draft.partes).find(x=>x.id===elId); if(!el) return;
+    const comsI=await v2RevisarComsInsp({coms:(comCtx&&comCtx.coms)||[],ids:el.partes.map(p=>p.parte_id),et,elNom:el.nom||elId,puedeCerrar:c=>comCtx.puedeCerrar(c)}); if(!comsI) return;
     const fAhora=await v2PedirFirma(user,1); if(fAhora===undefined) return;   // canceló la firma
     setMsg("Generando inspección…");
-    try{ const r=await rpGenerarVarios({items:[{l,el}],et,data,user,cfg:rpCfg(),coms:(comCtx&&comCtx.coms)||[],firmaAhora:fAhora});
+    try{ const r=await rpGenerarVarios({items:[{l,el}],et,data,user,cfg:rpCfg(),coms:comsI,firmaAhora:fAhora});
       setMsg("Inspección "+r[0].rec.num+" generada ✓ · queda en 🧾 Inspecciones › Generados"); }
     catch(e){ setMsg("Error: "+(e.message||e)); } }
   function irArriba(){ if(modalRef.current) modalRef.current.scrollTop=0; }
@@ -4897,7 +5012,7 @@ function App(){
   const MQC="(max-width:640px)";
   const [esCel,setEsCel]=useState(()=>window.matchMedia(MQC).matches);
   useEffect(()=>{ const m=window.matchMedia(MQC); const f=()=>setEsCel(m.matches); m.addEventListener("change",f); return ()=>m.removeEventListener("change",f); },[]);
-  const movil=MATRIZ_V2&&esCel&&!ancho3;
+  const movil=MATRIZ_V2&&!ancho3;   // celular y tablet (parada o chica): encabezado compacto y barra de abajo
   // al abrir un local con la pantalla dividida, la vista baja hasta las 3 columnas (que ocupan toda la altura)
   useEffect(()=>{ if(!sel||!ancho3) return; const t=setTimeout(()=>{ const e=document.querySelector(".planolayout.s3"); if(!e) return;
     const ap=document.querySelector(".app"), z=(ap&&parseFloat(getComputedStyle(ap).zoom))||1, hd=document.querySelector("header.top");
@@ -4986,6 +5101,7 @@ function App(){
     if(sel&&window.__lvSalir) window.__lvSalir(ir); else ir(); setSwipeMsg(mNom(MODS[j])); clearTimeout(swipeTRef.current); swipeTRef.current=setTimeout(()=>setSwipeMsg(""),1100); }
   function pinchMov(e){ if(e.touches.length!==2||!pinchRef.current) return; const d=distT(e.touches), r=d/pinchRef.current;
     if(r>1.25){ cambiarZoom(1); pinchRef.current=d; } else if(r<0.8){ cambiarZoom(-1); pinchRef.current=d; } }
+  const [comsOpen,setComsOpen]=useState(false);   // v2: 💬 Comentarios de toda la obra
   const [reporteOpen,setReporteOpen]=useState(false); // rev11: reporte de comentarios
   const [booting,setBooting]=useState(ONLINE);   // mientras chequea si ya hay sesión iniciada
   const pendingLocalRef=useRef(null);            // local_id a abrir por deep-link (QR)
@@ -5070,7 +5186,7 @@ function App(){
     const a=areas.find(x=>x.modulo===m&&x.nivel===n); setMode((a&&a.plano_url)?"plano":"botones"); }
 
   // rev11: comentarios compartidos por toda la app (contexto)
-  const comCtxVal = useMemo(()=>({
+  const comCtxVal = window.__comCtx = useMemo(()=>({
     coms:(data&&data.comentarios)||[],
     agregar:row=>setData(d=>({...d,comentarios:[...(d.comentarios||[]),row]})),
     actualizar:(id,patch)=>setData(d=>({...d,comentarios:(d.comentarios||[]).map(c=>c.id===id?{...c,...patch}:c)})),
@@ -5214,9 +5330,10 @@ function App(){
   const etBtns=<span className="etbtns"><span className="etl">Etapa</span>{V2_ETAPAS.map((e,i)=>{ const on=filtroG.etapas.length===1&&filtroG.etapas[0]===e;
           return <button key={e} className={on?"on":""} title={"Etapa "+(i+1)+" · "+e+(on?" (tocá de nuevo para sacar el filtro)":"")} onClick={()=>setFiltroG(f=>({...f,etapas:on?[]:[e]}))}>{i+1}</button>; })}</span>;
   const infBtns=<React.Fragment>
-        <button onClick={()=>setReporteOpen(true)} title="Informe de avance">📊 Avance</button>
-        {(user.rol==="admin"||user.rol==="editor") && <button onClick={()=>setRepEtapaOpen(true)} title="Inspecciones (Procore)">🧾 Inspecciones</button>}
-        <button onClick={()=>v2Biblioteca({user})} title="Documentos">📂 Documentos</button></React.Fragment>;
+        <button onClick={()=>setReporteOpen(true)} title="Informe de avance">📊<span className="ibt"> Avance</span></button>
+        <button onClick={()=>setComsOpen(true)} title="Todos los comentarios, ordenados por local">💬<span className="ibt"> Comentarios</span></button>
+        {(user.rol==="admin"||user.rol==="editor") && <button onClick={()=>setRepEtapaOpen(true)} title="Inspecciones (Procore)">🧾<span className="ibt"> Inspecciones</span></button>}
+        <button onClick={()=>v2Biblioteca({user})} title="Documentos">📂<span className="ibt"> Documentos</span></button></React.Fragment>;
   const renderLocal=emb=>{ if(!sel) return null; const loc=data.locales.find(l=>l.local_id===sel.local_id); if(!loc) return null;
       // rev20: vecinos = locales del mismo módulo y planta, ordenados por número
       const lista=data.locales.filter(l=>l.modulo===loc.modulo&&l.nivel===loc.nivel)
@@ -5536,9 +5653,11 @@ function App(){
     {repElegir && <div className="overlay fh-ov" onClick={e=>{ if(e.target===e.currentTarget) setRepElegir(false); }}><div className="fh">
       <div className="fh-list" style={{padding:12,display:"flex",flexDirection:"column",gap:8}}>
         <button className="btn" style={{padding:14,fontSize:15}} onClick={()=>{ setRepElegir(false); setReporteOpen(true); }}>📊 Informe de avance</button>
+        {MATRIZ_V2 && <button className="btn" style={{padding:14,fontSize:15}} onClick={()=>{ setRepElegir(false); setComsOpen(true); }}>💬 Comentarios</button>}
         {(user.rol==="admin"||user.rol==="editor") && <button className="btn primary" style={{padding:14,fontSize:15}} onClick={()=>{ setRepElegir(false); setRepEtapaOpen(true); }}>🧾 Inspecciones (Procore)</button>}
         {MATRIZ_V2 && <button className="btn" style={{padding:14,fontSize:15}} onClick={()=>{ setRepElegir(false); v2Biblioteca({user}); }}>📂 Documentos</button>}
       </div></div></div>}
+    {comsOpen && <ComentariosObraPanel data={data} user={user} onClose={()=>setComsOpen(false)} onIr={(l,pid)=>{ if(l.modulo!==modulo||l.nivel!==nivel) cambiarArea(l.modulo,l.nivel); irLocal(l,pid); }}/>}
     {usersOpen && <UsuariosPanel user={user} onClose={()=>setUsersOpen(false)}/>}
     {matrizOpen && <MatrizPanel data={data} onClose={()=>setMatrizOpen(false)} onApplied={onMatriz}/>}
     {migrarOpen && <MigrarV2Panel data={data} onClose={()=>setMigrarOpen(false)}/>}
