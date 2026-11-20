@@ -16,9 +16,12 @@
   }
   *{box-sizing:border-box}
   html,body{margin:0;height:100%}
-  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  /* íconos: los emojis de la app se dibujan con un set de líneas propio (Lucide, licencia ISC) para que se vean iguales en todos los aparatos */
+  @font-face{font-family:'AvIconos';src:url(data:font/woff2;base64,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) format('woff2');unicode-range:U+21A9,U+21B3,U+21BA,U+21BB,U+21EA,U+25B6,U+25C0,U+2699,U+26A0,U+26B2,U+26D4,U+2705,U+270D,U+270E,U+270F,U+2714,U+2912,U+2B06,U+2B07,U+1F39A,U+1F441,U+1F464,U+1F465,U+1F4AC,U+1F4BE,U+1F4C1,U+1F4C2,U+1F4C4,U+1F4CA,U+1F4CB,U+1F4CD,U+1F4CE,U+1F4DD,U+1F4E5,U+1F4F7,U+1F50D,U+1F50E,U+1F511,U+1F517,U+1F522,U+1F533,U+1F5A8,U+1F5BC,U+1F5D1,U+1F5FA,U+1F6AA,U+1F7E9,U+1F9E9,U+1F9F1,U+1F9FE;font-display:block}
+  body{font-family:'AvIconos',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
        background:#eef2f7;color:var(--ink);-webkit-text-size-adjust:100%}
-  button{font-family:inherit;cursor:pointer}
+  button,select,textarea,input{font-family:inherit}
+  button{cursor:pointer}
   .app{max-width:1200px;margin:0 auto;padding:0 14px 60px}
   /* Header */
   header.top{position:sticky;top:0;z-index:30;background:linear-gradient(135deg,#1e3a5f,#2c5282);color:#fff;
@@ -595,6 +598,17 @@
 .mvista button{border:1px solid rgba(255,255,255,.4);background:transparent;color:#fff;font-size:11.5px;font-weight:700;padding:3px 9px;cursor:pointer;margin-left:-1px}
 .mvista button:first-of-type{border-radius:7px 0 0 7px;margin-left:6px}.mvista button:last-of-type{border-radius:0 7px 7px 0}
 .mvista button.on{background:#fff;color:#1e3a5f;border-color:#fff}
+.mfbtns{display:inline-flex;gap:5px;margin-top:4px}
+.mfbtns button{border:1px solid rgba(255,255,255,.4);background:transparent;color:#fff;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:7px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.mfbtns button.on{background:#f59e0b;border-color:#f59e0b;color:#1c1917}
+.mfbtns button:disabled{opacity:.45;cursor:default}
+.mfbtns button:not(:disabled):last-child{background:#fff;color:#1e3a5f;border-color:#fff}
+.sbfil{display:inline-flex;gap:6px;margin-left:auto}
+.app.movil .modal.local .savebar{flex-wrap:nowrap!important;gap:6px;align-items:center}
+.app.movil .modal.local .savebar>.btn{white-space:nowrap;padding-left:10px;padding-right:10px}
+.sbfil button{border:1px solid var(--line);background:#fff;color:var(--ink);font-size:13px;font-weight:700;padding:8px 11px;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.sbfil button.on{background:#f59e0b;border-color:#f59e0b;color:#1c1917}
+.sbfil button:disabled{opacity:.4;cursor:default}
 .app.wide header.wtop{padding:6px 14px;margin-bottom:8px}
 .wtop .wrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .wtop .wrow+.wrow{margin-top:6px}
@@ -655,6 +669,16 @@
 .app.movil .bnav button b{font-size:19px;line-height:1}
 .app.movil{padding-bottom:76px}
 .app.movil .um-movil{display:block}
+.app.movil .bnav .bn-um{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;font-size:11px;font-weight:700;color:var(--muted)}
+.bnav button b{height:26px;display:flex;align-items:center;justify-content:center}
+.app.movil .bnav .bn-um .um{height:26px;display:flex;align-items:center}
+.ico-l{display:inline-block;vertical-align:middle;flex:none}
+.wtop .winf button{display:inline-flex;align-items:center;gap:6px}
+.fh-list .btn{display:flex;align-items:center;justify-content:center;gap:8px}
+.mtop .mfil{display:inline-flex;align-items:center;justify-content:center}
+.app.movil .bnav .bn-um .um-av{flex:none;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:0;border-radius:50%;background:#f59e0b;color:#1c1917;border:2px solid #e2e8f0;font-size:11.5px;font-weight:800}
+.app.movil .bnav .bn-um .um-pop button{flex:none;display:block;width:100%;text-align:left;font-size:14px;font-weight:600;color:var(--ink);padding:10px 12px;gap:0}
+.app.movil .bnav .bn-um .um-pop{top:auto;bottom:calc(100% + 10px);right:-4px;max-height:70vh;overflow:auto}
 /* 💬 Comentarios de la obra */
 .cobra .mbody{display:flex;flex-direction:column;gap:12px}
 .cobra-f{display:flex;gap:8px;flex-wrap:wrap;align-items:center;position:sticky;top:0;background:#fff;z-index:2;padding:4px 0 8px}
@@ -687,6 +711,14 @@
 .app.wide .planobox>.zoombox .btn,.app.movil .planobox>.zoombox .btn{background:#fff}
 .app.movil .modal.local .msub-loc{display:none}
 .app.movil .modal.local .v2nav small{display:none}
+/* tablet parada = igual que el celular: ficha a pantalla completa, sin pestañas de etapa (están arriba) */
+.app.movil .overlay:has(>.modal.local:not(.embed)){padding:0}
+.app.movil .modal.local:not(.embed){max-width:none;width:100%;max-height:none;height:100vh;height:100dvh;border-radius:0}
+.app.movil .fv2 .etabs,.app.movil .fv2 .esel{display:none}
+.app.movil .modal.local:not(.embed){display:flex;flex-direction:column}
+.app.movil .modal.local:not(.embed)>.mbody{flex:1 0 auto}
+.app.movil .modal.local .navloc small{display:none}
+.app.movil .modal.local .lp-svgwrap{max-height:300px}
 .app.movil .modal.local .mhead{flex-wrap:wrap;row-gap:6px;padding:8px 10px}
 .app.movil .modal.local .mhead>div:first-child{flex:1 1 100%;display:flex;align-items:center;gap:4px 10px;flex-wrap:wrap}
 .app.movil .modal.local .mhead h2{font-size:17px}
@@ -695,7 +727,7 @@
 .modal.local .fv2 .pasoh{position:sticky;top:var(--mhh,0px);z-index:2;box-shadow:0 2px 0 #fff, 0 3px 6px rgba(15,23,42,.08)}
 .modal.local:has(.lv-plan.celfijo) .fv2 .pasoh{top:calc(var(--mhh,0px) + var(--lph,0px))}
 .app.movil .modal.local .fv2 .pasoh{padding:6px 10px;gap:6px}
-.app.movil .modal.local .fv2 .pasoh .pn{white-space:nowrap}
+.app.movil .modal.local .fv2 .pasoh .pn{flex:1 1 100%;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;position:relative;z-index:1}
 /* sin filtro de etapa (vista por elemento): queda fijo el elemento abierto (Solado, T3…) */
 .modal.local .fv2 .parte{overflow:clip}
 .modal.local .mhead{z-index:6}
@@ -806,6 +838,7 @@ body.wfija .planolayout:not(.s3)>.planoside{position:sticky;top:calc(var(--hdrh,
 .v2flash{animation:v2flash 1.4s ease-out}
 .mkcom.v2{transform:translate(calc(var(--mk,34px) * .35 - 50%), calc(var(--mk,34px) * -.35 - 50%));z-index:9;font-size:calc(var(--mk,34px) * .42)}
 .mkcom.v2.sq{transform:translate(calc(var(--mk,34px) * .45 - 40%), calc(var(--mk,34px) * -.45 - 60%))}
+.mkcom svg{display:block;filter:drop-shadow(0 1px 1.5px rgba(15,23,42,.35))}
 .scmk{position:absolute;transform:translate(-50%,-50%);width:calc(var(--mk,34px) * .9);display:flex;flex-direction:column;gap:2px;padding:2px;background:#fff;border-radius:5px;box-shadow:0 1px 5px rgba(0,0,0,.35);z-index:4}
 .scmk-h{height:calc(var(--mk,34px) * .4);border-radius:3px;color:#fff;font-weight:800;font-size:calc(var(--mk,34px) * .3);display:flex;align-items:center;justify-content:center;cursor:pointer;line-height:1}
 .scmk-h.off{background:#e2e8f0;cursor:default}
@@ -1880,7 +1913,7 @@ function v2RevisarComsInsp({coms,ids,et,elNom,puedeCerrar}){ return new Promise(
 function v2PedirFirma(user,n){ return new Promise(res=>{
   const guardada=v2perfilDe(user).firma; const raiz=document.querySelector(".app")||document.body;
   const ov=document.createElement("div"); ov.className="overlay"; ov.style.zIndex=90;
-  ov.innerHTML=`<div class="modal" style="max-width:560px;width:94%"><div class="mhead"><div><h2>✍️ Firmá ${n>1?"los "+n+" informes":"el informe"}</h2><div style="font-size:12px;opacity:.85">${v2esc((user&&(user.nombre||user.email))||"")} · Inspeccionó</div></div><button class="x" data-f="cancelar">×</button></div>
+  ov.innerHTML=`<div class="modal" style="max-width:560px;width:94%"><div class="mhead"><div><h2>✍ Firmá ${n>1?"los "+n+" informes":"el informe"}</h2><div style="font-size:12px;opacity:.85">${v2esc((user&&(user.nombre||user.email))||"")} · Inspeccionó</div></div><button class="x" data-f="cancelar">×</button></div>
     <div class="mbody" style="display:flex;flex-direction:column;gap:10px">
       <canvas class="firma-cv" width="1000" height="360"></canvas>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -1933,6 +1966,19 @@ function v2ElegirTabs(tsEst,inf){ return new Promise(res=>{ const raiz=document.
 function v2guardarPerfil(u){ if(!V2REAL()||!u) return; const p=v2perfilDe(u);
   getSB().rpc('av_guardar_mi_perfil',{p_titulo:p.titulo||null,p_firma:p.firma||null,p_prefs:null}).then(r=>{ if(r.error) alert("No se pudo guardar tu título / firma: "+r.error.message); }); }
 function v2perfilDe(u){ return (u&&v2perfiles[u.email])||{titulo:"",firma:null}; }
+/* v2: íconos de línea propios (los emojis se ven distintos en cada celular / compu) */
+const ICO_P={
+  plano:"M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z M9 3v15 M15 6v15",
+  locales:"M4 4h7v7H4z M13 4h7v7h-7z M4 13h7v7H4z M13 13h7v7h-7z",
+  avance:"M4 20V10 M10 20V4 M16 20v-7 M22 20H2",
+  reportes:"M4 20V10 M10 20V4 M16 20v-7 M22 20H2",
+  comentarios:"M21 12a8 8 0 0 1-11.6 7.1L4 20l1.1-4.6A8 8 0 1 1 21 12z",
+  documentos:"M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z",
+  inspecciones:"M9 4h6v3H9z M7 5H5v16h14V5h-2 M8.5 13.5l2.5 2.5 4.5-5",
+  filtro:"M3 4h18l-7 8.5V19l-4 2v-8.5z",
+  calibrar:"M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"
+};
+function Ico({n,s}){ return <svg className="ico-l" viewBox="0 0 24 24" width={s||20} height={s||20} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={ICO_P[n]}/></svg>; }
 function iniciales(u){ const n=String((u&&(u.nombre||u.email))||"?").replace(/@.*/,"").trim().split(/[\s._-]+/).filter(Boolean); return ((n[0]||"?")[0]+(n.length>1?n[1][0]:"")).toUpperCase(); }
 function MenuUsuario({user,data,onPerfil,onPwd,onUsuarios,onQR,onMatriz,onLogout,onImportar}){
   const [open,setOpen]=useState(false); const [reset,setReset]=useState(false); const ref=useRef(null);
@@ -1948,7 +1994,7 @@ function MenuUsuario({user,data,onPerfil,onPwd,onUsuarios,onQR,onMatriz,onLogout
       {ONLINE && user.rol==="admin" && it("👥 Usuarios",onUsuarios)}
       {ONLINE && user.rol==="admin" && onImportar && it("📥 Importar actualización",onImportar)}
       {user.rol==="admin" && <span className="um-movil">{it("🔳 QR",onQR)}{it("🧩 Configuración matriz",onMatriz)}</span>}
-      {user.rol==="admin" && it("⬇️ Backup en Excel",()=>exportarBackup(data))}
+      {user.rol==="admin" && it("⬇ Backup en Excel",()=>exportarBackup(data))}
       {CLON && <button className="um-it" onClick={async()=>{ if(!reset){ setReset(true); setTimeout(()=>setReset(false),4000); return; } await clonDB.borrarTodo(); location.reload(); }}>
         {reset?"¿Seguro? Tocá de nuevo":"↺ Volver a los datos de hoy (clon)"}</button>}
       {it("🚪 Salir",onLogout)}
@@ -1981,7 +2027,7 @@ function PerfilPanel({user,onClose}){
           {!dib && (firma ? <img src={firma} alt="Firma" className="perf-firma"/> : <div className="hint">Todavía no cargaste una firma.</div>)}
           {dib && <canvas ref={cv} width={600} height={200} className="perf-canvas"/>}
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-            <button className="btn sm" onClick={()=>{ st.current.hay=false; setDib(true); }}>{dib?"↺ Borrar y volver a dibujar":"✍️ Dibujar firma"}</button>
+            <button className="btn sm" onClick={()=>{ st.current.hay=false; setDib(true); }}>{dib?"↺ Borrar y volver a dibujar":"✍ Dibujar firma"}</button>
             <label className="btn sm" style={{cursor:"pointer"}}>🖼 Subir imagen<input type="file" accept="image/*" hidden onChange={e=>subir(e.target.files[0])}/></label>
             {(firma||dib) && <button className="btn sm danger" onClick={()=>{ setFirma(null); setDib(false); }}>Quitar</button>}
           </div></div>
@@ -1990,9 +2036,10 @@ function PerfilPanel({user,onClose}){
       </div></div></div>;
 }
 /* celular: un solo botón de filtro que abre una hoja desde abajo con tres pestañas */
-function FiltroHoja({opc,filtro,setFiltro,onClose}){
+function FiltroHoja({opc,filtro,setFiltro,onClose,conEtapa}){
   const [tab,setTab]=useState("elementos");
-  const tabs=[["elementos","Elemento"],["rubros","Rubro"]];   // v2: la etapa se elige con los botones 1 2 3 del encabezado
+  // v2: en el encabezado la etapa va con los botones 1 2 3; desde la ficha del local se eligen las tres cosas acá
+  const tabs=conEtapa?[["elementos","Elemento"],["etapas","Etapa"],["rubros","Rubro"]]:[["elementos","Elemento"],["rubros","Rubro"]];
   const val=filtro[tab]; const set=v=>setFiltro(f=>({...f,[tab]:v}));
   const tog=v=>set(val.indexOf(v)>=0?val.filter(x=>x!==v):[...val,v]);
   const lista=[...opc[tab],...val.filter(v=>!opc[tab].some(o=>o[0]===v)).map(v=>[v,v])];
@@ -2043,9 +2090,12 @@ function rpEstadoLocal(local,et){
 function rpDatos(local,el,et,coms){
   const adjL=v2adj.list.filter(a=>a.local_id===local.local_id&&a.el===el.id);
   const E=v2estructura(el,et); const ids=el.partes.map(p=>p.parte_id);
-  const docs=adjL.filter(a=>a.tipo==="doc"&&(a.ref===et||a.ref.indexOf(et+" › ")===0));
+  // un mismo archivo enlazado a varios tabiques / ítems va UNA sola vez como anexo
+  const kDoc=a=>a.arch||a.url||a.id;
+  const docsAll=adjL.filter(a=>a.tipo==="doc"&&(a.ref===et||a.ref.indexOf(et+" › ")===0));
+  const docs=[], docK={}; docsAll.forEach(a=>{ const k=kDoc(a); if(!docK[k]){ docK[k]=a; docs.push(a); } });
   const fotos=adjL.filter(a=>a.tipo==="foto"&&a.ref===et);
-  const anexoDe=d=>"D-"+(docs.indexOf(d)+1);
+  const anexoDe=d=>"D-"+(docs.indexOf(docK[kDoc(d)])+1);
   const grupos=[]; let term=0, na=0, tmin=null, tmax=null;
   E.subetapas.forEach(S=>S.rubros.forEach(R=>{ const F=v2filas(el,et,S.nombre,R.nombre); const filas=el.ts?F.filas:F;
     filas.forEach((fila,fi)=>{ const letra=el.ts?v2letra(fi):null;
@@ -2053,7 +2103,7 @@ function rpDatos(local,el,et,coms){
       const items=v2hojas(fila,et,S.nombre,R.nombre).map(x=>{ const e=x.get(), m=x.meta();
         if(e==="Terminado") term++; if(e==="No aplica") na++;
         if(m&&m.t){ tmin=tmin===null?m.t:Math.min(tmin,m.t); tmax=tmax===null?m.t:Math.max(tmax,m.t); }
-        const iref=v2refI(et,S.nombre,R.nombre,letra,x.sr,x.n); const d=docs.find(a=>v2mismoItem(a.item,iref+"¦"+el.id));
+        const iref=v2refI(et,S.nombre,R.nombre,letra,x.sr,x.n); const d=docsAll.find(a=>v2mismoItem(a.item,iref+"¦"+el.id));
         return {n:(x.sr?x.sr+" — ":"")+x.n,e,req:x.req,obs:d?"Anexo "+anexoDe(d):""}; });
       const todoNA=items.length>0&&items.every(x=>x.e==="No aplica"); grupos.push({tit,na:todoNA,items:todoNA?[]:items}); }); }));
   const tagDe=ref=>{ if(ref===et) return "General"; const p=ref.split(" › "); const conSub=E.subetapas.some(s=>s.nombre&&s.nombre===p[1]); return (conSub?p[2]:p[1]||"General").replace(/ \[.\]$/,""); };
@@ -2105,8 +2155,10 @@ async function rpPlanos(data,local,el){
 async function rpLogo(n){ try{ const r=await fetch(n); if(!r.ok) return null; return new Uint8Array(await r.arrayBuffer()); }catch(e){ return null; } }
 /* archivo de un adjunto: data URL (subido en el navegador) o ruta publicada (ensayos de fábrica) */
 async function rpLeer(u){ if(/^data:/.test(u)) return rpBytes(u); const r=await fetch(u); if(!r.ok) throw new Error("HTTP "+r.status); return new Uint8Array(await r.arrayBuffer()); }
-const rpEsPdf=d=>/^data:application\/pdf/.test(d.url)||/\.pdf$/i.test(d.url);
-const rpEsPng=d=>/^data:image\/png/.test(d.url)||/\.png$/i.test(d.url);
+// en la app real la dirección es un enlace firmado (".../archivo.pdf?token=…"): el tipo se mira sin el "?…" y también por el nombre del archivo
+const rpExt=d=>{ const u=String(d.url||"").split(/[?#]/)[0]; return (u.match(/\.(\w+)$/)||String(d.name||"").match(/\.(\w+)$/)||[])[1]||""; };
+const rpEsPdf=d=>/^data:application\/pdf/.test(d.url)||/^pdf$/i.test(rpExt(d));
+const rpEsPng=d=>/^data:image\/png/.test(d.url)||/^png$/i.test(rpExt(d));
 function rpBytes(dataURL){ const b=atob(dataURL.split(",")[1]); const u=new Uint8Array(b.length); for(let i=0;i<b.length;i++) u[i]=b.charCodeAt(i); return u; }
 /* texto apto para las fuentes estándar del PDF (sin emojis) */
 const rpTx=s=>String(s==null?"":s).replace(/[✓✔]/g,"").replace(/[^\x20-\x7E -ÿ–—‘’“”•…›€]/g,"").trim();
@@ -2211,6 +2263,7 @@ async function rpGenerarPDF(args){ const {data,user,local,el,et,num,cfg,coms,fir
   const hojaDe={C:hojaC};
   for(let i=0;i<D.docs.length;i++){ const d=D.docs[i]; const desc=(d.cat||"Documento")+" · "+(d.rubro||"General")+tsTxt+" · "+d.name;
     hojaDe["D-"+(i+1)]=pages.length+1;
+    const nPag0=pages.length;
     try{
       if(rpEsPdf(d)){ const src=await PDFDocument.load(await rpLeer(d.url),{ignoreEncryption:true});
         const emb=await pdf.embedPdf(src,src.getPageIndices());
@@ -2218,7 +2271,9 @@ async function rpGenerarPDF(args){ const {data,user,local,el,et,num,cfg,coms,fir
           pg.drawPage(ep,{x:M+(aw-ep.width*s)/2,y:M+(ah-ep.height*s)/2,width:ep.width*s,height:ep.height*s}); }); }
       else { const pg=nueva(); const top=banda(pg,"D-"+(i+1),desc)-6; const im=rpEsPng(d)?await pdf.embedPng(await rpLeer(d.url)):await pdf.embedJpg(await rpLeer(d.url));
         const aw=A4[0]-2*M, ah=top-M; const s=Math.min(aw/im.width,ah/im.height); pg.drawImage(im,{x:M+(aw-im.width*s)/2,y:M+(ah-im.height*s)/2,width:im.width*s,height:im.height*s}); }
-    }catch(e){ const pg=nueva(); banda(pg,"D-"+(i+1),desc); txt(pg,"No se pudo insertar el archivo "+d.name+" ("+(e.message||e)+").",M,A4[1]/2,{size:10,c:GR}); }
+    }catch(e){ // el mensaje va en la hoja del anexo (antes quedaba una hoja en blanco y el error en la siguiente)
+      const pg=pages.length>nPag0?pages[pages.length-1]:(()=>{ const p=nueva(); banda(p,"D-"+(i+1),desc); return p; })();
+      txt(pg,"No se pudo insertar el archivo "+d.name+" ("+(e.message||e)+"). Abrilo desde Documentos.",M,A4[1]/2,{size:10,c:GR}); }
   }
   // ---------- Anexo F: fotos, seis por hoja ----------
   if(D.fotos.length){ hojaDe.F=pages.length+1;
@@ -2432,7 +2487,11 @@ function ReporteEtapaPanel({data,user,modulo,nivel,onClose,onPerfil}){
   const [, setAdjTick]=useAdj("__reportes__");   // carga los documentos y fotos guardados
   const [tab,setTab]=useState("generar");
   const [et,setEt]=useState("Primeros pasos");
-  const [alcance,setAlcance]=useState("sector");
+  // filtro por sector (módulo) y planta: vale para Generar, Generados y Pendientes
+  const [fMod,setFMod]=useState(modulo||""); const [fNiv,setFNiv]=useState(nivel||"");
+  const alcance=(!fMod&&!fNiv)?"obra":"sector";
+  const enFil=l=>!!l&&(!fMod||l.modulo===fMod)&&(!fNiv||l.nivel===fNiv);
+  const locById={}; data.locales.forEach(l=>locById[l.local_id]=l);
   const [sel,setSel]=useState({});
   const [juntar,setJuntar]=useState(false);
   const [cfg,setCfg]=useState(rpCfg);
@@ -2441,7 +2500,7 @@ function ReporteEtapaPanel({data,user,modulo,nivel,onClose,onPerfil}){
   const [reg,setReg]=useState([]); const [msg,setMsg]=useState(""); const [busy,setBusy]=useState(false);
   useEffect(()=>{ rpCargarReg().then(l=>setReg([...l])); },[]);
   const perfil=v2perfilDe(user);
-  const locs=data.locales.filter(l=>alcance==="obra"||(l.modulo===modulo&&l.nivel===nivel))
+  const locs=data.locales.filter(enFil)
     .sort((a,b)=>(a.modulo+a.nivel).localeCompare(b.modulo+b.nivel)||String(a.numero).localeCompare(String(b.numero),"es",{numeric:true}));
   const filas=[]; locs.forEach(l=>rpEstadoLocal(l,et).forEach(x=>{ if(elFil&&x.el.tipo!==elFil) return; filas.push({l,...x,k:l.local_id+"|"+x.el.id}); }));
   const nListos=filas.filter(f=>f.ok).length;
@@ -2466,7 +2525,7 @@ function ReporteEtapaPanel({data,user,modulo,nivel,onClose,onPerfil}){
     const fAhora=await v2PedirFirma(user,elegidas.length); if(fAhora===undefined) return;   // canceló la firma
     setBusy(true); setMsg("Generando…");
     try{ const etN=V2_ETAPAS.indexOf(et)+1;
-      const res=await rpGenerarVarios({items:elegidas,et,data,user,cfg,coms:(comCtx&&comCtx.coms)||[],juntar,firmaAhora:fAhora,nombreJunto:"E"+etN+"_"+(alcance==="obra"?"obra":modulo+"-"+nivel)+"_"+elegidas.length+"_informes.pdf"});
+      const res=await rpGenerarVarios({items:elegidas,et,data,user,cfg,coms:(comCtx&&comCtx.coms)||[],juntar,firmaAhora:fAhora,nombreJunto:"E"+etN+"_"+(alcance==="obra"?"obra":(fMod||"todos")+"-"+(fNiv||"todas"))+"_"+elegidas.length+"_informes.pdf"});
       setReg([...rpReg.list]); setMsg("Listo: "+res.length+" informe(s) generado(s) ✓"); setSel({});
     }catch(e){ setMsg("Error: "+(e.message||e)); }
     setBusy(false); }
@@ -2488,21 +2547,24 @@ function ReporteEtapaPanel({data,user,modulo,nivel,onClose,onPerfil}){
       const falt=x.tsEst.filter(t=>t.ok&&!m[t.pid]); if(falt.length) pendientes.push({l,et:e,...x,el:{...x.el,ts:falt.map(t=>t.T)},gen:reg.find(r=>r.local_id===l.local_id&&r.el===x.el.id&&r.etapa===e)}); return; }
     if(!v2procore(l.local_id,x.el.tipo,e)&&!reg.find(r=>r.local_id===l.local_id&&r.el===x.el.id&&r.etapa===e&&r.cargado)) pendientes.push({l,et:e,...x,gen:reg.find(r=>r.local_id===l.local_id&&r.el===x.el.id&&r.etapa===e)}); })));
   const puede=user.rol==="admin"||user.rol==="editor";
+  const regF=reg.filter(r=>enFil(locById[r.local_id])), pendF=pendientes.filter(p=>enFil(p.l));
   return <div className="overlay" onClick={e=>{ if(e.target===e.currentTarget) onClose(); }}>
     <div className="modal rp" style={{maxWidth:820}}>
       <div className="mhead"><div><h2>🧾 Inspecciones (Procore)</h2><div style={{fontSize:12,opacity:.85}}>Una inspección por local, elemento y etapa (en tabiques, de los T que elijas), solo con la etapa al 100% · se sube como registro del ítem del Plan de acción</div></div>
         <button className="x" onClick={onClose}>×</button></div>
       <div className="mbody">
-        <div className="rp-tabs">{[["generar","Generar"],["generados","Generados ("+reg.length+")"],["pend","Pendientes de Procore ("+pendientes.length+")"]].map(([k,t])=>
+        <div className="rp-tabs">{[["generar","Generar"],["generados","Generados ("+regF.length+")"],["pend","Pendientes de Procore ("+pendF.length+")"]].map(([k,t])=>
           <button key={k} className={tab===k?"on":""} onClick={()=>setTab(k)}>{t}</button>)}</div>
+        <div className="rp-row rp-fil">
+          <label><b>Sector</b><select value={fMod} onChange={e=>{ setFMod(e.target.value); setSel({}); }}><option value="">Todos</option>{MODS.map(m=><option key={m} value={m}>{mNom(m)}</option>)}</select></label>
+          <label><b>Planta</b><select value={fNiv} onChange={e=>{ setFNiv(e.target.value); setSel({}); }}><option value="">Todas</option>{NIVS.map(([c,n])=><option key={c} value={c}>{n}</option>)}</select></label>
+        </div>
         {tab==="generar" && <div className="rp-sec">
           <div className="rp-row">
             <label><b>Etapa</b><select value={et} onChange={e=>{ setEt(e.target.value); setSel({}); }}>{V2_ETAPAS.map((e,i)=><option key={e} value={e}>{V2_ETQ[i]}</option>)}
               <option disabled>Etapa 4 (Equipamiento) · a desarrollar</option></select></label>
             <label><b>Elemento</b><select value={elFil} onChange={e=>{ setElFil(e.target.value); setSel({}); }}>
               <option value="">Todos</option><option value="SOLADO">Solado</option><option value="TABIQUE">Tabiques</option><option value="CIELORRASO">Cielorraso</option></select></label>
-            <label><b>Locales</b><select value={alcance} onChange={e=>{ setAlcance(e.target.value); setSel({}); }}>
-              <option value="sector">Sector actual ({mNom(modulo)} · {nNom(nivel)})</option><option value="obra">Toda la obra</option></select></label>
           </div>
           <div className="rp-list">
             <div className="rp-lh"><span><b>{nListos}</b> listo{nListos===1?"":"s"} para informe de {filas.length}</span>
@@ -2510,10 +2572,10 @@ function ReporteEtapaPanel({data,user,modulo,nivel,onClose,onPerfil}){
               {nListos>0 && <button className="lnk" onClick={()=>{ const n={}; filas.filter(f=>f.ok).forEach(f=>{ if(f.tsEst){ const m=tInf(f); const nuevos=f.tsEst.filter(t=>t.ok&&!m[t.pid]&&!m["*"]).map(t=>t.pid); if(nuevos.length) n[f.k]=nuevos; } else if(!generado(f)) n[f.k]=true; }); setSel(n); }}>Elegir los nuevos</button>}
               {nListos>0 && <button className="lnk" onClick={()=>setSel({})}>Ninguno</button>}</div>
             {!visibles.length && <div className="cvacio" style={{padding:14}}>{filas.length
-              ? <React.Fragment>No hay elementos con la {V2_ETQ[V2_ETAPAS.indexOf(et)]} completa {alcance==="obra"?"en la obra":"en este sector"}.{soloListos && <React.Fragment> <button className="lnk" onClick={()=>setSoloListos(false)}>Ver todos</button> para ver cuánto le falta a cada uno.</React.Fragment>}</React.Fragment>
+              ? <React.Fragment>No hay elementos con la {V2_ETQ[V2_ETAPAS.indexOf(et)]} completa {alcance==="obra"?"en la obra":"en ese sector y planta"}.{soloListos && <React.Fragment> <button className="lnk" onClick={()=>setSoloListos(false)}>Ver todos</button> para ver cuánto le falta a cada uno.</React.Fragment>}</React.Fragment>
               : "No hay locales con esta etapa."}</div>}
             {grupos.map(g=><div key={g.l.local_id} className={"rp-loc"+(g.listo?"":" off")}>
-              <div className="rp-lt"><b>{g.l.numero}</b> · {g.l.nombre}{alcance==="obra"?<small> · {g.l.modulo}-{g.l.nivel}</small>:null}</div>
+              <div className="rp-lt"><b>{g.l.numero}</b> · {g.l.nombre}{(!fMod||!fNiv)?<small> · {g.l.modulo}-{g.l.nivel}</small>:null}</div>
               {g.filas.map(f=><React.Fragment key={f.k}><label className={"rp-it"+(f.ok?"":" off")}>
                 <input type="checkbox" disabled={!f.ok||!puede} checked={f.tsEst?tSel(f).length>0:!!sel[f.k]} onChange={()=>setSel(s=>({...s,[f.k]:f.tsEst?(tSel(f).length?[]:tDef(f)):!s[f.k]}))}/>
                 <span className="rp-n">{RP_ELNOM[f.el.tipo]}{f.el.ts?" "+tsTxt(f.el.ts):""}</span>
@@ -2553,8 +2615,8 @@ function ReporteEtapaPanel({data,user,modulo,nivel,onClose,onPerfil}){
           </div>
         </div>}
         {tab==="generados" && <div className="rp-sec">
-          {!reg.length && <div className="cvacio">Todavía no se generó ningún informe.</div>}
-          {[...reg].reverse().map(r=><div key={r.id} className="rp-it">
+          {!regF.length && <div className="cvacio">{reg.length?"No hay inspecciones generadas en ese sector y planta.":"Todavía no se generó ninguna inspección."}</div>}
+          {[...regF].reverse().map(r=><div key={r.id} className="rp-it">
             <span className="rp-n"><b>{r.num}</b> · Local {r.local} · {RP_ELNOM[r.elTipo]}{r.ts?" "+r.ts.join(", "):""} · {r.etapa}<br/><small>{r.archivo} · {r.hojas} hojas · {r.firmante} · {r.fecha}</small></span>
             <button className="btn sm" onClick={()=>ver(r)}>👁 Ver</button>
             {puede && <button className="btn sm" disabled={busy} onClick={()=>regenerar(r)} title="Rehacer el informe con los datos de hoy (mismo número)">↻ Regenerar</button>}
@@ -2566,8 +2628,8 @@ function ReporteEtapaPanel({data,user,modulo,nivel,onClose,onPerfil}){
         </div>}
         {tab==="pend" && <div className="rp-sec">
           <div className="hint">Locales y elementos con la etapa completa cuyo informe todavía no se marcó como cargado en Procore (los aprobados en el seguimiento del plan de acción no figuran).</div>
-          {!pendientes.length && <div className="cvacio">No hay pendientes.</div>}
-          {pendientes.map(p=><div key={p.l.local_id+p.el.id+p.et} className="rp-it">
+          {!pendF.length && <div className="cvacio">No hay pendientes{fMod||fNiv?" en ese sector y planta":""}.</div>}
+          {pendF.map(p=><div key={p.l.local_id+p.el.id+p.et} className="rp-it">
             <span className="rp-n"><b>{p.l.numero}</b> {p.l.nombre} · {p.l.modulo}-{p.l.nivel} · {RP_ELNOM[p.el.tipo]} · {p.et}</span>
             <span className={p.gen?"rp-ok":"rp-no"}>{p.gen?"Generado, falta cargar":"Sin generar"}</span>
           </div>)}
@@ -3071,7 +3133,7 @@ function Composer({placeholder,onEnviar,autoFocus}){
         <label className="btn sm cfotobtn">📷 Cámara
           <input type="file" accept="image/*" capture="environment" style={{display:"none"}} onChange={e=>{ setFile(e.target.files&&e.target.files[0]||null); e.target.value=""; }}/>
         </label>
-        <label className="btn sm cfotobtn">🖼️ Galería
+        <label className="btn sm cfotobtn">🖼 Galería
           <input type="file" accept="image/*" style={{display:"none"}} onChange={e=>{ setFile(e.target.files&&e.target.files[0]||null); e.target.value=""; }}/>
         </label>
         {file && <span className="cfile">📎 {file.name.length>22?file.name.slice(0,20)+"…":file.name}
@@ -3108,7 +3170,7 @@ function CMsg({c}){
     <div className="cmsg">
       <div className="chead"><b>{c.autor_nombre||c.autor_email||"?"}</b><span>{fmtFecha(c.creado_en)}{c.editado_en?" · editado":""}</span>
         {puede && !editando && <span className="cedit">
-          <button className="clink" title="Editar" onClick={()=>{setTxt(c.texto||"");setEditando(true);}}>✏️ Editar</button>
+          <button className="clink" title="Editar" onClick={()=>{setTxt(c.texto||"");setEditando(true);}}>✏ Editar</button>
           <button className="clink cdel" title="Borrar" onClick={borrar}>🗑 Borrar</button></span>}
       </div>
       {editando
@@ -3927,7 +3989,7 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco,vecinos,
   // rev22: el filtro general también se aplica acá; "Ver todo" lo saca solo dentro de este local.
   // (si se entra desde 🔎 Filtros o a un elemento que no entra en el filtro, arranca viendo todo)
   // v2 celular: el plano del local se muestra con "Ver plano" (abajo, junto a Guardar) y queda fijo arriba de la ficha
-  const esCelL=MATRIZ_V2&&!embebido&&window.matchMedia("(max-width:640px)").matches;
+  const esCelL=MATRIZ_V2&&!embebido&&!window.matchMedia("(min-width:1100px) and (orientation:landscape)").matches;   // celular y tablet parada
   const [verPlanCel,setVerPlanCel]=useState(false);
   // alto del título de la ficha → para que lo que queda fijo debajo (plano del local, elemento) no quede tapado
   useEffect(()=>{ if(!MATRIZ_V2) return; document.querySelectorAll(".modal.local").forEach(m=>{ const h=m.querySelector(":scope>.mhead")||m.querySelector(".mhead"); const z=parseFloat(getComputedStyle(m).getPropertyValue("--lz"))||1;   // el cuerpo de la ficha tiene zoom (A− / A+)
@@ -4123,7 +4185,7 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco,vecinos,
               <div className="mhead"><div><h2>¿Guardar cambios?</h2>
                 <div style={{fontSize:12,opacity:.85}}>Tenés cambios sin guardar en este local.</div></div></div>
               <div className="mbody" style={{display:"flex",flexDirection:"column",gap:8}}>
-                {msg.startsWith("Error") && <div className="err" style={{margin:0,fontWeight:600}}>⚠️ {msg.slice(7)}</div>}
+                {msg.startsWith("Error") && <div className="err" style={{margin:0,fontWeight:600}}>⚠ {msg.slice(7)}</div>}
                 <button className="btn primary" disabled={saving} onClick={guardarYcerrar}>{saving?"Guardando…":(accionTxt?"💾 Guardar e ir al "+accionTxt:"💾 Guardar y cerrar")}</button>
                 <button className="btn danger" disabled={saving} onClick={()=>{setAskClose(false); if(CLON) clonDB.del(borrK); accionRef.current();}}>{accionTxt?"Ir al "+accionTxt+" sin guardar":"Cerrar sin guardar"}</button>
                 <button className="btn" disabled={saving} onClick={()=>setAskClose(false)}>Seguir editando</button>
@@ -4144,13 +4206,18 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco,vecinos,
               <span className="mvista">Tabiques
                 <button className={vistaT!=="porT"?"on":""} onClick={()=>elegirVista("comb")}>Combinada</button>
                 <button className={vistaT==="porT"?"on":""} onClick={()=>elegirVista("porT")}>Por tabique</button></span>}
+            {!esCelL && MATRIZ_V2 && !edit && window.__v2Filtros && <span className="mfbtns">
+              <button className={filtroActivo(filtro)?"on":""} title="Filtrar por elemento, etapa o rubro" onClick={()=>window.__v2Filtros.abrir()}><Ico n="filtro" s={15}/>Filtro</button>
+              <button disabled={!filtroActivo(filtro)} title={filtroActivo(filtro)?"Quitar filtro":"No hay nada filtrado"} onClick={()=>{ setVerTodo(false); window.__v2Filtros.quitar(); }}>
+                <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M2.5 3.5h13l-5 6v5.5l-3 1.5v-7z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
+                <path d="M12.6 12.6l5 5M17.6 12.6l-5 5" stroke={filtroActivo(filtro)?"#dc2626":"currentColor"} strokeWidth="2" strokeLinecap="round"/></svg></button></span>}
           </div>
           {MATRIZ_V2 && <span className="v2nav">
             <button title="Volver arriba de todo" onClick={irArriba}>⤒<small>Arriba</small></button>
             {todoCerrado ? <button title="Abrir todos los menús" onClick={abrirTodo}>▾<small>Abrir todo</small></button>
               : <button title="Cerrar todos los menús y volver arriba" onClick={cerrarTodo}>▸<small>Cerrar todo</small></button>}</span>}
           {editable && <button className={"btn sm"+(edit?" primary":"")} style={{marginLeft:"auto"}}
-                       onClick={()=>setEdit(v=>!v)}>{edit?"✔ Listo":"✏️ Editar"}</button>}
+                       onClick={()=>setEdit(v=>!v)}>{edit?"✔ Listo":"✏ Editar"}</button>}
           {!editable && <span className="rochip" style={{marginLeft:"auto"}}>Solo lectura</span>}
           {/* rev20: pasar al local anterior / siguiente del sector (pregunta si hay cambios sin guardar) */}
           <span className="navloc">
@@ -4275,9 +4342,14 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco,vecinos,
         {editable && (
           <div className="savebar">
             <button className="btn primary" disabled={!dirty||saving} onClick={guardar}>{saving?"Guardando…":"Guardar cambios"}</button>
-            {esCelL && area && area.plano_url && <button className={"btn"+(verPlanCel?" on":"")} onClick={()=>setVerPlanCel(v=>!v)}>{verPlanCel?"✕ Ocultar plano":"🗺️ Ver plano"}</button>}
+            {esCelL && area && area.plano_url && <button className={"btn"+(verPlanCel?" on":"")} onClick={()=>setVerPlanCel(v=>!v)}>{verPlanCel?"✕ Ocultar plano":"🗺 Ver plano"}</button>}
+            {esCelL && !edit && window.__v2Filtros && <span className="sbfil">
+              <button className={filtroActivo(filtro)?"on":""} title="Filtrar por elemento, etapa o rubro" onClick={()=>window.__v2Filtros.abrir()}><Ico n="filtro" s={15}/>Filtro</button>
+              <button disabled={!filtroActivo(filtro)} title={filtroActivo(filtro)?"Quitar filtro":"No hay nada filtrado"} onClick={()=>{ setVerTodo(false); window.__v2Filtros.quitar(); }}>
+                <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M2.5 3.5h13l-5 6v5.5l-3 1.5v-7z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
+                <path d="M12.6 12.6l5 5M17.6 12.6l-5 5" stroke={filtroActivo(filtro)?"#dc2626":"currentColor"} strokeWidth="2" strokeLinecap="round"/></svg></button></span>}
             {msg.startsWith("Error")
-              ? <div className="err" style={{margin:0,flex:1,fontWeight:600}}>⚠️ {msg.slice(7)}</div>
+              ? <div className="err" style={{margin:0,flex:1,fontWeight:600}}>⚠ {msg.slice(7)}</div>
               : <span className="msg">{msg||(dirty?"Hay cambios sin guardar":"")}</span>}
           </div>
         )}
@@ -4713,7 +4785,7 @@ function QRPanel({data,modulo,nivel,onClose}){
               <option value="">— elegir local —</option>
               {todosOrd.map(l=><option key={l.local_id} value={l.local_id}>{mLbl(l.modulo)} · {nNom(l.nivel)} · {l.numero} {l.nombre}</option>)}
             </select>}
-            <button className="btn sm" style={{marginLeft:"auto"}} disabled={!locs.length} onClick={()=>window.print()}>🖨️ Imprimir</button>
+            <button className="btn sm" style={{marginLeft:"auto"}} disabled={!locs.length} onClick={()=>window.print()}>🖨 Imprimir</button>
           </div>
           {!hayLib && <div className="noplano" style={{margin:"10px 0"}}><p>No se pudo cargar el generador de QR (revisá la conexión). Volvé a abrir este panel.</p></div>}
           {hayLib && (locs.length? (
@@ -4867,7 +4939,7 @@ function FiltrosPanel({data,user,modulo:m0,nivel:n0,onClose,onAbrirLocal,onGuard
                 <button className="btn sm primary" disabled={!masivo||guardando} onClick={cambiarTodos}>Aplicar</button>
                 <span className="fhint">o cambiá cada fila con su botón de estado · después tocá <b>Guardar cambios</b></span>
               </div>}
-              {fmsg && <div className={fmsg.startsWith("Error")?"err":"fok"}>{fmsg.startsWith("Error")?"⚠️ "+fmsg.slice(7):fmsg}</div>}
+              {fmsg && <div className={fmsg.startsWith("Error")?"err":"fok"}>{fmsg.startsWith("Error")?"⚠ "+fmsg.slice(7):fmsg}</div>}
               <div className="ftable">
                 {filas.map((fila,i)=>{ const {l,p,e}=fila; const ed=puedeEditar(user,l.local_id); const pv=pend[p.parte_id]; const val=pv||e;
                   return (
@@ -4966,7 +5038,7 @@ function ReportePanel({data,modulo,nivel,onClose}){
             <button className={"btn sm"+(scope==="todos"?" primary":"")} onClick={()=>setScope("todos")}>Toda la obra</button>
             <span style={{marginLeft:"auto",display:"inline-flex",gap:8}}>
               <button className="btn sm primary" onClick={copiar}>{copiado?"✓ Copiado":"📋 Copiar"}</button>
-              <button className="btn sm" onClick={descargar}>⬇️ Descargar .txt</button>
+              <button className="btn sm" onClick={descargar}>⬇ Descargar .txt</button>
             </span>
           </div>
           <textarea id="rep-txt" className="reptxt" readOnly value={texto}/>
@@ -5042,6 +5114,7 @@ function App(){
   const [planoVer,setPlanoVer]=useState("local");// "todos" | "local" (cómo ver el plano) — rev17: arranca en "solo número de local"
   const [filtrosOpen,setFiltrosOpen]=useState(false); // panel de filtros por tarea/subtarea
   const [filtroG,setFiltroG]=useState(FILTRO_VACIO);
+  window.__v2Filtros={abrir:()=>setHojaOpen("ficha"),quitar:()=>setFiltroG(FILTRO_VACIO)};   // v2: botones de filtro en la ficha del local
   window.__v2FiltrarEtapa=e=>setFiltroG(f=>({...f,etapas:[e]}));   // v2: las pestañas de etapa de la ficha cambian el filtro  // rev22: filtro general Rubro / Etapa / Elemento (solo vista)
   const [planoVert,setPlanoVert]=useState(false);     // rev18: plano parado → se limita a la altura de la pantalla
   // rev20: zoom del plano principal + tamaño de los círculos según el ancho disponible
@@ -5330,10 +5403,10 @@ function App(){
   const etBtns=<span className="etbtns"><span className="etl">Etapa</span>{V2_ETAPAS.map((e,i)=>{ const on=filtroG.etapas.length===1&&filtroG.etapas[0]===e;
           return <button key={e} className={on?"on":""} title={"Etapa "+(i+1)+" · "+e+(on?" (tocá de nuevo para sacar el filtro)":"")} onClick={()=>setFiltroG(f=>({...f,etapas:on?[]:[e]}))}>{i+1}</button>; })}</span>;
   const infBtns=<React.Fragment>
-        <button onClick={()=>setReporteOpen(true)} title="Informe de avance">📊<span className="ibt"> Avance</span></button>
-        <button onClick={()=>setComsOpen(true)} title="Todos los comentarios, ordenados por local">💬<span className="ibt"> Comentarios</span></button>
-        {(user.rol==="admin"||user.rol==="editor") && <button onClick={()=>setRepEtapaOpen(true)} title="Inspecciones (Procore)">🧾<span className="ibt"> Inspecciones</span></button>}
-        <button onClick={()=>v2Biblioteca({user})} title="Documentos">📂<span className="ibt"> Documentos</span></button></React.Fragment>;
+        <button onClick={()=>setReporteOpen(true)} title="Informe de avance"><Ico n="avance" s={18}/><span className="ibt">Avance</span></button>
+        <button onClick={()=>setComsOpen(true)} title="Todos los comentarios, ordenados por local"><Ico n="comentarios" s={18}/><span className="ibt">Comentarios</span></button>
+        {(user.rol==="admin"||user.rol==="editor") && <button onClick={()=>setRepEtapaOpen(true)} title="Inspecciones (Procore)"><Ico n="inspecciones" s={18}/><span className="ibt">Inspecciones</span></button>}
+        <button onClick={()=>v2Biblioteca({user})} title="Documentos"><Ico n="documentos" s={18}/><span className="ibt">Documentos</span></button></React.Fragment>;
   const renderLocal=emb=>{ if(!sel) return null; const loc=data.locales.find(l=>l.local_id===sel.local_id); if(!loc) return null;
       // rev20: vecinos = locales del mismo módulo y planta, ordenados por número
       const lista=data.locales.filter(l=>l.modulo===loc.modulo&&l.nivel===loc.nivel)
@@ -5351,13 +5424,11 @@ function App(){
     {movil && <header className="top mtop">
       <div className="mrow">
         <span className="mgrp">{MODS.map(m=><button key={m} className={"wchip"+(modulo===m?" on":"")} onClick={()=>cambiarArea(m,nivel)}>{mLbl(m)}</button>)}</span>
-        <MenuUsuario user={user} data={data} onPerfil={()=>setPerfilOpen(true)} onPwd={()=>setPwOpen(true)} onUsuarios={()=>setUsersOpen(true)}
-            onQR={()=>setQrOpen(true)} onMatriz={()=>setMatrizOpen(true)} onLogout={logout} onImportar={()=>setImpOpen(true)}/>
       </div>
       <div className="mrow">
         <span className="mgrp">{NIVS.map(([code,nom])=><button key={code} className={"wchip"+(nivel===code?" on":"")} title={nom} onClick={()=>cambiarArea(modulo,code)}>{code}</button>)}</span>
         {etBtns}
-        <button className={"mfil"+(filtroG.elementos.length||filtroG.rubros.length?" on":"")} title="Filtrar por elemento o rubro" onClick={()=>setHojaOpen(true)}>⚲</button>
+        <button className={"mfil"+(filtroG.elementos.length||filtroG.rubros.length?" on":"")} title="Filtrar por elemento o rubro" onClick={()=>setHojaOpen(true)}><Ico n="filtro" s={17}/></button>
         <button className="wquitar" disabled={!fAct} title={fAct?"Quitar filtro":"No hay nada filtrado"} onClick={()=>setFiltroG(FILTRO_VACIO)}>
           <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M2.5 3.5h13l-5 6v5.5l-3 1.5v-7z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
             <path d="M12.6 12.6l5 5M17.6 12.6l-5 5" stroke={fAct?"#dc2626":"currentColor"} strokeWidth="2" strokeLinecap="round"/></svg></button>
@@ -5396,7 +5467,7 @@ function App(){
         {MATRIZ_V2 ? <MenuUsuario user={user} data={data} onPerfil={()=>setPerfilOpen(true)} onPwd={()=>setPwOpen(true)} onUsuarios={()=>setUsersOpen(true)}
             onQR={()=>setQrOpen(true)} onMatriz={()=>setMatrizOpen(true)} onLogout={logout} onImportar={()=>setImpOpen(true)}/> : <React.Fragment>
         <div className="userbox"><b>{user.nombre||user.email}</b><span>{user.email}</span></div>
-        {user.rol==="admin" && <button className="btn ghost sm" title="Descargar backup en Excel" onClick={()=>exportarBackup(data)}>⬇️ Backup</button>}
+        {user.rol==="admin" && <button className="btn ghost sm" title="Descargar backup en Excel" onClick={()=>exportarBackup(data)}>⬇ Backup</button>}
         {ONLINE && user.rol==="admin" && <button className="btn ghost sm" title="Usuarios y permisos" onClick={()=>setUsersOpen(true)}>👥 Usuarios</button>}
         {ONLINE && user.rol==="admin" && <button className="btn ghost sm" title="Pasar toda la obra a la matriz nueva (con vista previa y respaldo)" onClick={()=>setMigrarOpen(true)}>⇪ Matriz nueva</button>}
         {ONLINE && <button className="btn ghost sm" title="Cambiar contraseña" onClick={()=>setPwOpen(true)}>🔑</button>}
@@ -5426,14 +5497,14 @@ function App(){
         {NIVS.map(([code,nom])=>{const c=cnt(modulo,code);
           return <button key={code} className={"achip wide"+(nivel===code?" on":"")}
                    onClick={()=>cambiarArea(modulo,code)}>
-                   {MATRIZ_V2?<React.Fragment><span className="nfull">{nom}</span><span className="nabr">{code}</span></React.Fragment>:nom}{tienePlano(modulo,code)?" 🗺️":""}{c?<span className="cbadge">{c}</span>:null}
+                   {MATRIZ_V2?<React.Fragment><span className="nfull">{nom}</span><span className="nabr">{code}</span></React.Fragment>:nom}{tienePlano(modulo,code)?" 🗺":""}{c?<span className="cbadge">{c}</span>:null}
                  </button>;})}
       </div>
     </div>
 
     {MATRIZ_V2 ? <div className="tabs v2t">
       <span className="tgrp modo">
-        <button className={mode==="plano"?"active":""} onClick={()=>setMode("plano")}>🗺️ Plano</button>
+        <button className={mode==="plano"?"active":""} onClick={()=>setMode("plano")}>🗺 Plano</button>
         <button className={mode==="botones"?"active":""} onClick={()=>setMode("botones")}>🔢 Locales</button></span>
       <span className="tgrp fg">
         <MultiFiltro label="Elemento" opciones={opcFiltro.elementos} valor={filtroG.elementos} onChange={v=>setFiltroG(f=>({...f,elementos:v}))}/>
@@ -5451,7 +5522,7 @@ function App(){
           <button className={calib?"active":""} onClick={()=>{setCalib(c=>!c);setCalibMsg("")}}>{calib?"✔ Terminar calibración":"⚙ Calibrar"}</button>}</span>
     </div> :
     <div className="tabs">
-      <button className={mode==="plano"?"active":""} onClick={()=>setMode("plano")}>🗺️ Plano</button>
+      <button className={mode==="plano"?"active":""} onClick={()=>setMode("plano")}>🗺 Plano</button>
       <button className={mode==="botones"?"active":""} onClick={()=>setMode("botones")}>🔢 Locales</button>
       <button onClick={()=>setFiltrosOpen(true)}>🔎 Filtros</button>
       <button onClick={()=>setReporteOpen(true)}>📝 Reporte</button>
@@ -5574,7 +5645,7 @@ function App(){
                   onClick={()=>{ if(ok(p)) irLocal(l,p.parte_id); }}>{ok(p)?t:""}</div>)}</div>; })}
             {/* rev22: 💬 sobre los locales con comentarios abiertos — v2: siempre arriba a la derecha de su local y por encima de todo */}
             {!calib && localesArea.map(l=> (l.plano_x!=null&&l.plano_y!=null&&comsPorLocal[l.local_id]) ?
-              <span key={"c::"+l.local_id} className={"mkcom"+(MATRIZ_V2?(v2L(l)&&tieneSC(l)?" v2 sq":" v2"):"")} style={{left:l.plano_x+"%",top:l.plano_y+"%"}}>💬</span> : null)}
+              <span key={"c::"+l.local_id} className={"mkcom"+(MATRIZ_V2?(v2L(l)&&tieneSC(l)?" v2 sq":" v2"):"")} style={{left:l.plano_x+"%",top:l.plano_y+"%"}}><svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.4 7.6L3 20.5l1.4-5.1A8.5 8.5 0 1 1 21 11.5z" fill="#fff" stroke="#334155" strokeWidth="1.8" strokeLinejoin="round"/></svg></span> : null)}
             {localesArea.flatMap(l=>!(calib||planoVer==="todos"||v2L(l))?[]:l.partes.filter(p=>p.plano_x!=null&&p.plano_y!=null)
               .filter(p=>calib||!fAct||hojasFiltradas(p,filtroG)!==null)   // rev22: con filtro, solo los elementos filtrados
               .filter(p=>!(v2L(l)&&(p.tipo==="SOLADO"||p.tipo==="CIELORRASO")))   // v2: S y C van en el cuadrado del centro
@@ -5641,21 +5712,24 @@ function App(){
     {sel && !s3 && renderLocal(false)}
     {pwOpen && <CambiarPwd onClose={()=>setPwOpen(false)}/>}
     {perfilOpen && <PerfilPanel user={user} onClose={()=>setPerfilOpen(false)}/>}
-    {hojaOpen && <FiltroHoja opc={opcFiltro} filtro={filtroG} setFiltro={setFiltroG} onClose={()=>setHojaOpen(false)}/>}
+    {hojaOpen && <FiltroHoja opc={opcFiltro} filtro={filtroG} setFiltro={setFiltroG} conEtapa={hojaOpen==="ficha"} onClose={()=>setHojaOpen(false)}/>}
     {repEtapaOpen && <ReporteEtapaPanel data={data} user={user} modulo={modulo} nivel={nivel} onClose={()=>setRepEtapaOpen(false)} onPerfil={()=>setPerfilOpen(true)}/>}
     {MATRIZ_V2 && <nav className="bnav">
       {mode==="botones"
-        ? <button onClick={()=>{ setCalib(false); setMode("plano"); }} title="Ver el plano"><b>🗺️</b>Ver plano</button>
-        : <button onClick={()=>{ setCalib(false); setMode("botones"); }} title="Ver la lista de locales"><b>🔢</b>Ver locales</button>}
-      <button onClick={()=>setRepElegir(true)}><b>📊</b>Informes</button>
-      {!movil && (user.rol==="admin"||user.rol==="editor") && area.plano_url && <button className={calib?"on":""} onClick={()=>{ setMode("plano"); setCalib(c=>!c); setCalibMsg(""); }}><b>⚙</b>{calib?"Terminar":"Calibrar"}</button>}
+        ? <button onClick={()=>{ setCalib(false); setMode("plano"); }} title="Ver el plano"><b><Ico n="plano" s={22}/></b>Ver plano</button>
+        : <button onClick={()=>{ setCalib(false); setMode("botones"); }} title="Ver la lista de locales"><b><Ico n="locales" s={22}/></b>Ver locales</button>}
+      <button onClick={()=>setRepElegir(movil?"rep":true)}><b><Ico n="reportes" s={22}/></b>{movil?"Reportes":"Informes"}</button>
+      {movil && <button onClick={()=>setRepElegir("doc")}><b><Ico n="documentos" s={22}/></b>Documentos</button>}
+      {!movil && (user.rol==="admin"||user.rol==="editor") && area.plano_url && <button className={calib?"on":""} onClick={()=>{ setMode("plano"); setCalib(c=>!c); setCalibMsg(""); }}><b><Ico n="calibrar" s={22}/></b>{calib?"Terminar":"Calibrar"}</button>}
+      {movil && <div className="bn-um"><MenuUsuario user={user} data={data} onPerfil={()=>setPerfilOpen(true)} onPwd={()=>setPwOpen(true)} onUsuarios={()=>setUsersOpen(true)}
+            onQR={()=>setQrOpen(true)} onMatriz={()=>setMatrizOpen(true)} onLogout={logout} onImportar={()=>setImpOpen(true)}/><span>Usuario</span></div>}
     </nav>}
     {repElegir && <div className="overlay fh-ov" onClick={e=>{ if(e.target===e.currentTarget) setRepElegir(false); }}><div className="fh">
       <div className="fh-list" style={{padding:12,display:"flex",flexDirection:"column",gap:8}}>
-        <button className="btn" style={{padding:14,fontSize:15}} onClick={()=>{ setRepElegir(false); setReporteOpen(true); }}>📊 Informe de avance</button>
-        {MATRIZ_V2 && <button className="btn" style={{padding:14,fontSize:15}} onClick={()=>{ setRepElegir(false); setComsOpen(true); }}>💬 Comentarios</button>}
-        {(user.rol==="admin"||user.rol==="editor") && <button className="btn primary" style={{padding:14,fontSize:15}} onClick={()=>{ setRepElegir(false); setRepEtapaOpen(true); }}>🧾 Inspecciones (Procore)</button>}
-        {MATRIZ_V2 && <button className="btn" style={{padding:14,fontSize:15}} onClick={()=>{ setRepElegir(false); v2Biblioteca({user}); }}>📂 Documentos</button>}
+        {repElegir!=="doc" && <button className="btn" style={{padding:14,fontSize:15}} onClick={()=>{ setRepElegir(false); setReporteOpen(true); }}><Ico n="avance"/> Informe de avance</button>}
+        {MATRIZ_V2 && repElegir!=="doc" && <button className="btn" style={{padding:14,fontSize:15}} onClick={()=>{ setRepElegir(false); setComsOpen(true); }}><Ico n="comentarios"/> Comentarios</button>}
+        {repElegir!=="rep" && (user.rol==="admin"||user.rol==="editor") && <button className="btn primary" style={{padding:14,fontSize:15}} onClick={()=>{ setRepElegir(false); setRepEtapaOpen(true); }}><Ico n="inspecciones"/> Inspecciones (Procore)</button>}
+        {MATRIZ_V2 && repElegir!=="rep" && <button className="btn" style={{padding:14,fontSize:15}} onClick={()=>{ setRepElegir(false); v2Biblioteca({user}); }}><Ico n="documentos"/> Documentos</button>}
       </div></div></div>}
     {comsOpen && <ComentariosObraPanel data={data} user={user} onClose={()=>setComsOpen(false)} onIr={(l,pid)=>{ if(l.modulo!==modulo||l.nivel!==nivel) cambiarArea(l.modulo,l.nivel); irLocal(l,pid); }}/>}
     {usersOpen && <UsuariosPanel user={user} onClose={()=>setUsersOpen(false)}/>}
