@@ -649,6 +649,7 @@
 .mtop .wquitar:disabled{background:rgba(255,255,255,.18);color:rgba(255,255,255,.5);cursor:default}
 .mtop .mftxt{margin-top:6px;text-align:center;font-size:15px;font-weight:800;color:#fbbf24;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .app.movil .ver-over.w1{display:flex}
+.app.wide .um-movil{display:block}   /* PC/TV: QR y Configuración matriz van en el menú del avatar (ya no hay barra de pestañas) */
 .app.wide .planobox,.app.movil .planobox{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
 .app.wide .planobox>.ver-over.w1,.app.movil .planobox>.ver-over.w1,.app.wide .planobox>.zoombox,.app.movil .planobox>.zoombox{position:static;box-shadow:none;background:transparent;padding:0;flex-direction:row}
 .app.wide .planobox>.zoombox,.app.movil .planobox>.zoombox{margin-left:auto}
@@ -661,6 +662,16 @@
 .app.movil .modal.local .mhead>div:first-child{flex:1 1 100%;display:flex;align-items:center;gap:4px 10px;flex-wrap:wrap}
 .app.movil .modal.local .mhead h2{font-size:17px}
 .lv-plan.celoff{display:none}
+/* v2: al bajar por los ítems queda fijo arriba el elemento que estás viendo (Etapa 1 · T3 …) */
+.modal.local .fv2 .pasoh{position:sticky;top:var(--mhh,0px);z-index:2;box-shadow:0 2px 0 #fff, 0 3px 6px rgba(15,23,42,.08)}
+.modal.local:has(.lv-plan.celfijo) .fv2 .pasoh{top:calc(var(--mhh,0px) + var(--lph,0px))}
+.app.movil .modal.local .fv2 .pasoh{padding:6px 10px;gap:6px}
+.app.movil .modal.local .fv2 .pasoh .pn{white-space:nowrap}
+/* sin filtro de etapa (vista por elemento): queda fijo el elemento abierto (Solado, T3…) */
+.modal.local .fv2 .parte{overflow:clip}
+.modal.local .mhead{z-index:6}
+.modal.local .lv-plan.celfijo{z-index:5}
+.modal.local .fv2 .parte.abierta>.ph{position:sticky;top:calc(var(--mhh,0px) + var(--lph,0px));z-index:3}
 .lv-plan.celfijo{position:sticky;top:var(--mhh,64px);z-index:3;background:#f1f5f9;padding-bottom:6px}
 .lv-plan.celfijo .localplan{margin-bottom:0;position:relative}
 .app.movil .modal.local .localplan{position:relative}
@@ -3805,7 +3816,11 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco,vecinos,
   // v2 celular: el plano del local se muestra con "Ver plano" (abajo, junto a Guardar) y queda fijo arriba de la ficha
   const esCelL=MATRIZ_V2&&!embebido&&window.matchMedia("(max-width:640px)").matches;
   const [verPlanCel,setVerPlanCel]=useState(false);
-  useEffect(()=>{ if(!esCelL) return; const h=document.querySelector(".modal.local:not(.embed) .mhead"); const m=h&&h.closest(".modal"); if(m) m.style.setProperty("--mhh",h.offsetHeight+"px"); });
+  // alto del título de la ficha → para que lo que queda fijo debajo (plano del local, elemento) no quede tapado
+  useEffect(()=>{ if(!MATRIZ_V2) return; document.querySelectorAll(".modal.local").forEach(m=>{ const h=m.querySelector(":scope>.mhead")||m.querySelector(".mhead"); const z=parseFloat(getComputedStyle(m).getPropertyValue("--lz"))||1;   // el cuerpo de la ficha tiene zoom (A− / A+)
+    if(h) m.style.setProperty("--mhh",(h.offsetHeight/z)+"px");
+    const lp=m.querySelector(".lv-plan.celfijo"); m.style.setProperty("--lph",(lp?lp.offsetHeight:0)+"px");
+    const ph=m.querySelector(".fv2 .parte.abierta>.ph"); if(ph) m.style.setProperty("--phh",ph.offsetHeight+"px"); }); });
   const [vistaT,setVistaT]=useState(()=>{ try{ return localStorage.getItem("v2vistaTab2")||"porT"; }catch(e){ return "porT"; } });
   const elegirVista=v=>{ setVistaT(v); try{ localStorage.setItem("v2vistaTab2",v); }catch(e){} };
   const [verTodo,setVerTodo]=useState(()=>!!foco || (filtroActivo(filtro) && !localEnFiltro(local,filtro)) || !!(initialParte && filtroActivo(filtro) &&
@@ -5409,8 +5424,8 @@ function App(){
             <button className={"vchip"+(planoVer==="todos"?" on":"")} onClick={()=>setPlanoVer("todos")}>Ver todos los tabiques</button>
           </div>}
           {!calib && (wide||movil) && <div className="ver-over w1">
-            <button className={"vchip"+(planoVer==="todos"?" on":"")} title="Mostrar u ocultar los tabiques, solados y cielorrasos de todos los locales"
-              onClick={()=>setPlanoVer(v=>v==="todos"?"local":"todos")}>{planoVer==="todos"?"☑":"☐"} Todos los tabiques</button>
+            <button className="vchip" title={planoVer==="todos"?"Volver a ver solo el número de cada local":"Ver los tabiques, solados y cielorrasos de todos los locales"}
+              onClick={()=>setPlanoVer(v=>v==="todos"?"local":"todos")}>{planoVer==="todos"?"🔢 Solo N° de local":"🧱 Todos los tabiques"}</button>
           </div>}
           {/* rev20: zoom del plano (los círculos mantienen su tamaño → al acercar se separan) */}
           <div className="zoombox">
