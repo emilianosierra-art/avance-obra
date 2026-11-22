@@ -4,6 +4,12 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 <title>Avance de Obra</title>
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#1e3a5f" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Avance de Obra" />
+<link rel="apple-touch-icon" href="icono-192.png" />
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231f3a5f'/%3E%3Crect x='14' y='34' width='8' height='16' rx='2' fill='%23ffffff'/%3E%3Crect x='28' y='26' width='8' height='24' rx='2' fill='%23ffffff'/%3E%3Crect x='42' y='16' width='8' height='34' rx='2' fill='%2316a34a'/%3E%3C/svg%3E" />
 <style>
   :root{
@@ -675,6 +681,12 @@
 .app.wide .modal.local .mhead{flex-wrap:wrap;row-gap:6px}
 .app.wide .modal.local .mhead>div:first-child{flex:1 1 300px}
 .macc{display:contents}
+.wchip:disabled,.achip:disabled{opacity:.35;cursor:not-allowed}
+/* aviso abajo (atrás para salir) y aviso de versión nueva */
+.av-toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#0f172a;color:#fff;padding:9px 16px;border-radius:20px;font-size:14px;z-index:9999;box-shadow:0 6px 20px rgba(0,0,0,.3);pointer-events:none}
+.av-nueva{position:fixed;left:50%;top:10px;transform:translateX(-50%);background:#1e3a5f;color:#fff;padding:8px 8px 8px 16px;border-radius:12px;font-size:14px;z-index:9999;display:flex;gap:10px;align-items:center;box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.av-nueva button{background:#fff;color:#1e3a5f;border:0;border-radius:8px;padding:6px 12px;font-weight:700;font-size:14px;cursor:pointer}
+.av-nueva button.no{background:transparent;color:#fff;padding:6px 8px}
 .app.wide .modal.local .macc{display:flex;align-items:center;gap:6px;margin-left:auto;flex-wrap:nowrap}
 .app.wide .modal.local .mhead .mvista,.app.wide .modal.local .mhead .mfbtns{flex-shrink:0;white-space:nowrap}
 /* ===== v2: celular — encabezado compacto ===== */
@@ -857,6 +869,7 @@ body.wfija .planolayout:not(.s3)>.planoside{position:sticky;top:calc(var(--hdrh,
 .fh-sub{padding-left:26px}
 .fh-pie{display:flex;gap:8px;justify-content:space-between;padding:10px;border-top:1px solid var(--line)}
 .planowrap.v2pinch{touch-action:pan-x pan-y}
+.planowrap.v2pinch img{-webkit-user-drag:none;user-select:none}
 @media(max-width:640px){
   .tabs.v2t .tgrp.modo,.tabs.v2t .tgrp.fg .mf,.tabs.v2t .tgrp.rep,.tabs.v2t .tadm{display:none}
   .tabs.v2t .tgrp.fg{background:transparent;padding:0}
@@ -3991,6 +4004,27 @@ function v2unir(P,[elId,et,sub,rub,fila]){ P.mutar(partes=>{ const tabs=partes.f
   tabs.forEach(p=>{ const t=tar(p); if(t&&(t.fila||"A")===fila){ t.fila=dest; if(tr){ t.estado=tr.estado; (t.subtareas||[]).forEach((s,i)=>{ const o=(tr.subtareas||[])[i]; if(o){ s.estado=o.estado; s.por=o.por; s.cuando=o.cuando; s.t=o.t; } }); } } });
   const u2=[...new Set(tabs.map(p=>{ const t=tar(p); return t&&t.fila!=="NA"?(t.fila||"A"):null; }).filter(Boolean))].sort();
   tabs.forEach(p=>{ const t=tar(p); if(t&&t.fila!=="NA") t.fila=v2letra(u2.indexOf(t.fila||"A")); }); }); }
+/* ===== botón "atrás" del celular: cierra lo último que se abrió (no sale de la app) ===== */
+function avToast(t,ms){ const d=document.createElement("div"); d.className="av-toast"; d.textContent=t; document.body.appendChild(d); setTimeout(()=>d.remove(),ms||1800); }
+function avCapaArriba(){
+  // menús desplegables abiertos
+  const pop=[...document.querySelectorAll(".um-pop,.mf-pop,.menc-pop")].filter(e=>e.getClientRects().length);
+  if(pop.length) return {pop:pop[pop.length-1]};
+  const cs=[...document.querySelectorAll(".vis-ov,.fotobig,.overlay,.modal.local")].filter(e=>e.getClientRects().length&&!(e.classList.contains("modal")&&e.closest(".overlay")));
+  if(!cs.length) return null;
+  const z=e=>{ const v=parseInt(getComputedStyle(e).zIndex); return isNaN(v)?0:v; };
+  let top=cs[0]; cs.forEach(e=>{ if(z(e)>=z(top)) top=e; });   // a igual nivel, el último que se abrió
+  return {el:top};
+}
+function avCerrarCapa(c){
+  if(c.pop){ document.body.dispatchEvent(new MouseEvent("mousedown",{bubbles:true})); return; }
+  const el=c.el;
+  const b=el.querySelector(".x,.vis-x,[data-cerrar]")||[...el.querySelectorAll("button")].find(b=>["×","✕","Cerrar","✕ Cerrar","Listo","Cancelar"].indexOf((b.textContent||"").trim())>=0&&b.getClientRects().length);
+  if(b) b.click(); else el.click();   // si no tiene botón, tocar el fondo
+}
+function avAvisoVersion(){ if(document.querySelector(".av-nueva")) return;
+  const d=document.createElement("div"); d.className="av-nueva"; d.innerHTML='<span>Hay una versión nueva de la app</span><button>Actualizar</button><button class="no" title="Más tarde">✕</button>';
+  d.querySelector("button").onclick=()=>location.reload(); d.querySelector(".no").onclick=()=>d.remove(); document.body.appendChild(d); }
 function v2baseR(k){ return k.replace(/^rna¦/,"r¦").replace(/ \[[A-Z]\]$/,""); }
 function v2click(e,P,U,redraw,root){
   P._U=U; const t=e.target;
@@ -4147,9 +4181,24 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco,vecinos,
   // clon: borrador automático — lo que se cambia sin tocar "Guardar cambios" queda en el navegador y se recupera al volver a abrir el local
   // (por ejemplo si la página se recarga); se borra al guardar o al elegir "Cerrar sin guardar"
   const borrK="borr:"+local.local_id, borrOk=useRef(false);
-  useEffect(()=>{ if(!CLON) return; clonDB.get(borrK).then(b=>{ borrOk.current=true;
-    if(b&&b.draft&&b.draft.local_id===local.local_id){ setDraft(b.draft); setDirty(true); setMsg("Se recuperaron cambios que no estaban guardados ("+b.cuando+"). Tocá Guardar cambios para dejarlos."); } }); },[]);
-  useEffect(()=>{ if(!CLON||!borrOk.current) return; if(dirty) clonDB.set(borrK,{draft,cuando:v2ahora()}); else clonDB.del(borrK); },[draft,dirty]);
+  // app real: igual, en el celular; solo se recupera si el local no cambió desde otro lado mientras tanto (para no pisar cambios de otros)
+  const borrBase=useMemo(()=>{ const t=JSON.stringify(local.partes||[]); let h=0; for(let i=0;i<t.length;i++) h=(h*31+t.charCodeAt(i))|0; return h+":"+t.length; },[local]);
+  const borrLS={ get:()=>{ try{ return Promise.resolve(JSON.parse(store.get("av_"+borrK)||"null")); }catch(e){ return Promise.resolve(null); } },
+    set:v=>store.set("av_"+borrK,JSON.stringify(v)), del:()=>store.del("av_"+borrK) };
+  useEffect(()=>{ if(!CLON&&!MATRIZ_V2) return; (CLON?clonDB.get(borrK):borrLS.get()).then(b=>{ borrOk.current=true;
+    if(!b||!b.draft||b.draft.local_id!==local.local_id) return;
+    if(!CLON&&(b.email!==(user&&user.email)||b.base!==borrBase)){ borrLS.del();
+      if(b.email===(user&&user.email)) setMsg("Había cambios sin guardar de este local ("+b.cuando+"), pero el local se modificó desde otro lado y no se recuperaron."); return; }
+    setDraft(b.draft); draftRef.current=b.draft; setDirty(true); setMsg("Se recuperaron cambios que no estaban guardados ("+b.cuando+"). Tocá Guardar cambios para dejarlos."); }); },[]);
+  const borrT=useRef(null);
+  // al pasar a otra app el celular puede cerrar la pestaña: se guarda el borrador en ese momento, sin esperar
+  const borrYa=useRef(null); borrYa.current=()=>{ if(CLON||!MATRIZ_V2||!borrOk.current||!dirty) return; clearTimeout(borrT.current); borrLS.set({draft,cuando:v2ahora(),base:borrBase,email:user&&user.email}); };
+  useEffect(()=>{ const h=()=>{ if(document.visibilityState==="hidden") borrYa.current(); }, h2=()=>borrYa.current();
+    document.addEventListener("visibilitychange",h); window.addEventListener("pagehide",h2);
+    return ()=>{ document.removeEventListener("visibilitychange",h); window.removeEventListener("pagehide",h2); }; },[]);
+  useEffect(()=>{ if((!CLON&&!MATRIZ_V2)||!borrOk.current) return; clearTimeout(borrT.current);
+    if(!dirty){ if(CLON) clonDB.del(borrK); else borrLS.del(); return; }
+    borrT.current=setTimeout(()=>{ if(CLON) clonDB.set(borrK,{draft,cuando:v2ahora()}); else borrLS.set({draft,cuando:v2ahora(),base:borrBase,email:user&&user.email}); },500); },[draft,dirty]);
   // rev11: comentarios (se refrescan al abrir el local para ver lo que comentaron otros)
   const comCtx=React.useContext(ComCtx);
   useEffect(()=>{ if(comCtx) comCtx.refrescar(local.local_id); },[local.local_id]);
@@ -4325,7 +4374,7 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco,vecinos,
               <div className="mbody" style={{display:"flex",flexDirection:"column",gap:8}}>
                 {msg.startsWith("Error") && <div className="err" style={{margin:0,fontWeight:600}}>⚠ {msg.slice(7)}</div>}
                 <button className="btn primary" disabled={saving} onClick={guardarYcerrar}>{saving?"Guardando…":(accionTxt?"💾 Guardar e ir al "+accionTxt:"💾 Guardar y cerrar")}</button>
-                <button className="btn danger" disabled={saving} onClick={()=>{setAskClose(false); if(CLON) clonDB.del(borrK); accionRef.current();}}>{accionTxt?"Ir al "+accionTxt+" sin guardar":"Cerrar sin guardar"}</button>
+                <button className="btn danger" disabled={saving} onClick={()=>{setAskClose(false); clearTimeout(borrT.current); if(CLON) clonDB.del(borrK); else borrLS.del(); accionRef.current();}}>{accionTxt?"Ir al "+accionTxt+" sin guardar":"Cerrar sin guardar"}</button>
                 <button className="btn" disabled={saving} onClick={()=>setAskClose(false)}>Seguir editando</button>
               </div>
             </div>
@@ -5295,10 +5344,14 @@ function App(){
   const distT=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
   function pinchIni(e){ if(e.touches.length===2){ pinchRef.current=distT(e.touches); swipeRef.current=null; }
     else if(e.touches.length===1) swipeIni(e.touches[0].clientX,e.touches[0].clientY); }
-  function swipeIni(x,y){ const el=planoWrapRef.current; const max=el?el.scrollWidth-el.clientWidth:0;
-    swipeRef.current={x,y,t:Date.now(),ini:el?el.scrollLeft<=1:true,fin:el?el.scrollLeft>=max-1:true}; }
+  function swipeIni(x,y,mouse){ const el=planoWrapRef.current; const max=el?el.scrollWidth-el.clientWidth:0;
+    const maxY=el?el.scrollHeight-el.clientHeight:0;
+    swipeRef.current={x,y,mouse:!!mouse,t:Date.now(),ini:el?el.scrollLeft<=1:true,fin:el?el.scrollLeft>=max-1:true,
+      arr:el?el.scrollTop<=1:true,aba:el?el.scrollTop>=maxY-1:true}; }
   // con el mouse (PC / TV): arrastrar el plano de costado hace lo mismo que deslizar con el dedo
-  function swipeMouseIni(e){ if(e.pointerType==="mouse"&&e.button===0) swipeIni(e.clientX,e.clientY); }
+  function swipeMouseIni(e){ if(e.pointerType!=="mouse"||e.button!==0) return; swipeIni(e.clientX,e.clientY,true);
+    // el soltar se escucha en toda la ventana (aunque se suelte fuera del plano)
+    const up=ev=>{ window.removeEventListener("pointerup",up,true); swipeMouseFin(ev); }; window.addEventListener("pointerup",up,true); }
   function swipeMouseFin(e){ if(e.pointerType==="mouse") swipeFin(e); }
   // v2: deslizar el plano (sin zoom) cambia de módulo: a la derecha el siguiente (A → Conector → B…), a la izquierda el anterior
   const swipeRef=useRef(null), swipeTRef=useRef(null);
@@ -5306,12 +5359,21 @@ function App(){
   function swipeFin(e){ const s0=swipeRef.current; swipeRef.current=null; if(!s0||calib) return;
     if(sel&&!s3Ref.current) return;   // con la ficha flotante abierta no
     const t=(e.changedTouches&&e.changedTouches[0])||e; if(t.clientX==null) return;
-    const dx=t.clientX-s0.x, dy=t.clientY-s0.y; if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.6||Date.now()-s0.t>900) return;
-    // con zoom, solo cambia de módulo si el plano ya estaba en el borde (si no, el gesto mueve el plano)
-    if(planoZoom>1 && !(dx>0?s0.ini:s0.fin)) return;
-    const i=MODS.indexOf(modulo), j=i+(dx>0?1:-1); if(i<0||j<0||j>=MODS.length) return;
-    const ir=()=>{ setSel(null); setSelParte(null); setSelFoco(null); cambiarArea(MODS[j],nivel); };
-    if(sel&&window.__lvSalir) window.__lvSalir(ir); else ir(); setSwipeMsg(mNom(MODS[j])); clearTimeout(swipeTRef.current); swipeTRef.current=setTimeout(()=>setSwipeMsg(""),1100); }
+    const dx=t.clientX-s0.x, dy=t.clientY-s0.y; if(Date.now()-s0.t>900) return;
+    const horiz=Math.abs(dx)>=70&&Math.abs(dx)>=Math.abs(dy)*1.6, vert=Math.abs(dy)>=70&&Math.abs(dy)>=Math.abs(dx)*1.6;
+    if(!horiz&&!vert) return;
+    // con zoom (y con el dedo), solo cambia si el plano ya estaba en el borde: si no, el gesto mueve el plano
+    // (con el mouse arrastrar no mueve el plano, así que cambia con cualquier zoom)
+    const borde=horiz?(dx<0?s0.fin:s0.ini):(dy<0?s0.aba:s0.arr);
+    if(!s0.mouse && (planoZoom>1||vert) && !borde) return;
+    let m2=modulo, n2=nivel, txt="";
+    if(horiz){   // arrastrar hacia la izquierda → sector siguiente (A → Conector → B…); hacia la derecha → anterior
+      const i=MODS.indexOf(modulo), j=i+(dx<0?1:-1); if(i<0||j<0||j>=MODS.length) return; m2=MODS[j]; txt=mNom(m2);
+    } else {     // arrastrar hacia arriba → planta siguiente (PB → PA → EP); hacia abajo → anterior (salta las que no hay en el sector)
+      const ns=NIVS.map(x=>x[0]).filter(c=>c===nivel||nivOk(modulo,c)); const i=ns.indexOf(nivel), j=i+(dy<0?1:-1);
+      if(i<0||j<0||j>=ns.length) return; n2=ns[j]; txt=nNom(n2); }
+    const ir=()=>{ setSel(null); setSelParte(null); setSelFoco(null); cambiarArea(m2,n2); };
+    if(sel&&window.__lvSalir) window.__lvSalir(ir); else ir(); setSwipeMsg(txt); clearTimeout(swipeTRef.current); swipeTRef.current=setTimeout(()=>setSwipeMsg(""),1100); }
   function pinchMov(e){ if(e.touches.length!==2||!pinchRef.current) return; const d=distT(e.touches), r=d/pinchRef.current;
     if(r>1.25){ cambiarZoom(1); pinchRef.current=d; } else if(r<0.8){ cambiarZoom(-1); pinchRef.current=d; } }
   const [comsOpen,setComsOpen]=useState(false);   // v2: 💬 Comentarios de toda la obra
@@ -5356,6 +5418,8 @@ function App(){
 
   const areas = (data&&data.areas)||[];
   const area = areas.find(a=>a.modulo===modulo&&a.nivel===nivel)||{modulo,nivel,plano_url:""};
+  // v2: una planta se puede elegir solo si en ese sector tiene plano o locales (ej.: el sector C no tiene Entrepiso)
+  const nivOk=(m,n)=>!MATRIZ_V2||areas.some(a=>a.modulo===m&&a.nivel===n&&a.plano_url)||((data&&data.locales)||[]).some(l=>l.modulo===m&&l.nivel===n);
   // v2: en PC/TV no hay botón Locales (la lista está siempre a la derecha) → si el sector tiene plano, se ve el plano
   useEffect(()=>{ if(wide&&area.plano_url&&mode==="botones") setMode("plano"); },[wide,area.plano_url,mode]);
   // v2: en PC/TV la pantalla general queda fija; solo se desplaza adentro de cada columna (plano, ficha, lista)
@@ -5400,7 +5464,8 @@ function App(){
     return m;
   },[data,filtroG]);
 
-  function cambiarArea(m,n){ setModulo(m); setNivel(n); setCalib(false); setCalibSel(null); setCalibMsg("");
+  function cambiarArea(m,n){ if(!nivOk(m,n)){ const ok=NIVS.map(x=>x[0]).find(c=>nivOk(m,c)); if(ok) n=ok; }
+    setModulo(m); setNivel(n); setCalib(false); setCalibSel(null); setCalibMsg("");
     const a=areas.find(x=>x.modulo===m&&x.nivel===n); setMode((a&&a.plano_url)?"plano":"botones"); }
 
   // rev11: comentarios compartidos por toda la app (contexto)
@@ -5494,6 +5559,35 @@ function App(){
   }
   const calLocal = calib&&calibSel ? localesArea.find(l=>l.local_id===calibSel) : null;
 
+  // ===== app instalable: guarda la app en el celular para abrir rápido; avisa si hay una versión nueva
+  // ===== botón "atrás": cierra lo último abierto; sin nada abierto, avisa y con otro "atrás" sale
+  const appRef=useRef({});
+  appRef.current={movil,mode,setMode};
+  useEffect(()=>{ if(!MATRIZ_V2||!user) return;
+    const guardia=()=>{ if(!(history.state&&history.state.avg)) history.pushState({avg:1},""); };
+    guardia(); let salir=null;
+    const onPop=()=>{ const A=appRef.current||{};
+      const c=avCapaArriba();
+      if(c){ avCerrarCapa(c); guardia(); return; }
+      if(A.movil&&A.mode==="botones"){ A.setMode("plano"); guardia(); return; }   // de la lista de locales vuelve al plano
+      if(salir){ clearTimeout(salir); history.back(); return; }                     // segundo "atrás": sale
+      avToast("Tocá atrás otra vez para salir"); salir=setTimeout(()=>{ salir=null; guardia(); },2200); };
+    window.addEventListener("popstate",onPop); return ()=>window.removeEventListener("popstate",onPop); },[!!user]);
+  // ===== recordar dónde estaba (sector, planta, vista, filtro, local y panel abiertos) para volver ahí al reabrir
+  const restRef=useRef(false);
+  useEffect(()=>{ if(!MATRIZ_V2||!user||!data||restRef.current) return; restRef.current=true;
+    if(pendingLocalRef.current) return;   // si entró por QR, manda el QR
+    let e=null; try{ e=JSON.parse(sessionStorage.getItem("av_estado")||store.get("av_estado")||"null"); }catch(x){}
+    if(!e||e.email!==user.email||Date.now()-(e.t||0)>12*3600e3) return;
+    if(e.modulo&&e.nivel) { setModulo(e.modulo); setNivel(e.nivel); }
+    if(e.mode) setMode(e.mode); if(e.filtroG) setFiltroG(Object.assign({},FILTRO_VACIO,e.filtroG));
+    if(e.local){ const l=(data.locales||[]).find(x=>x.local_id===e.local); if(l){ setModulo(l.modulo); setNivel(l.nivel); setSelParte(null); setSel(l); } }
+    if(e.coms) setComsOpen(e.coms); if(e.informe) setReporteOpen(true); if(e.insp) setRepEtapaOpen(true);
+  },[user,data]);
+  useEffect(()=>{ if(!MATRIZ_V2||!user||!data||!restRef.current) return;
+    const v=JSON.stringify({email:user.email,t:Date.now(),modulo,nivel,mode,filtroG,local:sel&&sel.local_id||null,coms:comsOpen||false,informe:!!reporteOpen,insp:!!repEtapaOpen});
+    try{ sessionStorage.setItem("av_estado",v); }catch(x){} store.set("av_estado",v);
+  },[user,data,modulo,nivel,mode,filtroG,sel&&sel.local_id,comsOpen,reporteOpen,repEtapaOpen]);
   if(ONLINE && booting && !user) return <div className="loading">Cargando…</div>;
   if(!user) return <Login onLogin={login} error={error} loading={loading}/>;
   if(loading||!data) return <div className="loading">Cargando…</div>;
@@ -5580,7 +5674,7 @@ function App(){
         <span className="mgrp">{MODS.map(m=><button key={m} className={"wchip"+(modulo===m?" on":"")} onClick={()=>cambiarArea(m,nivel)}>{mLbl(m)}</button>)}</span>
       </div>
       <div className="mrow">
-        <span className="mgrp">{NIVS.map(([code,nom])=><button key={code} className={"wchip"+(nivel===code?" on":"")} title={nom} onClick={()=>cambiarArea(modulo,code)}>{code}</button>)}</span>
+        <span className="mgrp">{NIVS.map(([code,nom])=><button key={code} className={"wchip"+(nivel===code?" on":"")} disabled={!nivOk(modulo,code)} title={nivOk(modulo,code)?nom:"No hay "+nom+" en este sector"} onClick={()=>cambiarArea(modulo,code)}>{code}</button>)}</span>
         {etBtns}
         <button className={"mfil"+(filtroG.elementos.length||filtroG.rubros.length?" on":"")} title="Filtrar por elemento o rubro" onClick={()=>setHojaOpen(true)}><Ico n="filtro" s={17}/></button>
         <button className="wquitar" disabled={!fAct} title={fAct?"Quitar filtro":"No hay nada filtrado"} onClick={()=>setFiltroG(FILTRO_VACIO)}>
@@ -5597,7 +5691,7 @@ function App(){
         <span className="wgrp">{MODS.map(m=><button key={m} className={"wchip"+(modulo===m?" on":"")} onClick={()=>cambiarArea(m,nivel)}>{mLbl(m)}</button>)}</span>
         <span className="wlab">Planta</span>
         <span className="wgrp">{NIVS.map(([code,nom])=>{const c=cnt(modulo,code);
-          return <button key={code} className={"wchip"+(nivel===code?" on":"")} title={nom} onClick={()=>cambiarArea(modulo,code)}><span className="nlg">{nom}</span><span className="nsh">{code}</span></button>;})}</span>
+          return <button key={code} className={"wchip"+(nivel===code?" on":"")} disabled={!nivOk(modulo,code)} title={nivOk(modulo,code)?nom:"No hay "+nom+" en este sector"} onClick={()=>cambiarArea(modulo,code)}><span className="nlg">{nom}</span><span className="nsh">{code}</span></button>;})}</span>
       </div>
       <div className="wacc"><span className="winf">{infBtns}</span>
         <MenuUsuario user={user} data={data} onPerfil={()=>setPerfilOpen(true)} onPwd={()=>setPwOpen(true)} onUsuarios={()=>setUsersOpen(true)}
@@ -5652,7 +5746,7 @@ function App(){
       <div className="areagrp">
         <span className="lbl">Planta</span>
         {NIVS.map(([code,nom])=>{const c=cnt(modulo,code);
-          return <button key={code} className={"achip wide"+(nivel===code?" on":"")}
+          return <button key={code} className={"achip wide"+(nivel===code?" on":"")} disabled={!nivOk(modulo,code)}
                    onClick={()=>cambiarArea(modulo,code)}>
                    {MATRIZ_V2?<React.Fragment><span className="nfull">{nom}</span><span className="nabr">{code}</span></React.Fragment>:nom}{tienePlano(modulo,code)?" 🗺":""}{c?<span className="cbadge">{c}</span>:null}
                  </button>;})}
@@ -5781,7 +5875,7 @@ function App(){
               onClick={()=>{setCalib(c=>!c);setCalibMsg("")}}>{calib?"✔":"⚙"}</button>}
           </div>
           <div ref={planoWrapRef} onTouchStart={MATRIZ_V2?pinchIni:undefined} onTouchMove={MATRIZ_V2?pinchMov:undefined} onTouchEnd={MATRIZ_V2?swipeFin:undefined}
-               onPointerDown={MATRIZ_V2?swipeMouseIni:undefined} onPointerUp={MATRIZ_V2?swipeMouseFin:undefined} className={(MATRIZ_V2?"v2pinch ":"")+"planowrap"+(planoVert&&planoZoom===1?" vert":"")+(planoZoom>1?" zoomed":"")}>
+               onPointerDown={MATRIZ_V2?swipeMouseIni:undefined} onDragStart={MATRIZ_V2?(e=>e.preventDefault()):undefined} className={(MATRIZ_V2?"v2pinch ":"")+"planowrap"+(planoVert&&planoZoom===1?" vert":"")+(planoZoom>1?" zoomed":"")}>
             {swipeMsg && <div className="swipemsg">{swipeMsg}</div>}
             <div className="inner" style={{"--mk":mkPx+"px", ...(planoZoom>1?{width:(planoZoom*100)+"%"}:{})}}>
             <img ref={imgRef} src={area.plano_url} alt="Plano" onClick={planoClick} draggable={false}
@@ -5929,6 +6023,10 @@ function mLbl(m){ return m==="C1" ? "C-1" : m==="C2" ? "C-2" : m; }
 function ordMod(a,b){ return MODS.indexOf(a)-MODS.indexOf(b); }
 function ordArea(a,b){ return ordMod(a.modulo,b.modulo) || NIVS.findIndex(x=>x[0]===a.nivel)-NIVS.findIndex(x=>x[0]===b.nivel); }
 function nNom(n){ const f=NIVS.find(x=>x[0]===n); return f?f[1]:n; }
+// app instalable: guarda la app en el celular para abrir rápido; si hay una versión nueva, avisa para actualizar
+if(!CLON&&("serviceWorker" in navigator)&&/^https:|^http:\/\/localhost/.test(location.href)){
+  navigator.serviceWorker.addEventListener("message",e=>{ if(e.data&&e.data.tipo==="nueva") avAvisoVersion(); });
+  navigator.serviceWorker.register("sw.js").catch(()=>{}); }
 ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
 </script>
 </body>
