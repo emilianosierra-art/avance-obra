@@ -381,7 +381,7 @@
      El zoom depende del ancho: 1080p ≈ 1.3x, 2K ≈ 1.7x, 4K sin escalar ≈ 2.4x.
      Las alturas con vh se dividen por el zoom para que los modales y el plano entren en la pantalla. */
   @media(min-width:1500px){
-    :root{--z:1.3}
+    :root{--z:1}
     .app{zoom:var(--z);max-width:none;padding:0 18px 40px}
     header.top{margin:0 -18px 14px}
     .modal{max-height:calc(92vh / var(--z))}
@@ -419,8 +419,10 @@
   .ps-dot{width:12px;height:12px;border-radius:50%;flex:0 0 12px}
   .ps-num{font-weight:800;color:var(--brand);min-width:38px}
   .ps-nom{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  @media(min-width:2200px){ :root{--z:1.7} }
-  @media(min-width:3000px){ :root{--z:2.4} }
+  /* el agrandado es solo para la tele táctil (se maneja con el dedo); en un monitor con mouse todo queda igual y se ve más */
+  @media(min-width:1500px) and (pointer:coarse){ :root{--z:1.3} }
+  @media(min-width:2200px) and (pointer:coarse){ :root{--z:1.7} }
+  @media(min-width:3000px) and (pointer:coarse){ :root{--z:2.4} }
   /* rev10: celular — la ficha del local (la que abre el QR) ocupa toda la pantalla y se lee cómoda */
   @media(max-width:640px){
     .overlay.ov-local{align-items:stretch}
