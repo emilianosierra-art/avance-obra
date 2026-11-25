@@ -683,6 +683,10 @@
 .app.wide .modal.local .mhead{flex-wrap:wrap;row-gap:6px}
 .app.wide .modal.local .mhead>div:first-child{flex:1 1 300px}
 .macc{display:contents}
+.zoombox .btn.primary{background:#1e3a5f!important;color:#fff!important;border-color:#1e3a5f}
+.caltabs{display:inline-flex;gap:6px;align-items:center;margin-left:10px;padding-left:10px;border-left:1px dashed #fcd34d}
+.tabaviso{background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:8px 10px;font-size:13px}
+.tabaviso ul{margin:4px 0 0 18px;padding:0}
 .wchip:disabled,.achip:disabled{opacity:.35;cursor:not-allowed}
 /* aviso abajo (atrás para salir) y aviso de versión nueva */
 .av-toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#0f172a;color:#fff;padding:9px 16px;border-radius:20px;font-size:14px;z-index:9999;box-shadow:0 6px 20px rgba(0,0,0,.3);pointer-events:none}
@@ -1296,6 +1300,16 @@ async function apiPost(payload){
       const {error}=await sb.rpc('av_crear_local',{
         p_local_id:payload.local_id, p_modulo:payload.modulo, p_nivel:payload.nivel,
         p_numero:payload.numero, p_nombre:payload.nombre||''});
+      if(error) throw error; return {ok:true};
+    }
+    // v2: agregar / quitar un tabique de un local (solo admin; SQL 17_tabiques.sql)
+    if(payload.action==='crear_parte'){
+      const pp=payload.parte;
+      const {error}=await sb.rpc('av_crear_tabique',{p_local_id:payload.local_id,p_parte_id:pp.parte_id,p_indice:pp.indice,p_etiqueta:pp.etiqueta,p_fases:pp.fases});
+      if(error) throw error; return {ok:true};
+    }
+    if(payload.action==='quitar_parte'){
+      const {error}=await sb.rpc('av_quitar_tabique',{p_parte_id:payload.parte_id});
       if(error) throw error; return {ok:true};
     }
     if(payload.action==='borrar_local'){
@@ -2266,22 +2280,31 @@ async function rpGenerarPDF(args){ const {data,user,local,el,et,num,cfg,coms,fir
   const nueva=()=>{ const p=pdf.addPage(A4); pages.push(p); return p; };
   // ---------- Hoja 1: carátula ----------
   const p1=nueva(); let y=A4[1]-M;
-  if(logo){ const h=34; p1.drawImage(logo,{x:M,y:y-h,width:logo.width*h/logo.height,height:h}); }
+  // encabezado en 3 columnas alineadas: [logo + obra] [título / subtítulo] [informe / fecha]; las dos filas de texto comparten renglón
+  const Y1=y-16, Y2=y-31;
+  if(logo){ const h=32; p1.drawImage(logo,{x:M,y:y-h-3,width:logo.width*h/logo.height,height:h}); }
+  const ubicTx="Chalet-"+local.modulo+"_"+local.nivel+"_"+local.numero;   // ubicación en Procore: Chalet-Módulo_Nivel_Local
   const tx0=M+175, tw=A4[0]-M-tx0-118;   // el título no pisa el número de reporte
-  const tl=wrap((cfg.registro?cfg.registro+" · ":"")+"Inspección "+RP_ELNOM[el.tipo]+" — "+V2_ETQ[etN-1],12,fB,tw); tl.slice(0,2).forEach((l,i)=>txt(p1,l,tx0,y-12-i*14,{b:true,size:12,c:AZ}));
-  wrap((cfg.obra||"Chalet Baguales")+" · Etapa "+etN+" · "+RP_ELNOM[el.tipo]+" — "+et+" · Local "+local.numero+tsTxt,8.5,fR,tw).slice(0,2).forEach((l,i)=>txt(p1,l,tx0,y-12-Math.min(tl.length,2)*14-2-i*11,{size:8.5,c:GR}));
-  const rn="Informe N.º "+num; txt(p1,rn,A4[0]-M-fB.widthOfTextAtSize(rn,10.5),y-12,{b:true,size:10.5,c:AZ}); const fe="Fecha: "+rpHoy(); txt(p1,fe,A4[0]-M-fR.widthOfTextAtSize(fe,9),y-26,{size:9,c:GR});
-  y-=54; p1.drawRectangle({x:M,y,width:A4[0]-2*M,height:2.5,color:AZ}); y-=10;
-  const caja=(tit,campos,fondo,borde,tc)=>{ const cw=(A4[0]-2*M-20)/3; const filas=Math.ceil(campos.length/3); const alto=22+filas*30;
+  // título en una sola línea (se achica si no entra) y subtítulo sin repetir: "Inspección Solado - Local 105" / "Etapa 1 - Primeros pasos"
+  const tit="Inspección "+RP_ELNOM[el.tipo]+" - Local "+local.numero; let ts=12.5; while(ts>8&&fB.widthOfTextAtSize(rpTx(tit),ts)>tw) ts-=0.5;
+  txt(p1,tit,tx0,Y1,{b:true,size:ts,c:AZ});
+  wrap("Etapa "+etN+" - "+et+(tsTxt?" ·"+tsTxt:""),9.5,fR,tw).slice(0,1).forEach(l=>txt(p1,l,tx0,Y2,{size:9.5,c:GR}));
+  const rn="Informe N.º "+num; txt(p1,rn,A4[0]-M-fB.widthOfTextAtSize(rn,10.5),Y1,{b:true,size:10.5,c:AZ}); const fe="Fecha: "+rpHoy(); txt(p1,fe,A4[0]-M-fR.widthOfTextAtSize(fe,9.5),Y2,{size:9.5,c:GR});
+  y-=46; p1.drawRectangle({x:M,y,width:A4[0]-2*M,height:2.5,color:AZ}); y-=10;
+  const caja=(tit,campos,fondo,borde,tc)=>{ const cw=(A4[0]-2*M-20)/3; const filas=Math.ceil(campos.length/3);
+    // cada fila crece si algún valor ocupa dos renglones (así no queda pegado al borde de abajo)
+    const lin=campos.map(([k,v])=>Math.min(2,wrap(v,8.8,fB,cw-8).length));
+    const hF=[...Array(filas)].map((_,f)=>26+9.5*(Math.max(...lin.slice(f*3,f*3+3))-1));
+    const yF=hF.map((_,f)=>hF.slice(0,f).reduce((a,b)=>a+b,0));
+    const alto=24+hF.reduce((a,b)=>a+b,0);
     p1.drawRectangle({x:M,y:y-alto,width:A4[0]-2*M,height:alto,color:fondo,borderColor:borde,borderWidth:1});
     txt(p1,tit,M+10,y-14,{b:true,size:9,c:tc});
-    campos.forEach(([k,v],i)=>{ const cx=M+10+(i%3)*cw, cy=y-30-Math.floor(i/3)*30; txt(p1,k.toUpperCase(),cx,cy,{size:6.8,c:GR});
+    campos.forEach(([k,v],i)=>{ const cx=M+10+(i%3)*cw, cy=y-30-yF[Math.floor(i/3)]; txt(p1,k.toUpperCase(),cx,cy,{size:6.8,c:GR});
       wrap(v,8.8,fB,cw-8).slice(0,2).forEach((l,j)=>txt(p1,l,cx,cy-11-j*9.5,{b:true,size:8.8})); });
     y-=alto+8; };
-  caja("DESTINO EN PROCORE — PLAN DE ACCIÓN",[["Plan",cfg.plan],["Sección","LOCAL "+local.numero],["Ítem",RP_ELNOM[el.tipo].toUpperCase()+" - "+V2_ETQ[etN-1]],
-    ["Registro solicitado",cfg.registro||"—"],["Asignado",cfg.asignado||"—"],["Archivo",archivo]].concat(v2procore(local.local_id,el.tipo,et)?[["Estado en Procore",v2procoreTxt(v2procore(local.local_id,el.tipo,et))]]:[]),rgb(1,0.96,0.92),rgb(0.98,0.75,0.45),rgb(0.75,0.3,0.05));
+  caja("DESTINO EN PROCORE — PLAN DE ACCIÓN",[["Proyecto","Bariloche"],["Plan",cfg.plan],["Asignado",cfg.asignado||"—"]],rgb(1,0.96,0.92),rgb(0.98,0.75,0.45),rgb(0.75,0.3,0.05));
   caja("LOCAL INSPECCIONADO",[["Local",local.numero+" · "+(local.nombre||"")],["Módulo / Planta",mNom(local.modulo)+" · "+nNom(local.nivel)],["Elemento",RP_ELNOM[el.tipo]+tsTxt],
-    ["Etapa / Paso",V2_ETQ[etN-1]+" · "+RP_ELNOM[el.tipo]],["Inicio / Cierre",(D.inicio||"—")+" – "+(D.cierre||"—")],["Inspeccionó",nomFirm]],rgb(1,1,1),LI,GR);
+    ["Etapa / Paso",V2_ETQ[etN-1]+" · "+RP_ELNOM[el.tipo]],["Inspeccionó",nomFirm]],rgb(1,1,1),LI,GR);
   txt(p1,"Ubicación en plano",M,y-12,{b:true,size:11,c:AZ}); p1.drawLine({start:{x:M,y:y-16},end:{x:A4[0]-M,y:y-16},thickness:1,color:AZ}); y-=24;
   const pw=A4[0]-2*M, wz=pw*0.55, wu=pw-wz-10, hp=185;
   const fit=async(du,x,w,h)=>{ h=h||hp; if(!du) { txt(p1,"(sin plano)",x+8,y-20,{size:8,c:GR}); return; } const im=await pdf.embedJpg(rpBytes(du)); const s=Math.min(w/im.width,h/im.height);
@@ -2326,9 +2349,8 @@ async function rpGenerarPDF(args){ const {data,user,local,el,et,num,cfg,coms,fir
   if(!D.vig.length){ txt(pc,"Sin comentarios vigentes.",M,yc-10,{size:8.5,c:GR}); yc-=16; }
   D.vig.forEach(c=>{ const ln=wrap(c.texto,8.5,fR,pw-90); ensure(ln.length*11+6); pc.drawRectangle({x:M,y:yc-ln.length*11-2,width:2.5,height:ln.length*11+2,color:rgb(0.58,0.77,0.99)});
     txt(pc,c.tag,M+8,yc-10,{b:true,size:7.5,c:GR}); ln.forEach((l,i)=>txt(pc,l,M+80,yc-10-i*11,{size:8.5})); yc-=ln.length*11+6; pgCont=pages.length; });
-  if(D.sup){ txt(pc,"Se omitieron "+D.sup+" comentario(s) superado(s).",M,yc-10,{size:7.5,c:GR}); yc-=14; }
   yc-=6; sec("Conformidad");
-  wrap("Se deja constancia de que los ítems del checklist fueron inspeccionados en "+(el.ts?"los tabiques "+el.ts.join(", "):"el "+RP_ELNOM[el.tipo].toLowerCase())+" del local "+local.numero+", con el resultado indicado y los respaldos adjuntos. Este reporte reemplaza a la inspección "+(cfg.registro||"correspondiente")+" de Procore para este local.",9,fR,pw).forEach(l=>{ ensure(12); txt(pc,l,M,yc-10,{size:9}); yc-=12; });
+  wrap("Se deja constancia de que los ítems del checklist fueron inspeccionados en "+(el.ts?"los tabiques "+el.ts.join(", "):"el "+RP_ELNOM[el.tipo].toLowerCase())+" del local "+local.numero+", con el resultado indicado y los respaldos adjuntos. Este reporte reemplaza a la inspección correspondiente de Procore para este local.",9,fR,pw).forEach(l=>{ ensure(12); txt(pc,l,M,yc-10,{size:9}); yc-=12; });
   ensure(120); const firmasSolas=pages.length>pgCont; yc-=58;   // la hoja de las firmas no tiene ni filas ni comentarios
   const firma=async(x,tit,nom,fecha,img)=>{ const w=(pw-30)/2;
     if(img){ try{ const im=img.indexOf("image/png")>0?await pdf.embedPng(rpBytes(img)):await pdf.embedJpg(rpBytes(img)); const s=Math.min((w-40)/im.width,46/im.height);
@@ -2365,7 +2387,7 @@ async function rpGenerarPDF(args){ const {data,user,local,el,et,num,cfg,coms,fir
   filasAnexo.forEach((fa,i)=>{ const k=anexos[i][0]; const h=k==="C"?(hojasC>1?hojaC+"–"+(hojaC+hojasC-1):String(hojaC)):String(hojaDe[k]||""); txt(p1,h,M+485+4,fa.y-16,{size:8}); });
   // pie de página
   const tot=pages.length; pages.forEach((pg,i)=>{ const yy=M-14; pg.drawLine({start:{x:M,y:yy+10},end:{x:A4[0]-M,y:yy+10},thickness:0.5,color:LI});
-    txt(pg,(cfg.registro?cfg.registro+" · ":"")+codLoc+" · "+ab+"-E"+etN,M,yy,{size:7,c:GR});
+    txt(pg,codLoc+" · "+ab+"-E"+etN,M,yy,{size:7,c:GR});
     const mid=(cfg.obra||"Chalet Baguales")+" · Generado por Avance de Obra · "+rpAhora(); txt(pg,mid,A4[0]/2-fR.widthOfTextAtSize(rpTx(mid),7)/2,yy,{size:7,c:GR});
     const h="Hoja "+(i+1)+" de "+tot; txt(pg,h,A4[0]-M-fR.widthOfTextAtSize(h,7),yy,{size:7,c:GR}); });
   pdf.setTitle(num+" · "+archivo); pdf.setAuthor(nomFirm);
@@ -4027,6 +4049,8 @@ function avCerrarCapa(c){
 function avAvisoVersion(){ if(document.querySelector(".av-nueva")) return;
   const d=document.createElement("div"); d.className="av-nueva"; d.innerHTML='<span>Hay una versión nueva de la app</span><button>Actualizar</button><button class="no" title="Más tarde">✕</button>';
   d.querySelector("button").onclick=()=>location.reload(); d.querySelector(".no").onclick=()=>d.remove(); document.body.appendChild(d); }
+/* agregar / quitar tabiques: en la app real se activa cuando Emiliano corra 17_tabiques.sql (poner en true) */
+const TABIQUES_SQL=false;
 function v2baseR(k){ return k.replace(/^rna¦/,"r¦").replace(/ \[[A-Z]\]$/,""); }
 function v2click(e,P,U,redraw,root){
   P._U=U; const t=e.target;
@@ -4238,7 +4262,9 @@ function LocalDetail({local,data,user,onClose,onSaved,initialParte,foco,vecinos,
       const reg=await rpCargarReg(); const m=rpTabsInformados(reg,local.local_id,et);
       const tabs=await v2ElegirTabs(st.tsEst||[],m); if(!tabs) return;
       const el=v2elementos(draft.partes).find(x=>x.id==="TAB");
-      const comsT=await v2RevisarComsInsp({coms:(comCtx&&comCtx.coms)||[],ids:el.partes.map(p=>p.parte_id),et,elNom:"Tabiques "+tabs.join(", "),puedeCerrar:c=>comCtx.puedeCerrar(c)}); if(!comsT) return;
+      // solo los comentarios de los tabiques elegidos (no los de otros tabiques del local)
+      const tNom=pid=>{ const pp=draft.partes.find(x=>x.parte_id===pid); return pp?"T"+(pp.indice||"?"):pid; };
+      const comsT=await v2RevisarComsInsp({coms:(comCtx&&comCtx.coms)||[],ids:tabs,et,elNom:"Tabiques "+tabs.map(tNom).join(", "),puedeCerrar:c=>comCtx.puedeCerrar(c)}); if(!comsT) return;
       const fAhora=await v2PedirFirma(user,1); if(fAhora===undefined) return;
       setMsg("Generando inspección…");
       try{ const r=await rpGenerarVarios({items:[{l:l0,el,tabs}],et,data,user,cfg:rpCfg(),coms:comsT,firmaAhora:fAhora});
@@ -5516,6 +5542,46 @@ function App(){
       setCalibMsg("Local creado ✓ — ubicalo haciendo click en el plano.");
     } else setCalibMsg("Error: "+(res.error||"no se pudo crear"));
   }
+  // ===== v2: agregar / quitar tabiques (solo admin, desde Calibrar) =====
+  const [confirmTab,setConfirmTab]=useState(null);
+  function fasesTabiqueNuevas(pid){
+    // copia la estructura de un tabique existente (del mismo local si hay) con todo en "Sin realizar"
+    const L=(data&&data.locales)||[], loc=L.find(x=>x.local_id===calibSel);
+    const tabsDe=l=>(l.partes||[]).filter(p=>p.tipo==="TABIQUE"&&p.fases&&p.fases.length);
+    const mod=(loc&&tabsDe(loc)[0])||L.map(l=>tabsDe(l)[0]).find(Boolean);
+    if(!mod) return buildFases(plantillaDe(data,"TABIQUE"),pid);
+    const f=JSON.parse(JSON.stringify(mod.fases).split(mod.parte_id+"::").join(pid+"::"));
+    const limpiar=o=>{ o.estado="Sin realizar"; o.comentario=""; ["por","cuando","t","bloque","fila"].forEach(k=>delete o[k]); };
+    f.forEach(fa=>{ if(fa.hito) fa.hito.valor="NO"; fa.comentario=""; delete fa.verificacion;
+      (fa.grupos||[]).forEach(g=>(g.tareas||[]).forEach(t=>{ limpiar(t); (t.subtareas||[]).forEach(limpiar); })); });
+    return f;
+  }
+  async function agregarTabique(){
+    const l=(data.locales||[]).find(x=>x.local_id===calibSel); if(!l) return;
+    const n=Math.max(0,...l.partes.filter(p=>p.tipo==="TABIQUE").map(p=>p.indice||0))+1, pid=l.local_id+"::TAB"+n;
+    if(l.partes.some(p=>p.parte_id===pid)){ setCalibMsg("Error: ya existe "+pid); return; }
+    const parte={parte_id:pid,tipo:"TABIQUE",indice:n,etiqueta:"TABIQUE "+n,tipologia:"",plano_x:null,plano_y:null,comentarios:"",fases:fasesTabiqueNuevas(pid)};
+    const res=await apiPost({action:'crear_parte',local_id:l.local_id,parte});
+    if(!res.ok){ setCalibMsg("Error: "+(res.error||"no se pudo agregar el tabique")); return; }
+    const nl={...l,partes:[...l.partes,parte]};
+    setData(d=>({...d,locales:d.locales.map(x=>x.local_id===l.local_id?nl:x)})); if(CLON) clonGuardarLocal(nl);
+    setCalibTarget(pid); setCalibMsg("Tabique "+n+" agregado ✓ — ubicalo haciendo click en el plano.");
+  }
+  function pedirQuitarTabique(){
+    const l=(data.locales||[]).find(x=>x.local_id===calibSel); const p=l&&l.partes.find(x=>x.parte_id===calibTarget);
+    if(!p||p.tipo!=="TABIQUE"){ setCalibMsg("Elegí primero el tabique a quitar (en los botones T1, T2…)."); return; }
+    let av=0; (p.fases||[]).forEach(f=>(f.grupos||[]).forEach(g=>(g.tareas||[]).forEach(t=>(t.subtareas&&t.subtareas.length?t.subtareas:[t]).forEach(x=>{ if(x.estado&&x.estado!=="Sin realizar") av++; }))));
+    const coms=((data.comentarios)||[]).filter(c=>c.parte_id===p.parte_id).length;
+    const adj=(v2adj.list||[]).filter(a=>a.local_id===l.local_id&&(a.el==="TAB:"+p.parte_id||String(a.ref||"").indexOf(p.parte_id)>=0)).length;
+    setConfirmTab({l,p,av,coms,adj});
+  }
+  async function doQuitarTabique(){ const {l,p}=confirmTab; setConfirmTab(null);
+    const res=await apiPost({action:'quitar_parte',parte_id:p.parte_id});
+    if(!res.ok){ setCalibMsg("Error: "+(res.error||"no se pudo quitar el tabique")); return; }
+    const nl={...l,partes:l.partes.filter(x=>x.parte_id!==p.parte_id)};
+    setData(d=>({...d,locales:d.locales.map(x=>x.local_id===l.local_id?nl:x)})); if(CLON) clonGuardarLocal(nl);
+    setCalibTarget("local"); setCalibMsg(normEtq(p.etiqueta)+" quitado ✓");
+  }
   async function doBorrarLocal(l){
     const res=await apiPost({action:'borrar_local',local_id:l.local_id});
     if(res.ok){ setData(d=>({...d,locales:d.locales.filter(x=>x.local_id!==l.local_id)}));
@@ -5816,6 +5882,7 @@ function App(){
             {localesArea.map(l=><option key={l.local_id} value={l.local_id}>{l.numero} · {l.nombre}{(l.plano_x==null?" (sin ubicar)":"")}</option>)}
           </select>
           <span style={{color:calibMsg.startsWith("Error")?"#b91c1c":"#166534",fontWeight:600,marginLeft:"auto"}}>{calibMsg}</span>
+          <button className="btn sm primary" onClick={()=>{ setCalib(false); setCalibSel(null); setCalibMsg(""); }}>✔ Terminar calibración</button>
         </div>
         <div className="calibrow" style={{flexWrap:"wrap"}}>
           <b>Locales.</b>
@@ -5833,6 +5900,10 @@ function App(){
             <button className="btn sm" onClick={editarLocal}>✎ Guardar nombre</button>
             {l.plano_x!=null && <button className="btn sm" onClick={quitarDelPlano} title="Quita el marcador del plano, sin borrar el local">📍✕ Quitar del plano</button>}
             <button className="btn sm danger" onClick={()=>setConfirmDel(l)}>🗑 Eliminar local</button>
+            {MATRIZ_V2 && (CLON||TABIQUES_SQL) && user.rol==="admin" && <span className="caltabs">
+              <b>Tabiques ({l.partes.filter(p=>p.tipo==="TABIQUE").length}).</b>
+              <button className="btn sm" onClick={agregarTabique} title="Agrega el tabique siguiente, con la matriz vacía">＋ Tabique</button>
+              <button className="btn sm danger" onClick={pedirQuitarTabique} title="Quita el tabique elegido en los botones de abajo">− Quitar tabique</button></span>}
           </div>);})()}
         {calLocal && (
           <div className="calibrow chips">
@@ -5874,7 +5945,7 @@ function App(){
             <span>{Math.round(planoZoom*100)}%</span>
             <button className="btn sm" title="Acercar" disabled={planoZoom>=ZOOMS[ZOOMS.length-1]} onClick={()=>cambiarZoom(1)}>+</button>
             {(wide||movil) && (user.rol==="admin"||user.rol==="editor") && <button className={"btn sm"+(calib?" primary":"")} title={calib?"Terminar calibración":"Calibrar el plano"}
-              onClick={()=>{setCalib(c=>!c);setCalibMsg("")}}>{calib?"✔":"⚙"}</button>}
+              onClick={()=>{setCalib(c=>!c);setCalibMsg("")}}>{calib?<b style={{fontSize:13,padding:"0 4px"}}>Terminar</b>:"⚙"}</button>}
           </div>
           <div ref={planoWrapRef} onTouchStart={MATRIZ_V2?pinchIni:undefined} onTouchMove={MATRIZ_V2?pinchMov:undefined} onTouchEnd={MATRIZ_V2?swipeFin:undefined}
                onPointerDown={MATRIZ_V2?swipeMouseIni:undefined} onDragStart={MATRIZ_V2?(e=>e.preventDefault()):undefined} className={(MATRIZ_V2?"v2pinch ":"")+"planowrap"+(planoVert&&planoZoom===1?" vert":"")+(planoZoom>1?" zoomed":"")}>
@@ -5998,6 +6069,23 @@ function App(){
        onGuardado={(lid,nuevas)=>setData(d=>({...d,locales:d.locales.map(l=>l.local_id!==lid?l:
          {...l,partes:l.partes.map(p=>nuevas[p.parte_id]?{...p,fases:nuevas[p.parte_id]}:p)})}))}
        onAbrirLocal={(lid,pid,tarea)=>{const l=data.locales.find(x=>x.local_id===lid); if(l){setModulo(l.modulo);setNivel(l.nivel);setSelParte(pid||null);setSelFoco(tarea||null);setSel(l);}}}/>}
+    {confirmTab && (
+      <div className="overlay" onClick={e=>{if(e.target.className==="overlay")setConfirmTab(null)}}>
+        <div className="modal" style={{maxWidth:440,width:"92%"}}>
+          <div className="mhead"><div><h2>Quitar {normEtq(confirmTab.p.etiqueta)}</h2>
+            <div style={{fontSize:12,opacity:.85}}>Del local <b>{confirmTab.l.numero} · {confirmTab.l.nombre}</b>. No se puede deshacer.</div></div></div>
+          <div className="mbody" style={{display:"flex",flexDirection:"column",gap:8}}>
+            {(confirmTab.av||confirmTab.coms||confirmTab.adj) ? <div className="tabaviso">Ojo, este tabique tiene:
+              <ul>{confirmTab.av?<li><b>{confirmTab.av}</b> ítem(s) con avance cargado (se pierden)</li>:null}
+                {confirmTab.coms?<li><b>{confirmTab.coms}</b> comentario(s) (quedan en el panel de comentarios, sin tabique)</li>:null}
+                {confirmTab.adj?<li><b>{confirmTab.adj}</b> documento(s) o foto(s) enlazados (el archivo queda en Documentos)</li>:null}</ul></div>
+              : <div style={{fontSize:13}}>No tiene avance, comentarios ni documentos cargados.</div>}
+            <button className="btn danger" onClick={doQuitarTabique}>Sí, quitar {normEtq(confirmTab.p.etiqueta)}</button>
+            <button className="btn" onClick={()=>setConfirmTab(null)}>Cancelar</button>
+          </div>
+        </div>
+      </div>
+    )}
     {confirmDel && (
       <div className="overlay" onClick={e=>{if(e.target.className==="overlay")setConfirmDel(null)}}>
         <div className="modal" style={{maxWidth:420,width:"92%"}}>
