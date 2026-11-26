@@ -1214,14 +1214,33 @@ async function apiSesion(){
     return await cargarDatos(sb, session.user.id, session.user.email||"");
   }catch(e){ return null; }
 }
+/* Los tabiques/solados/cielorrasos (av_partes) traen toda la matriz y pesan mucho: pedirlos junto con los locales en una
+   sola consulta hacía que Supabase la cortara por tiempo ("canceling statement due to statement timeout").
+   Ahora se piden aparte, en tandas, y cada tanda se reintenta si se corta. */
+async function avReintentar(f,n){ let e; for(let i=0;i<(n||3);i++){ const r=await f(); if(!r.error) return r; e=r.error;
+    if(!/timeout|fetch|network|503|504/i.test(e.message||"")) break; await new Promise(z=>setTimeout(z,700*(i+1))); } return {error:e}; }
+async function leerPartes(sb){
+  const T=150; const c=await avReintentar(()=>sb.from('av_partes').select('parte_id',{count:'exact',head:true}));
+  if(c.error) return {error:c.error};
+  const n=c.count||0, tandas=[]; for(let d=0; d<n; d+=T) tandas.push(d);
+  const out=[]; let err=null;
+  for(let i=0;i<tandas.length;i+=4){   // de a 4 tandas a la vez
+    const rs=await Promise.all(tandas.slice(i,i+4).map(d=>avReintentar(()=>sb.from('av_partes').select('*').order('parte_id').range(d,d+T-1))));
+    for(const r of rs){ if(r.error){ err=r.error; break; } out.push(...(r.data||[])); } if(err) break; }
+  return err?{error:err}:{data:out};
+}
 async function cargarDatos(sb, uid, email){
-  const [cfgR, areasR, locR, perfR] = await Promise.all([
+  const [cfgR, areasR, locR, perfR, partR] = await Promise.all([
     sb.from('av_config').select('*'),
     sb.from('av_areas').select('*').order('modulo').order('nivel'),
-    sb.from('av_locales').select('*, av_partes(*)').order('orden'),
-    sb.from('av_perfiles').select('*').eq('id', uid)
+    avReintentar(()=>sb.from('av_locales').select('*').order('orden')),
+    sb.from('av_perfiles').select('*').eq('id', uid),
+    leerPartes(sb)
   ]);
   if(locR.error) return {ok:false, error: locR.error.message};
+  if(partR.error) return {ok:false, error: "No se pudieron leer los tabiques/solados ("+partR.error.message+"). Probá de nuevo en un rato."};
+  const partesDe={}; (partR.data||[]).forEach(p=>{ (partesDe[p.local_id]=partesDe[p.local_id]||[]).push(p); });
+  (locR.data||[]).forEach(l=>{ const rk={SOLADO:0,TABIQUE:1,CIELORRASO:2}; l.av_partes=(partesDe[l.local_id]||[]).sort((a,b)=>((rk[a.tipo]??3)-(rk[b.tipo]??3))||((a.indice||0)-(b.indice||0))); });
   const config = Object.fromEntries((cfgR.data||[]).map(r=>[r.clave, r.valor]));
   const plantilla = config.plantilla || [];
   const plantillas = {
